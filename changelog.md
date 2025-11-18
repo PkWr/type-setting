@@ -107,3 +107,18 @@ This file tracks all changes made to the type-setting project.
   - Updated README with instructions for running local server
   - ES modules now work correctly in both local development and Netlify deployment
 
+### [2025-01-27 - Unit Preferences Feature]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Created units.ts module with unit conversion functions (mm, pt, em, pc)
+  - Added unit selector dropdown with descriptions for each unit
+  - Implemented automatic unit conversion for all inputs and outputs
+  - Dynamic label updates based on selected unit
+  - Unit descriptions shown in dropdown and helper text
+  - All calculations work internally in mm, displayed in selected unit
+  - Paper size presets convert to selected unit
+  - Results display in selected unit with appropriate decimal precision
+  - Unit changes automatically convert existing input values
+

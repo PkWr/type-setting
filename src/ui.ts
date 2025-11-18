@@ -7,22 +7,46 @@ import { calculateGutterWidth, calculateLayout } from './calculator.js';
 import { LayoutInputs, LayoutResults } from './types.js';
 import { PAPER_SIZES, getPaperSize, getDefaultPaperSize, PaperSize } from './paperSizes.js';
 import { updateVisualization } from './visualization.js';
+import { Unit, UNITS, convertFromMM, convertToMM, formatValue } from './units.js';
+
+// Current unit preference (stored in mm internally, displayed in selected unit)
+let currentUnit: Unit = 'mm';
 
 /**
- * Gets all input values from the form
- * @returns LayoutInputs object with form values
+ * Gets the currently selected unit
+ */
+function getCurrentUnit(): Unit {
+  const unitSelect = document.getElementById('unitSelect') as HTMLSelectElement;
+  return (unitSelect?.value as Unit) || 'mm';
+}
+
+/**
+ * Gets all input values from the form, converting from selected unit to mm
+ * @returns LayoutInputs object with form values in millimeters
  */
 function getFormInputs(): LayoutInputs {
+  const unit = getCurrentUnit();
+  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+
+  // Get values in selected unit and convert to mm
+  const pageWidth = parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value);
+  const pageHeight = parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value);
+  const leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
+  const rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
+  const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
+  const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
+  const gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
+
   return {
-    pageWidth: parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value),
-    pageHeight: parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value),
-    leftMargin: parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value),
-    rightMargin: parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value),
-    topMargin: parseFloat((document.getElementById('topMargin') as HTMLInputElement).value),
-    bottomMargin: parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value),
-    typeSize: parseFloat((document.getElementById('typeSize') as HTMLInputElement).value),
+    pageWidth: convertToMM(pageWidth, unit, typeSize),
+    pageHeight: convertToMM(pageHeight, unit, typeSize),
+    leftMargin: convertToMM(leftMargin, unit, typeSize),
+    rightMargin: convertToMM(rightMargin, unit, typeSize),
+    topMargin: convertToMM(topMargin, unit, typeSize),
+    bottomMargin: convertToMM(bottomMargin, unit, typeSize),
+    typeSize, // Type size is always in points
     numCols: parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10),
-    gutterWidth: parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value),
+    gutterWidth: convertToMM(gutterWidth, unit, typeSize),
   };
 }
 
@@ -31,11 +55,14 @@ function getFormInputs(): LayoutInputs {
  */
 export function suggestGutter(): void {
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
-  const autoGutter = calculateGutterWidth(typeSize);
+  const autoGutterMM = calculateGutterWidth(typeSize);
+  const unit = getCurrentUnit();
+  const autoGutter = convertFromMM(autoGutterMM, unit, typeSize);
+  
   const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
   const noteSpan = document.getElementById('autoGutterNote');
 
-  gutterInput.value = autoGutter.toFixed(2);
+  gutterInput.value = autoGutter.toFixed(unit === 'em' ? 3 : 2);
   if (noteSpan) {
     noteSpan.textContent = '1em (based on type size)';
   }
@@ -65,18 +92,30 @@ function updateVisualizationOnInputChange(): void {
 
 /**
  * Displays calculation results in the results div
- * @param results - Layout calculation results
+ * @param results - Layout calculation results (in millimeters)
  */
 function displayResults(results: LayoutResults): void {
   const resultsDiv = document.getElementById('resultsContent');
   if (!resultsDiv) return;
 
+  const unit = getCurrentUnit();
+  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+
+  // Convert results from mm to selected unit
+  const textBoxWidth = convertFromMM(results.textBoxWidth, unit, typeSize);
+  const columnWidth = convertFromMM(results.columnWidth, unit, typeSize);
+  const gutterWidth = convertFromMM(results.gutterWidth, unit, typeSize);
+  const optimalColumnWidth = convertFromMM(results.optimalColumnWidth, unit, typeSize);
+
+  const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
+  const gutterDecimals = unit === 'em' ? 3 : 2;
+
   const res = `
     <ul>
-      <li><b>Text box width:</b> ${results.textBoxWidth.toFixed(1)} mm</li>
-      <li><b>Column width:</b> ${results.columnWidth.toFixed(1)} mm each</li>
-      <li><b>Gutter width:</b> ${results.gutterWidth.toFixed(2)} mm</li>
-      <li><b>Optimal column width (Bringhurst):</b> ${results.optimalColumnWidth.toFixed(1)} mm</li>
+      <li><b>Text box width:</b> ${formatValue(textBoxWidth, unit, decimals)}</li>
+      <li><b>Column width:</b> ${formatValue(columnWidth, unit, decimals)} each</li>
+      <li><b>Gutter width:</b> ${formatValue(gutterWidth, unit, gutterDecimals)}</li>
+      <li><b>Optimal column width (Bringhurst):</b> ${formatValue(optimalColumnWidth, unit, decimals)}</li>
     </ul>
     <p>Tip: Auto-set the gutter to font size (1em) for optimal spacing, or adjust manually.</p>
   `;
@@ -146,17 +185,102 @@ function applyPaperSize(paperSizeName: string): void {
   const size = getPaperSize(paperSizeName);
   if (!size) return;
 
+  const unit = getCurrentUnit();
+  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  
+  // Convert from mm to selected unit
+  const width = convertFromMM(size.width, unit, typeSize);
+  const height = convertFromMM(size.height, unit, typeSize);
+
   const widthInput = document.getElementById('pageWidth') as HTMLInputElement;
   const heightInput = document.getElementById('pageHeight') as HTMLInputElement;
 
-  if (widthInput) widthInput.value = size.width.toString();
-  if (heightInput) heightInput.value = size.height.toString();
+  const decimals = unit === 'em' ? 3 : 2;
+  if (widthInput) widthInput.value = width.toFixed(decimals);
+  if (heightInput) heightInput.value = height.toFixed(decimals);
+}
+
+/**
+ * Updates all input labels to show the current unit
+ */
+function updateInputLabels(): void {
+  const unit = getCurrentUnit();
+  const unitAbbr = UNITS[unit].abbreviation;
+
+  const labels: Record<string, string> = {
+    pageWidth: `Page width (${unitAbbr})`,
+    pageHeight: `Page height (${unitAbbr})`,
+    leftMargin: `Left (${unitAbbr})`,
+    rightMargin: `Right (${unitAbbr})`,
+    topMargin: `Top (${unitAbbr})`,
+    bottomMargin: `Bottom (${unitAbbr})`,
+    gutterWidth: `Gutter width (${unitAbbr})`,
+  };
+
+  Object.entries(labels).forEach(([id, text]) => {
+    const label = document.querySelector(`label[for="${id}"]`);
+    if (label) {
+      label.textContent = text;
+    }
+  });
+}
+
+/**
+ * Updates unit description helper text
+ */
+function updateUnitDescription(): void {
+  const unit = getCurrentUnit();
+  const description = UNITS[unit].description;
+  const descSpan = document.getElementById('unitDescription');
+  if (descSpan) {
+    descSpan.textContent = description;
+  }
+}
+
+/**
+ * Converts all input values when unit changes
+ */
+function convertInputsToNewUnit(oldUnit: Unit, newUnit: Unit): void {
+  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  
+  const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin', 'gutterWidth'];
+  
+  inputIds.forEach(id => {
+    const input = document.getElementById(id) as HTMLInputElement;
+    if (input && input.value) {
+      const value = parseFloat(input.value);
+      // Convert: old unit -> mm -> new unit
+      const valueMM = convertToMM(value, oldUnit, typeSize);
+      const newValue = convertFromMM(valueMM, newUnit, typeSize);
+      const decimals = newUnit === 'em' ? 3 : 2;
+      input.value = newValue.toFixed(decimals);
+    }
+  });
 }
 
 /**
  * Initializes the calculator UI
  */
 export function initializeCalculator(): void {
+  // Initialize unit system
+  currentUnit = getCurrentUnit();
+  updateInputLabels();
+  updateUnitDescription();
+
+  // Handle unit selection change
+  const unitSelect = document.getElementById('unitSelect') as HTMLSelectElement;
+  if (unitSelect) {
+    unitSelect.addEventListener('change', () => {
+      const newUnit = getCurrentUnit();
+      convertInputsToNewUnit(currentUnit, newUnit);
+      currentUnit = newUnit;
+      updateInputLabels();
+      updateUnitDescription();
+      suggestGutter(); // Recalculate gutter in new unit
+      updateVisualizationOnInputChange();
+    });
+  }
+
   // Populate paper size dropdown
   populatePaperSizeDropdown();
 
@@ -177,7 +301,10 @@ export function initializeCalculator(): void {
   // Recalculate gutter when type size changes
   const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
   if (typeSizeInput) {
-    typeSizeInput.addEventListener('input', suggestGutter);
+    typeSizeInput.addEventListener('input', () => {
+      suggestGutter();
+      updateVisualizationOnInputChange();
+    });
   }
 
   // Handle paper size selection

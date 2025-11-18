@@ -15,6 +15,20 @@
 
     <form id="layoutForm">
       <section class="form-section">
+        <h2>Preferences</h2>
+        <div class="form-group">
+          <label for="unitSelect">Preferred units</label>
+          <select id="unitSelect" class="unit-select">
+            <option value="mm">Millimeters (mm) - Metric unit, standard for print design</option>
+            <option value="pt">Points (pt) - Typography unit, 1/72 inch, standard for font sizes</option>
+            <option value="em">Ems (em) - Relative to font size, typographic spacing</option>
+            <option value="pc">Picas (pc) - Typography unit, 12 points</option>
+          </select>
+          <span class="helper-text" id="unitDescription"></span>
+        </div>
+      </section>
+
+      <section class="form-section">
         <h2>Page Dimensions</h2>
         <div class="form-group">
           <label for="paperSizeSelect">Preset paper size</label>
@@ -23,11 +37,11 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="pageWidth">Page width (mm)</label>
+          <label for="pageWidth">Page width</label>
           <input type="number" id="pageWidth" value="210" required>
         </div>
         <div class="form-group">
-          <label for="pageHeight">Page height (mm)</label>
+          <label for="pageHeight">Page height</label>
           <input type="number" id="pageHeight" value="297" required>
         </div>
       </section>
@@ -36,21 +50,21 @@
         <h2>Margins</h2>
         <div class="form-row">
           <div class="form-group">
-            <label for="topMargin">Top (mm)</label>
+            <label for="topMargin">Top</label>
             <input type="number" id="topMargin" value="20" required>
           </div>
           <div class="form-group">
-            <label for="bottomMargin">Bottom (mm)</label>
+            <label for="bottomMargin">Bottom</label>
             <input type="number" id="bottomMargin" value="20" required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="leftMargin">Left (mm)</label>
+            <label for="leftMargin">Left</label>
             <input type="number" id="leftMargin" value="20" required>
           </div>
           <div class="form-group">
-            <label for="rightMargin">Right (mm)</label>
+            <label for="rightMargin">Right</label>
             <input type="number" id="rightMargin" value="20" required>
           </div>
         </div>
@@ -67,7 +81,7 @@
           <input type="number" id="numCols" value="2" min="1" required>
         </div>
         <div class="form-group gutter-group">
-          <label for="gutterWidth">Gutter width (mm)</label>
+          <label for="gutterWidth">Gutter width</label>
           <div class="gutter-controls">
             <input type="number" id="gutterWidth" value="" step="0.01" required>
             <button type="button" id="suggestGutterButton" class="btn-secondary">Auto-set</button>
