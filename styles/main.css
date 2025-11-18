@@ -297,12 +297,17 @@ h2 {
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(calc(50% - var(--spacing-md) / 2), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   width: 100%;
   clear: both;
   flex-shrink: 0;
+}
+
+/* Force 2 columns for rows with 2 form-groups (width/height, top/bottom margins) */
+.form-row:has(.form-group:nth-child(2):last-child) {
+  grid-template-columns: 1fr 1fr;
 }
 
 
@@ -321,6 +326,11 @@ h2 {
 @media (min-width: 1200px) {
   .form-row {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  /* Force 2 columns for rows with 2 form-groups */
+  .form-row:has(.form-group:nth-child(2):last-child) {
+    grid-template-columns: 1fr 1fr;
   }
   
   /* Force single column for facing pages row */
