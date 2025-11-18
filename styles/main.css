@@ -129,17 +129,18 @@ h1 {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: var(--color-border);
+  background-color: var(--color-border, #ddd);
   border-radius: 12px;
   outline: none;
   cursor: pointer;
   transition: background-color 0.2s;
   z-index: 1;
   border: none;
+  opacity: 1;
 }
 
 .unit-toggle-input:checked {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary, #007bff);
 }
 
 .unit-toggle-slider {
