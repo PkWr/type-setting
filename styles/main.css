@@ -675,14 +675,13 @@ button {
   }
 
   .visualization-section {
-    flex: 0 1 70vh;
+    flex: 1 1 0;
     margin-top: 0;
     padding-top: var(--spacing-md);
     border-top: none;
     display: flex;
     flex-direction: column;
     min-height: 0;
-    max-height: 70vh;
   }
   
   .specification-section {
