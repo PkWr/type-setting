@@ -1419,6 +1419,10 @@ export function initializeCalculator(): void {
     numColsInput.addEventListener('change', () => {
       updateColumnSpanCheckboxes();
       updateVisualizationOnInputChange();
+      // Delay save to allow checkboxes to be created first
+      setTimeout(() => {
+        saveSettings();
+      }, 50);
     });
   }
 
