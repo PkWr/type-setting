@@ -244,8 +244,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
+  // Don't set width/height to 100% - let CSS max-width/max-height handle scaling
+  // This ensures the SVG scales to fit without being cropped
   svg.classList.add('page-visualization');
 
   if (facingPages) {
