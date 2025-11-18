@@ -290,6 +290,8 @@ h2 {
 .form-row.form-row-single-col {
   grid-template-columns: 1fr !important;
   display: grid !important;
+  width: 100% !important;
+  clear: both !important;
 }
 
 @media (min-width: 1200px) {
@@ -306,6 +308,8 @@ h2 {
   .form-row.form-row-single-col {
     grid-template-columns: 1fr !important;
     display: grid !important;
+    width: 100% !important;
+    clear: both !important;
   }
 }
 
