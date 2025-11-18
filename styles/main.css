@@ -281,6 +281,17 @@ h2 {
   margin-bottom: var(--spacing-md);
 }
 
+@media (min-width: 1200px) {
+  .form-row {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  
+  /* Force 2 columns for width/height row */
+  .form-row:has(#pageWidth) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .form-row:last-child {
   margin-bottom: 0;
 }
