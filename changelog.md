@@ -241,4 +241,6 @@ This file tracks all changes made to the type-setting project.
   - Added checks for invalid numCols and gutterWidth values
   - Added protection against division by zero for column width calculation
   - Added validation before drawing text boxes to prevent NaN in SVG attributes
+  - Fixed gutter width NaN error on page load by auto-suggesting gutter width if input is empty
+  - Gutter width now automatically calculated and set if input field is empty or invalid
 

@@ -58,7 +58,19 @@ function getFormInputs(): LayoutInputs {
   const rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
   const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
   const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
-  const gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
+  let gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
+  
+  // If gutter width is not set, auto-suggest it
+  if (isNaN(gutterWidth) || gutterWidth <= 0) {
+    const autoGutter = calculateGutterWidth(typeSize);
+    const unit = getCurrentUnit();
+    gutterWidth = convertFromMM(autoGutter, unit, typeSize);
+    // Set the input value
+    const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
+    if (gutterInput) {
+      gutterInput.value = gutterWidth.toFixed(unit === 'em' ? 3 : 2);
+    }
+  }
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
   const columnSpan = getColumnSpan();
