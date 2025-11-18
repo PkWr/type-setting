@@ -744,6 +744,12 @@ export function initializeCalculator(): void {
       input.addEventListener('change', updateVisualizationOnInputChange);
     }
   });
+  
+  // Handle font family change
+  const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
+  if (fontFamilySelect) {
+    fontFamilySelect.addEventListener('change', updateVisualizationOnInputChange);
+  }
 
   // Initial visualization and words per line
   updateVisualizationOnInputChange();
