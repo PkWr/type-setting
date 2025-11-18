@@ -506,6 +506,7 @@ button {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 200px);
+  flex: 0 0 auto;
 }
 
 .visualization-container {
@@ -539,11 +540,12 @@ button {
 }
 
 .specification-section {
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-lg);
   padding: var(--spacing-md);
-  background-color: var(--color-bg-light);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
 }
 
 .specification-section h3 {
