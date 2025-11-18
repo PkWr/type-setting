@@ -395,9 +395,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
   }
 
 
+  // Store decorations before clearing
+  const decorations = Array.from(container.querySelectorAll('.letterpress-decoration'));
+  
   // Clear container and add new SVG
   container.innerHTML = '';
   container.appendChild(svg);
+  
+  // Re-add decorations after SVG (they'll fade out on their own timers)
+  decorations.forEach(decoration => {
+    container.appendChild(decoration);
+  });
 
   // Calculate proper sizing based on container dimensions and SVG aspect ratio
   requestAnimationFrame(() => {

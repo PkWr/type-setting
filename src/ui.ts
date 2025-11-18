@@ -1344,6 +1344,9 @@ function hideIntroModal(): void {
   }
 }
 
+// Track if decorations have been initialized
+let decorationsInitialized = false;
+
 /**
  * Adds random letterpress decoration images to the visualization container
  */
@@ -1351,8 +1354,14 @@ function addLetterpressDecorations(): void {
   const container = document.getElementById('visualizationContainer');
   if (!container) return;
   
+  // Only add decorations once on page load
+  if (decorationsInitialized) return;
+  
   // Check if decorations already exist
-  if (container.querySelector('.letterpress-decoration')) return;
+  if (container.querySelector('.letterpress-decoration')) {
+    decorationsInitialized = true;
+    return;
+  }
   
   const decorations = [
     {
@@ -1399,17 +1408,19 @@ function addLetterpressDecorations(): void {
     const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
     
     setTimeout(() => {
-      if (img.parentNode) {
+      if (img.parentNode && img.parentNode === container) {
         img.style.transition = 'opacity 0.3s ease-out';
         img.style.opacity = '0';
         setTimeout(() => {
-          if (img.parentNode) {
+          if (img.parentNode && img.parentNode === container) {
             img.remove();
           }
         }, 300);
       }
     }, displayDuration);
   });
+  
+  decorationsInitialized = true;
 }
 
 export function initializeCalculator(): void {
