@@ -241,23 +241,41 @@ export function updateVisualization(inputs: LayoutInputs): void {
           colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
           svg.appendChild(colRect);
         }
+      }
 
-        // Add text to column if sample text exists and column has text
-        if (layerVisibility.text && words.length > 0 && hasText && isInSpan) {
-          // Find index within text columns
-          const textColIndex = textColumns.length > 0 
-            ? textColumns.indexOf(colIndex)
-            : colIndex - columnSpanStart;
-          const startIdx = textColIndex * wordsPerTextColumn;
-          const endIdx = Math.min(startIdx + wordsPerTextColumn, words.length);
-          const columnWords = words.slice(startIdx, endIdx);
-          
-          // Create text element with wrapping
+      // Render text across the full text box width, but only show in selected columns
+      if (layerVisibility.text && words.length > 0) {
+        // Determine which columns should show text
+        const columnsToShowText = textColumns.length > 0 
+          ? textColumns.filter(col => col >= columnSpanStart && col <= columnSpanEnd)
+          : Array.from({ length: spanCols }, (_, i) => columnSpanStart + i);
+        
+        if (columnsToShowText.length > 0) {
+          // Create a single text element that spans the full text box width
           const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-          textGroup.setAttribute('x', (colX + padding).toString());
+          textGroup.setAttribute('x', (spanTextBoxX + padding).toString());
           textGroup.setAttribute('y', (pageOffsetY + scaledTopMargin + padding).toString());
-          textGroup.setAttribute('width', (actualColumnWidth - padding * 2).toString());
+          textGroup.setAttribute('width', (spanTextBoxWidth - padding * 2).toString());
           textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+          
+          // Create clipping path to only show text in selected columns
+          const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
+          const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+          clipPath.setAttribute('id', clipId);
+          
+          // Add rectangles for each column that should show text
+          columnsToShowText.forEach(colIndex => {
+            const colOffset = colIndex - columnSpanStart; // Offset within span
+            const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
+            clipRect.setAttribute('y', '0');
+            clipRect.setAttribute('width', actualColumnWidth.toString());
+            clipRect.setAttribute('height', textBoxHeight.toString());
+            clipPath.appendChild(clipRect);
+          });
+          
+          svg.appendChild(clipPath);
+          textGroup.setAttribute('clip-path', `url(#${clipId})`);
           
           const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
           textDiv.style.fontSize = `${fontSizeSVG}px`;
@@ -269,12 +287,19 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textDiv.style.overflow = 'hidden';
           textDiv.style.wordWrap = 'break-word';
           textDiv.style.hyphens = 'auto';
-          textDiv.textContent = columnWords.join(' ');
+          textDiv.textContent = getSampleText();
           
           textGroup.appendChild(textDiv);
           svg.appendChild(textGroup);
         }
+      }
 
+      // Draw column dividers
+      for (let i = 0; i < inputs.numCols; i++) {
+        const colIndex = i + 1; // 1-indexed
+        const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
+        const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
+        
         if (layerVisibility.columns && i < inputs.numCols - 1) {
           const dividerX = colX + actualColumnWidth;
           const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -293,7 +318,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
     drawColumns(leftPageTextX, leftPageTextWidth);
     drawColumns(rightPageTextX, rightPageTextWidth);
-
   } else {
     // Single page mode (existing code)
     const fullTextBoxX = pageOffsetX + scaledLeftMargin;
@@ -374,40 +398,58 @@ export function updateVisualization(inputs: LayoutInputs): void {
     
     // Draw all columns (for reference)
     for (let i = 0; i < inputs.numCols; i++) {
-      const colIndex = i + 1; // 1-indexed
-      const colX = fullTextBoxX + (i * (actualColumnWidth + scaledGutterWidth));
-      const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
-      const hasText = textColumns.length === 0 ? isInSpan : textColumns.includes(colIndex);
-      
-      if (layerVisibility.columns) {
-        const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        colRect.setAttribute('x', colX.toString());
-        colRect.setAttribute('y', textBoxY.toString());
-        colRect.setAttribute('width', actualColumnWidth.toString());
-        colRect.setAttribute('height', textBoxHeight.toString());
-        colRect.setAttribute('fill', '#e0e7ff');
-        colRect.setAttribute('stroke', '#2563eb');
-        colRect.setAttribute('stroke-width', '1');
-        colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
-        svg.appendChild(colRect);
-      }
-
-      // Add text to column if sample text exists and column has text
-      if (layerVisibility.text && words.length > 0 && hasText && isInSpan) {
-        // Find index within text columns
-        const textColIndex = textColumns.length > 0 
-          ? textColumns.indexOf(colIndex)
-          : colIndex - columnSpanStart;
-        const startIdx = textColIndex * wordsPerTextColumn;
-        const endIdx = Math.min(startIdx + wordsPerTextColumn, words.length);
-        const columnWords = words.slice(startIdx, endIdx);
+        const colIndex = i + 1; // 1-indexed
+        const colX = fullTextBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+        const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
+        const hasText = textColumns.length === 0 ? isInSpan : textColumns.includes(colIndex);
         
-        // Create text element with wrapping
+        if (layerVisibility.columns) {
+          const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          colRect.setAttribute('x', colX.toString());
+          colRect.setAttribute('y', textBoxY.toString());
+          colRect.setAttribute('width', actualColumnWidth.toString());
+          colRect.setAttribute('height', textBoxHeight.toString());
+          colRect.setAttribute('fill', '#e0e7ff');
+          colRect.setAttribute('stroke', '#2563eb');
+          colRect.setAttribute('stroke-width', '1');
+          colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
+          svg.appendChild(colRect);
+        }
+    }
+
+    // Render text across the full text box width, but only show in selected columns
+    if (layerVisibility.text && words.length > 0) {
+      // Determine which columns should show text
+      const columnsToShowText = textColumns.length > 0 
+        ? textColumns.filter(col => col >= columnSpanStart && col <= columnSpanEnd)
+        : Array.from({ length: spanCols }, (_, i) => columnSpanStart + i);
+      
+      if (columnsToShowText.length > 0) {
+        // Create a single text element that spans the full text box width
         const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        textGroup.setAttribute('x', (colX + padding).toString());
+        textGroup.setAttribute('x', (textBoxX + padding).toString());
         textGroup.setAttribute('y', (textBoxY + padding).toString());
-        textGroup.setAttribute('width', (actualColumnWidth - padding * 2).toString());
+        textGroup.setAttribute('width', (textBoxWidth - padding * 2).toString());
         textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+        
+        // Create clipping path to only show text in selected columns
+        const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
+        const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+        clipPath.setAttribute('id', clipId);
+        
+        // Add rectangles for each column that should show text
+        columnsToShowText.forEach(colIndex => {
+          const colOffset = colIndex - columnSpanStart; // Offset within span
+          const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
+          clipRect.setAttribute('y', '0');
+          clipRect.setAttribute('width', actualColumnWidth.toString());
+          clipRect.setAttribute('height', textBoxHeight.toString());
+          clipPath.appendChild(clipRect);
+        });
+        
+        svg.appendChild(clipPath);
+        textGroup.setAttribute('clip-path', `url(#${clipId})`);
         
         const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         textDiv.style.fontSize = `${fontSizeSVG}px`;
@@ -419,12 +461,19 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textDiv.style.overflow = 'hidden';
         textDiv.style.wordWrap = 'break-word';
         textDiv.style.hyphens = 'auto';
-        textDiv.textContent = columnWords.join(' ');
+        textDiv.textContent = getSampleText();
         
         textGroup.appendChild(textDiv);
         svg.appendChild(textGroup);
       }
+    }
 
+    // Draw column dividers
+    for (let i = 0; i < inputs.numCols; i++) {
+      const colIndex = i + 1; // 1-indexed
+      const colX = fullTextBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+      const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
+      
       if (layerVisibility.columns && i < inputs.numCols - 1) {
         const dividerX = colX + actualColumnWidth;
         const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');

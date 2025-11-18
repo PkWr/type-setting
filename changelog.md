@@ -232,4 +232,9 @@ This file tracks all changes made to the type-setting project.
   - Default text now loads automatically on page open
   - Added "Clear" button next to "Load default text" button
   - Text actions (Load default text | Clear) styled with separator
+  - Fixed text rendering to properly distinguish between text box span and text appearance
+  - Text box span controls the WIDTH of the text box (e.g., columns 1-2 = 2 columns + 1 gutter wide)
+  - Text appears in columns controls WHERE text is visible within that text box
+  - Text now flows across full text box width but is clipped to only show in selected columns
+  - Uses SVG clipping paths to mask text visibility based on selected columns
 
