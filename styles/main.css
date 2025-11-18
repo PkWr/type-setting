@@ -287,7 +287,7 @@ h2 {
   }
   
   /* Force 2 columns for width/height row */
-  .form-row:has(#pageWidth) {
+  .form-row-two-col {
     grid-template-columns: 1fr 1fr;
   }
 }
