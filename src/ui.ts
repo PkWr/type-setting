@@ -1394,6 +1394,21 @@ function addLetterpressDecorations(): void {
     img.style.transform = `rotate(${rotation}deg)`;
     
     container.appendChild(img);
+    
+    // Random display duration between 2-4 seconds
+    const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
+    
+    setTimeout(() => {
+      if (img.parentNode) {
+        img.style.transition = 'opacity 0.3s ease-out';
+        img.style.opacity = '0';
+        setTimeout(() => {
+          if (img.parentNode) {
+            img.remove();
+          }
+        }, 300);
+      }
+    }, displayDuration);
   });
 }
 
