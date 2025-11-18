@@ -63,7 +63,7 @@ function drawPage(
   pageRect.setAttribute('height', pageHeight.toString());
   pageRect.setAttribute('fill', '#ffffff');
   pageRect.setAttribute('stroke', '#000000');
-  pageRect.setAttribute('stroke-width', '1');
+  pageRect.setAttribute('stroke-width', '0.5');
   svg.appendChild(pageRect);
 
   // Calculate scaled margins
@@ -81,7 +81,7 @@ function drawPage(
     marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
     marginRect.setAttribute('fill', 'none');
     marginRect.setAttribute('stroke', '#000000');
-    marginRect.setAttribute('stroke-width', '1');
+    marginRect.setAttribute('stroke-width', '0.5');
     svg.appendChild(marginRect);
   }
 
@@ -106,7 +106,7 @@ function drawPage(
       colRect.setAttribute('height', textBoxHeight.toString());
       colRect.setAttribute('fill', 'none');
       colRect.setAttribute('stroke', '#000000');
-      colRect.setAttribute('stroke-width', '1');
+      colRect.setAttribute('stroke-width', '0.5');
       svg.appendChild(colRect);
     }
   }
