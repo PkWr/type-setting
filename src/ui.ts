@@ -82,6 +82,7 @@ function getFormInputs(): LayoutInputs {
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
   const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement).value;
+  const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? true;
   const columnSpan = getColumnSpan();
   const textColumns = getTextColumns();
   
@@ -96,6 +97,7 @@ function getFormInputs(): LayoutInputs {
     fontFamily, // Font family name
     numCols,
     gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
+    hyphenation, // Hyphenation enabled/disabled
   };
   
   // Add facing pages specific margins if in facing pages mode

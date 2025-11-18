@@ -183,7 +183,7 @@ function drawPage(
       textDiv.style.boxSizing = 'border-box';
       textDiv.style.overflow = 'hidden';
       textDiv.style.wordWrap = 'break-word';
-      textDiv.style.hyphens = 'auto';
+      textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
       textDiv.textContent = sampleText;
       
       textGroup.appendChild(textDiv);
