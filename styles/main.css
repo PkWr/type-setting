@@ -132,7 +132,6 @@ textarea {
   font-family: 'IBM Plex Sans', sans-serif;
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: var(--color-bg);
-  font-family: inherit;
 }
 
 textarea {
