@@ -257,7 +257,7 @@ function updateColumnSpanCheckboxes(): void {
 }
 
 /**
- * Updates text column checkboxes based on column span
+ * Updates text column checkboxes - shows all available columns
  */
 function updateTextColumnCheckboxes(): void {
   const container = document.getElementById('textColumnCheckboxes');
@@ -269,19 +269,23 @@ function updateTextColumnCheckboxes(): void {
   // Clear existing checkboxes
   container.innerHTML = '';
   
-  if (!columnSpan) {
-    return;
-  }
-  
-  // Only show checkboxes for columns within the span
-  for (let i = columnSpan.start; i <= columnSpan.end; i++) {
+  // Show checkboxes for ALL available columns, not just within span
+  // This allows selecting any column as starting column regardless of span
+  for (let i = 1; i <= numCols; i++) {
     const label = document.createElement('label');
     label.className = 'layer-checkbox';
     
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.value = i.toString();
-    checkbox.checked = true; // All columns in span selected by default
+    
+    // Default: select columns within span if span exists, otherwise select first column
+    if (columnSpan) {
+      checkbox.checked = i >= columnSpan.start && i <= columnSpan.end;
+    } else {
+      checkbox.checked = i === 1; // Default to first column if no span
+    }
+    
     checkbox.id = `textColumn${i}`;
     
     checkbox.addEventListener('change', () => {
