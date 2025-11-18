@@ -726,13 +726,23 @@ export function initializeCalculator(): void {
     suggestGutterButton.addEventListener('click', suggestGutter);
   }
 
-  // Recalculate gutter and words per line when type size changes
+  // Get type size and leading inputs
   const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
+  const leadingInput = document.getElementById('leading') as HTMLInputElement;
+
+  // Initialize leading to default value (1.5x type size) if empty
+  if (typeSizeInput && leadingInput && (!leadingInput.value || leadingInput.value === '')) {
+    const typeSize = parseFloat(typeSizeInput.value);
+    if (!isNaN(typeSize)) {
+      leadingInput.value = (typeSize * 1.5).toFixed(1);
+    }
+  }
+
+  // Recalculate gutter and words per line when type size changes
   if (typeSizeInput) {
     typeSizeInput.addEventListener('input', () => {
       suggestGutter();
       // Auto-update leading to 1.5x type size if leading is empty
-      const leadingInput = document.getElementById('leading') as HTMLInputElement;
       if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
         const newTypeSize = parseFloat(typeSizeInput.value);
         leadingInput.value = (newTypeSize * 1.5).toFixed(1);
@@ -742,7 +752,6 @@ export function initializeCalculator(): void {
   }
 
   // Handle leading input
-  const leadingInput = document.getElementById('leading') as HTMLInputElement;
   if (leadingInput) {
     leadingInput.addEventListener('input', updateVisualizationOnInputChange);
     leadingInput.addEventListener('change', updateVisualizationOnInputChange);
