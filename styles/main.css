@@ -282,13 +282,14 @@ h2 {
 }
 
 /* Force 2 columns for width/height row */
-.form-row-two-col {
-  grid-template-columns: 1fr 1fr;
+.form-row.form-row-two-col {
+  grid-template-columns: 1fr 1fr !important;
 }
 
-/* Force single column for facing pages row */
-.form-row-single-col {
+/* Force single column for facing pages row - must override auto-fit */
+.form-row.form-row-single-col {
   grid-template-columns: 1fr !important;
+  display: grid !important;
 }
 
 @media (min-width: 1200px) {
@@ -297,13 +298,14 @@ h2 {
   }
   
   /* Force 2 columns for width/height row */
-  .form-row-two-col {
-    grid-template-columns: 1fr 1fr;
+  .form-row.form-row-two-col {
+    grid-template-columns: 1fr 1fr !important;
   }
   
   /* Force single column for facing pages row */
-  .form-row-single-col {
+  .form-row.form-row-single-col {
     grid-template-columns: 1fr !important;
+    display: grid !important;
   }
 }
 
