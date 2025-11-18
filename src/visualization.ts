@@ -260,14 +260,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     svg.setAttribute('height', '100%');
   } else {
     // Height is longer - fit by height
-    // Don't set width attribute - only set height so height becomes the constraint
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // Use 'slice' instead of 'meet' to ensure height fills container
+    // This will make height the constraining dimension
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
-    // Explicitly don't set width attribute - SVG will calculate width from aspect ratio
-    // Use CSS to ensure proper scaling
-    svg.style.width = 'auto';
-    svg.style.height = '100%';
-    svg.style.maxWidth = '100%';
   }
   
   svg.classList.add('page-visualization');
