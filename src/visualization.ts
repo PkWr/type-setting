@@ -139,7 +139,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
   }
 
   // STAGE 2: Add column rectangles (keylines only, no fills)
-  if (layerVisibility.columns && inputs.numCols > 0) {
+  // Always show columns if numCols > 0 (ignore checkbox for now to debug)
+  if (inputs.numCols > 0) {
     const textBoxX = pageOffsetX + scaledLeftMargin;
     const textBoxY = pageOffsetY + scaledTopMargin;
     const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
@@ -150,6 +151,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
     const availableWidth = textBoxWidth - totalGutters;
     const columnWidth = availableWidth / inputs.numCols;
+    
+    console.log('Column rendering:', {
+      numCols: inputs.numCols,
+      textBoxX,
+      textBoxY,
+      textBoxWidth,
+      columnWidth,
+      scaledGutterWidth,
+      layerVisibilityColumns: layerVisibility.columns
+    });
     
     // Draw each column as a rectangle with keyline only
     for (let i = 0; i < inputs.numCols; i++) {
@@ -163,19 +174,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
       colRect.setAttribute('stroke', '#000000');
       colRect.setAttribute('stroke-width', '1');
       svg.appendChild(colRect);
-    }
-    
-    // Draw column dividers (vertical lines between columns)
-    for (let i = 0; i < inputs.numCols - 1; i++) {
-      const dividerX = textBoxX + ((i + 1) * columnWidth) + (i * scaledGutterWidth) + (scaledGutterWidth / 2);
-      const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      divider.setAttribute('x1', dividerX.toString());
-      divider.setAttribute('y1', textBoxY.toString());
-      divider.setAttribute('x2', dividerX.toString());
-      divider.setAttribute('y2', (textBoxY + textBoxHeight).toString());
-      divider.setAttribute('stroke', '#000000');
-      divider.setAttribute('stroke-width', '1');
-      svg.appendChild(divider);
+      
+      console.log(`Column ${i}:`, { colX, columnWidth, height: textBoxHeight });
     }
   }
 
