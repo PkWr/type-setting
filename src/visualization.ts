@@ -130,6 +130,7 @@ function drawPage(
       const columnSpanEnd = inputs.columnSpanEnd !== undefined ? inputs.columnSpanEnd : inputs.numCols;
       const spanCols = columnSpanEnd - columnSpanStart + 1;
       const spanGutters = Math.max(0, spanCols - 1);
+      const spanWidth = (columnWidth * spanCols) + (scaledGutterWidth * spanGutters);
       
       // Determine which column text starts in
       const textColumns = inputs.textColumns && inputs.textColumns.length > 0 
@@ -139,13 +140,9 @@ function drawPage(
       const textStartColumn = Math.min(...textColumns);
       const textStartIndex = Math.max(0, textStartColumn - 1);
       
-      // Calculate text box position and width
-      const textBoxStartX = textBoxX + (textStartIndex * (columnWidth + scaledGutterWidth));
-      const maxAvailableCols = inputs.numCols - textStartIndex;
-      const maxAvailableGutters = Math.max(0, maxAvailableCols - 1);
-      const maxAvailableWidth = (columnWidth * maxAvailableCols) + (scaledGutterWidth * maxAvailableGutters);
-      const requestedWidth = (columnWidth * spanCols) + (scaledGutterWidth * spanGutters);
-      const textBoxWidth = Math.min(requestedWidth, maxAvailableWidth);
+      // Calculate how many times the span can repeat across available columns
+      const availableColsFromStart = inputs.numCols - textStartIndex;
+      const numberOfSpans = Math.floor(availableColsFromStart / spanCols);
       
       // Calculate font size
       const typeSizeMM = inputs.typeSize * 0.3528;
@@ -153,41 +150,47 @@ function drawPage(
       const lineHeight = fontSizeSVG * 1.5;
       const padding = fontSizeSVG * 0.5;
       
-      // Create text group
-      const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-      textGroup.setAttribute('x', textBoxStartX.toString());
-      textGroup.setAttribute('y', textBoxY.toString());
-      textGroup.setAttribute('width', textBoxWidth.toString());
-      textGroup.setAttribute('height', textBoxHeight.toString());
-      
-      // Add white background
-      const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      textBgRect.setAttribute('x', '0');
-      textBgRect.setAttribute('y', '0');
-      textBgRect.setAttribute('width', textBoxWidth.toString());
-      textBgRect.setAttribute('height', textBoxHeight.toString());
-      textBgRect.setAttribute('fill', '#ffffff');
-      textGroup.appendChild(textBgRect);
-      
-      // Create text div
-      const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-      textDiv.style.fontSize = `${fontSizeSVG}px`;
-      textDiv.style.lineHeight = `${lineHeight}px`;
-      // Use selected font family or default to serif
-      const fontFamily = inputs.fontFamily || 'serif';
-      textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
-      textDiv.style.color = '#000000';
-      textDiv.style.width = '100%';
-      textDiv.style.height = '100%';
-      textDiv.style.padding = `${padding}px`;
-      textDiv.style.boxSizing = 'border-box';
-      textDiv.style.overflow = 'hidden';
-      textDiv.style.wordWrap = 'break-word';
-      textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
-      textDiv.textContent = sampleText;
-      
-      textGroup.appendChild(textDiv);
-      svg.appendChild(textGroup);
+      // Create text boxes for each span repetition
+      for (let spanIndex = 0; spanIndex < numberOfSpans; spanIndex++) {
+        const spanStartIndex = textStartIndex + (spanIndex * spanCols);
+        const spanStartX = textBoxX + (spanStartIndex * (columnWidth + scaledGutterWidth));
+        
+        // Create text group for this span
+        const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        textGroup.setAttribute('x', spanStartX.toString());
+        textGroup.setAttribute('y', textBoxY.toString());
+        textGroup.setAttribute('width', spanWidth.toString());
+        textGroup.setAttribute('height', textBoxHeight.toString());
+        
+        // Add white background
+        const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        textBgRect.setAttribute('x', '0');
+        textBgRect.setAttribute('y', '0');
+        textBgRect.setAttribute('width', spanWidth.toString());
+        textBgRect.setAttribute('height', textBoxHeight.toString());
+        textBgRect.setAttribute('fill', '#ffffff');
+        textGroup.appendChild(textBgRect);
+        
+        // Create text div
+        const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        textDiv.style.fontSize = `${fontSizeSVG}px`;
+        textDiv.style.lineHeight = `${lineHeight}px`;
+        // Use selected font family or default to serif
+        const fontFamily = inputs.fontFamily || 'serif';
+        textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
+        textDiv.style.color = '#000000';
+        textDiv.style.width = '100%';
+        textDiv.style.height = '100%';
+        textDiv.style.padding = `${padding}px`;
+        textDiv.style.boxSizing = 'border-box';
+        textDiv.style.overflow = 'hidden';
+        textDiv.style.wordWrap = 'break-word';
+        textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
+        textDiv.textContent = sampleText;
+        
+        textGroup.appendChild(textDiv);
+        svg.appendChild(textGroup);
+      }
     }
   }
 }
