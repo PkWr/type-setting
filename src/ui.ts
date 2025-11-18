@@ -243,6 +243,87 @@ function updateWordsPerLine(): void {
 /**
  * Updates visualization when inputs change
  */
+/**
+ * Updates the specification section with all current values
+ */
+function updateSpecification(): void {
+  try {
+    const inputs = getFormInputs();
+    const results = calculateLayout(inputs);
+    const facingPages = isFacingPages();
+    const orientationPortrait = (document.getElementById('orientationPortrait') as HTMLInputElement)?.checked ?? true;
+    const orientation = orientationPortrait ? 'Portrait' : 'Landscape';
+    
+    const specContent = document.getElementById('specificationContent');
+    if (!specContent) return;
+    
+    // Get gutter width in ems (from input)
+    const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
+    const gutterEm = gutterInput ? parseFloat(gutterInput.value) : 1.0;
+    
+    // Get column span info
+    const columnSpan = getColumnSpan();
+    const textColumns = getTextColumns();
+    
+    let html = '<div class="spec-grid">';
+    
+    // Page dimensions
+    html += '<div class="spec-group"><h4>Page</h4>';
+    html += `<div class="spec-item"><span class="spec-label">Dimensions:</span><span class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Orientation:</span><span class="spec-value">${orientation}</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Facing pages:</span><span class="spec-value">${facingPages ? 'Yes' : 'No'}</span></div>`;
+    html += '</div>';
+    
+    // Margins
+    html += '<div class="spec-group"><h4>Margins</h4>';
+    if (facingPages) {
+      html += `<div class="spec-item"><span class="spec-label">Inner left:</span><span class="spec-value">${inputs.innerMarginLeft || 0} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Inner right:</span><span class="spec-value">${inputs.innerMarginRight || 0} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Outer left:</span><span class="spec-value">${inputs.outerMarginLeft || 0} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Outer right:</span><span class="spec-value">${inputs.outerMarginRight || 0} mm</span></div>`;
+    } else {
+      html += `<div class="spec-item"><span class="spec-label">Left:</span><span class="spec-value">${inputs.leftMargin} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Right:</span><span class="spec-value">${inputs.rightMargin} mm</span></div>`;
+    }
+    html += `<div class="spec-item"><span class="spec-label">Top:</span><span class="spec-value">${inputs.topMargin} mm</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Bottom:</span><span class="spec-value">${inputs.bottomMargin} mm</span></div>`;
+    html += '</div>';
+    
+    // Typography
+    html += '<div class="spec-group"><h4>Typography</h4>';
+    html += `<div class="spec-item"><span class="spec-label">Type size:</span><span class="spec-value">${inputs.typeSize} pt</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Leading:</span><span class="spec-value">${inputs.leading || inputs.typeSize + 2} pt</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Font family:</span><span class="spec-value">${inputs.fontFamily || 'serif'}</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Hyphenation:</span><span class="spec-value">${inputs.hyphenation !== false ? 'Enabled' : 'Disabled'}</span></div>`;
+    html += '</div>';
+    
+    // Columns
+    html += '<div class="spec-group"><h4>Columns</h4>';
+    html += `<div class="spec-item"><span class="spec-label">Number:</span><span class="spec-value">${inputs.numCols}</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterEm.toFixed(3)} em (${results.gutterWidth.toFixed(2)} mm)</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Column width:</span><span class="spec-value">${results.columnWidth.toFixed(2)} mm</span></div>`;
+    if (columnSpan) {
+      html += `<div class="spec-item"><span class="spec-label">Text box spans:</span><span class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(2)} mm</span></div>`;
+    } else {
+      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(2)} mm</span></div>`;
+    }
+    if (textColumns && textColumns.length > 0) {
+      html += `<div class="spec-item"><span class="spec-label">Text appears in:</span><span class="spec-value">Columns ${textColumns.join(', ')}</span></div>`;
+    }
+    
+    // Words per line
+    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
+    html += `<div class="spec-item"><span class="spec-label">Words per line:</span><span class="spec-value">${wordsPerLine}</span></div>`;
+    html += '</div>';
+    
+    html += '</div>';
+    specContent.innerHTML = html;
+  } catch (e) {
+    // Silently fail if inputs are invalid
+  }
+}
+
 function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
@@ -250,6 +331,7 @@ function updateVisualizationOnInputChange(): void {
     updateVisualization(inputs);
     updateWordsPerLine();
     updateColumnWidthDisplay();
+    updateSpecification();
   } catch (e) {
     // Silently fail if inputs are invalid
   }
