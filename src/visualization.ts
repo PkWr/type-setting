@@ -202,11 +202,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   // Validate inputs
   if (!inputs.numCols || inputs.numCols <= 0 || isNaN(inputs.numCols)) {
-    console.error('Invalid numCols:', inputs.numCols);
     return;
   }
   if (isNaN(inputs.gutterWidth) || inputs.gutterWidth < 0) {
-    console.error('Invalid gutterWidth:', inputs.gutterWidth);
     return;
   }
 
@@ -240,34 +238,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const scaleX = singlePageWidth / inputs.pageWidth;
   const scaleY = singlePageHeight / inputs.pageHeight;
 
-  // Create SVG
+  // Create SVG with viewBox
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
-  
-  // Determine which edge of the SVG is longer
-  const svgAspectRatio = svgWidth / svgHeight;
-  const isLandscape = svgAspectRatio > 1;
-  
-  // For portrait (height is longer), we want to fit by height
-  // For landscape (width is longer), we want to fit by width
-  // Use 'slice' for portrait to ensure height fits and fills container height
-  // Use 'meet' for landscape to ensure width fits and fills container width
-  
-  if (isLandscape) {
-    // Width is longer - fit by width using meet (fits within, no cropping)
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-  } else {
-    // Height is longer - fit by height
-    // Use 'slice' instead of 'meet' to ensure height fills container
-    // This will make height the constraining dimension
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-  }
-  
   svg.classList.add('page-visualization');
+  
+  // Sizing will be set in requestAnimationFrame after container dimensions are known
 
   if (facingPages) {
     // Draw two pages side by side (flush, no gap)
@@ -348,41 +324,41 @@ export function updateVisualization(inputs: LayoutInputs): void {
   container.innerHTML = '';
   container.appendChild(svg);
 
-  // Calculate proper sizing based on container and SVG aspect ratios
+  // Calculate proper sizing based on container dimensions and SVG aspect ratio
   requestAnimationFrame(() => {
     const containerRect = container.getBoundingClientRect();
-    const containerWidth = containerRect.width - (parseFloat(getComputedStyle(container).paddingLeft) || 0) - (parseFloat(getComputedStyle(container).paddingRight) || 0);
-    const containerHeight = containerRect.height - (parseFloat(getComputedStyle(container).paddingTop) || 0) - (parseFloat(getComputedStyle(container).paddingBottom) || 0);
+    const containerStyle = getComputedStyle(container);
+    const containerWidth = containerRect.width - 
+      (parseFloat(containerStyle.paddingLeft) || 0) - 
+      (parseFloat(containerStyle.paddingRight) || 0);
+    const containerHeight = containerRect.height - 
+      (parseFloat(containerStyle.paddingTop) || 0) - 
+      (parseFloat(containerStyle.paddingBottom) || 0);
     
     const svgAspectRatio = svgWidth / svgHeight;
-    const containerAspectRatio = containerWidth / containerHeight;
-    
-    // Determine which edge of SVG is longer
     const isLandscape = svgAspectRatio > 1;
     
     if (isLandscape) {
-      // Width is longer - fit by width
+      // Width is longer - fit by width using percentage sizing
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       svg.setAttribute('width', '100%');
       svg.setAttribute('height', '100%');
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     } else {
-      // Height is longer - fit by height
-      // Calculate scale based on container height
+      // Height is longer - fit by height using explicit pixel dimensions
       const scale = containerHeight / svgHeight;
       const scaledWidth = svgWidth * scale;
       
-      // Set explicit dimensions to ensure height fits
-      svg.setAttribute('width', `${scaledWidth}px`);
-      svg.setAttribute('height', `${containerHeight}px`);
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      
-      // Ensure it doesn't exceed container width
-      if (scaledWidth > containerWidth) {
-        // If scaled width exceeds container, fit by width instead
+      if (scaledWidth <= containerWidth) {
+        // Height fits, width fits within container
+        svg.setAttribute('width', `${scaledWidth}px`);
+        svg.setAttribute('height', `${containerHeight}px`);
+      } else {
+        // Width would exceed container - fall back to fitting by width
         const widthScale = containerWidth / svgWidth;
         svg.setAttribute('width', `${containerWidth}px`);
         svg.setAttribute('height', `${svgHeight * widthScale}px`);
       }
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
     
     updateScaleIndicator(container, svg, inputs, facingPages);
@@ -401,31 +377,28 @@ function updateScaleIndicator(
   const scaleIndicator = document.getElementById('scaleIndicator');
   if (!scaleIndicator || !container) return;
 
-  // Get actual rendered size of the SVG
-  // The SVG uses preserveAspectRatio="xMidYMid meet", so it scales to fit
-  const containerRect = container.getBoundingClientRect();
+  // Get actual rendered SVG dimensions
   const svgRect = svg.getBoundingClientRect();
-  
-  // Calculate actual rendered dimensions (accounting for padding)
   const actualWidth = svgRect.width;
   const actualHeight = svgRect.height;
   
-  // Calculate what the page dimensions would be at this rendered size
-  const pageAspectRatio = inputs.pageHeight / inputs.pageWidth;
+  // Calculate rendered page dimensions based on SVG aspect ratio
   const totalPageWidth = facingPages ? inputs.pageWidth * 2 : inputs.pageWidth;
+  const pageAspectRatio = inputs.pageHeight / totalPageWidth;
+  const svgAspectRatio = actualWidth / actualHeight;
   
-  // Determine which dimension is constraining (width or height)
+  // Determine which dimension is constraining
   let renderedPageWidth: number;
   let renderedPageHeight: number;
   
-  if (actualWidth / actualHeight > totalPageWidth / inputs.pageHeight) {
+  if (svgAspectRatio > pageAspectRatio) {
     // Height is constraining
     renderedPageHeight = actualHeight;
-    renderedPageWidth = actualHeight * (totalPageWidth / inputs.pageHeight);
+    renderedPageWidth = actualHeight / pageAspectRatio;
   } else {
     // Width is constraining
     renderedPageWidth = actualWidth;
-    renderedPageHeight = actualWidth * (inputs.pageHeight / totalPageWidth);
+    renderedPageHeight = actualWidth * pageAspectRatio;
   }
   
   // Calculate scale based on actual rendered size
