@@ -370,10 +370,10 @@ function updateSpecification(): void {
         outerMarginRight = convertFromMM(outerMarginRight, 'em', inputs.typeSize);
       }
       
-      html += `<div class="spec-item"><span class="spec-label">Inner left:</span><span class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Inner right:</span><span class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Outer left:</span><span class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Outer right:</span><span class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Verso inner:</span><span class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Verso outer:</span><span class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Recto inner:</span><span class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Recto outer:</span><span class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
     } else {
       let leftMargin = inputs.leftMargin;
       let rightMargin = inputs.rightMargin;
@@ -869,7 +869,7 @@ function updateMarginInputs(): void {
   if (facingPages) {
     // Show facing pages inputs, hide single page inputs
     if (singlePageMargins) singlePageMargins.style.display = 'none';
-    if (facingPagesMargins) facingPagesMargins.style.display = 'block';
+    if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
     
     // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
     if (leftMarginInput && innerMarginLeftInput && !innerMarginLeftInput.dataset.synced) {
