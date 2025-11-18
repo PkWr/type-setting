@@ -354,6 +354,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
           svg.appendChild(clipPath);
           textGroup.setAttribute('clip-path', `url(#${clipId})`);
           
+          // Add a white background rect behind the text to ensure it covers margin fills
+          const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          textBgRect.setAttribute('x', '0');
+          textBgRect.setAttribute('y', '0');
+          textBgRect.setAttribute('width', spanTextBoxWidth.toString());
+          textBgRect.setAttribute('height', textBoxHeight.toString());
+          textBgRect.setAttribute('fill', '#ffffff');
+          textGroup.appendChild(textBgRect);
+          
           const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
           textDiv.style.fontSize = `${fontSizeSVG}px`;
           textDiv.style.lineHeight = `${lineHeight}px`;
@@ -640,6 +649,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
         
         svg.appendChild(clipPath);
         textGroup.setAttribute('clip-path', `url(#${clipId})`);
+        
+        // Add a white background rect behind the text to ensure it covers margin fills
+        const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        textBgRect.setAttribute('x', '0');
+        textBgRect.setAttribute('y', '0');
+        textBgRect.setAttribute('width', constrainedTextBoxWidth.toString());
+        textBgRect.setAttribute('height', textBoxHeight.toString());
+        textBgRect.setAttribute('fill', '#ffffff');
+        textGroup.appendChild(textBgRect);
         
         const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         textDiv.style.fontSize = `${fontSizeSVG}px`;
