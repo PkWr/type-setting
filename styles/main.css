@@ -305,10 +305,6 @@ h2 {
   flex-shrink: 0;
 }
 
-/* Ensure width/height stay side-by-side */
-.form-row:has(#pageWidth) {
-  grid-template-columns: 1fr 1fr;
-}
 
 
 /* Force single column for facing pages row - must override auto-fit */
