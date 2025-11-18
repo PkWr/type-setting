@@ -362,7 +362,7 @@ textarea {
 }
 
 .input-small {
-  max-width: 120px;
+  max-width: 100%;
 }
 
 textarea {
