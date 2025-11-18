@@ -305,10 +305,6 @@ h2 {
   flex-shrink: 0;
 }
 
-/* Force 2 columns for width/height row */
-.form-row.form-row-two-col {
-  grid-template-columns: 1fr 1fr !important;
-}
 
 /* Force single column for facing pages row - must override auto-fit */
 .form-row.form-row-single-col {
@@ -324,11 +320,6 @@ h2 {
 @media (min-width: 1200px) {
   .form-row {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
-  
-  /* Force 2 columns for width/height row */
-  .form-row.form-row-two-col {
-    grid-template-columns: 1fr 1fr !important;
   }
   
   /* Force single column for facing pages row */
