@@ -196,4 +196,11 @@ This file tracks all changes made to the type-setting project.
   - Text only appears in selected columns in visualization
   - Columns outside span shown with reduced opacity
   - At least one column must always be selected
+  - Added measurement lines and labels to page layout preview
+  - Shows page dimensions (width and height)
+  - Shows all margin measurements (top, bottom, left, right)
+  - Shows text box width, column width, and gutter width
+  - Measurements displayed in selected unit (mm, pt, em, pc)
+  - Measurement lines with tick marks and labels
+  - Works for both single page and facing pages layouts
 
