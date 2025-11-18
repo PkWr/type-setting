@@ -141,22 +141,24 @@ h1 {
   left: 22px;
 }
 
-.unit-toggle-label:has(.unit-toggle-input:checked) .unit-option:first-of-type {
-  color: var(--color-text-light);
-}
-
-.unit-toggle-label:has(.unit-toggle-input:checked) .unit-option:last-of-type {
+.unit-toggle-label .unit-option-mm {
   color: var(--color-text);
   font-weight: 600;
 }
 
-.unit-toggle-label:has(.unit-toggle-input:not(:checked)) .unit-option:first-of-type {
-  color: var(--color-text);
-  font-weight: 600;
+.unit-toggle-label .unit-option-em {
+  color: var(--color-text-light);
+  font-weight: 500;
 }
 
-.unit-toggle-label:has(.unit-toggle-input:not(:checked)) .unit-option:last-of-type {
+.unit-toggle-input:checked ~ .unit-toggle-slider ~ .unit-option-mm {
   color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.unit-toggle-input:checked ~ .unit-toggle-slider ~ .unit-option-em {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .subtitle {
