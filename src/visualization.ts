@@ -294,6 +294,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textGroup.setAttribute('height', textBoxHeight.toString());
           
           // Debug logging for text rendering
+          const expectedTotalWidth = (actualColumnWidth * columnsToShowText.length) + (scaledGutterWidth * (columnsToShowText.length - 1));
           console.log('Facing pages - Text rendering:', {
             columnsToShowText,
             spanTextBoxX,
@@ -301,7 +302,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
             textGroupWidth: spanTextBoxWidth,
             actualColumnWidth,
             scaledGutterWidth,
-            padding
+            padding,
+            expectedTotalWidth,
+            matches: Math.abs(spanTextBoxWidth - expectedTotalWidth) < 0.01 ? 'YES' : 'NO',
+            difference: spanTextBoxWidth - expectedTotalWidth
           });
           
           // Create clipping path to only show text in selected columns
@@ -324,12 +328,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
             clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
             clipPath.appendChild(clipRect);
             
+            const clipEndX = clipX + actualColumnWidth;
             console.log(`Facing pages - Clip rect for column ${colIndex}:`, {
               colIndex,
               colOffset,
               clipX,
+              clipEndX,
               width: actualColumnWidth,
-              height: textBoxHeight - padding * 2
+              height: textBoxHeight - padding * 2,
+              nextColumnStart: colOffset === 0 ? actualColumnWidth : null,
+              gap: colOffset === 0 ? scaledGutterWidth : null
             });
           });
           
@@ -520,6 +528,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textGroup.setAttribute('height', textBoxHeight.toString());
         
         // Debug logging for text rendering
+        const expectedTotalWidth = (actualColumnWidth * columnsToShowText.length) + (scaledGutterWidth * (columnsToShowText.length - 1));
         console.log('Single page - Text rendering:', {
           columnsToShowText,
           textBoxX,
@@ -527,7 +536,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textGroupWidth: textBoxWidth,
           actualColumnWidth,
           scaledGutterWidth,
-          padding
+          padding,
+          expectedTotalWidth,
+          matches: Math.abs(textBoxWidth - expectedTotalWidth) < 0.01 ? 'YES' : 'NO',
+          difference: textBoxWidth - expectedTotalWidth
         });
         
         // Create clipping path to only show text in selected columns
@@ -550,13 +562,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
           clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
           clipPath.appendChild(clipRect);
           
+          const clipEndX = clipX + actualColumnWidth;
           console.log(`Single page - Clip rect for column ${colIndex}:`, {
             colIndex,
             colOffset,
             clipX,
+            clipEndX,
             width: actualColumnWidth,
             height: textBoxHeight - padding * 2,
-            expectedX: colOffset === 0 ? 0 : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`
+            expectedX: colOffset === 0 ? 0 : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`,
+            nextColumnStart: colOffset === 0 ? actualColumnWidth : null,
+            gap: colOffset === 0 ? scaledGutterWidth : null
           });
         });
         
