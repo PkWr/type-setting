@@ -188,6 +188,7 @@ function drawPage(
         textDiv.style.boxSizing = 'border-box';
         textDiv.style.overflow = 'hidden';
         textDiv.style.wordWrap = 'break-word';
+        textDiv.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and wrap text
         textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
         textDiv.textContent = sampleText;
         
