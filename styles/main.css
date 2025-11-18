@@ -561,6 +561,51 @@ button {
   margin-top: var(--spacing-xs);
 }
 
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+}
+
+.slider-input {
+  flex: 1;
+  height: 4px;
+  background: #333333;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid #666666;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid #666666;
+}
+
+.slider-value {
+  min-width: 2rem;
+  text-align: center;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
 .orientation-controls {
   display: flex;
   gap: var(--spacing-lg);

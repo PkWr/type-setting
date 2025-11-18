@@ -22,13 +22,15 @@ const GUTTER_UNIT: Unit = 'em';
  * Gets column span from checkboxes
  */
 function getColumnSpan(): { start: number; end: number } | null {
-  const checkboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]:checked') as NodeListOf<HTMLInputElement>;
-  if (checkboxes.length === 0) return null;
+  const slider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+  if (!slider) return null;
   
-  const checkedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value, 10)).sort((a, b) => a - b);
+  const spanCount = parseInt(slider.value, 10);
+  if (isNaN(spanCount) || spanCount < 1) return null;
+  
   return {
-    start: checkedIndices[0],
-    end: checkedIndices[checkedIndices.length - 1]
+    start: 1,
+    end: spanCount
   };
 }
 
@@ -470,44 +472,25 @@ function updateVisualizationOnInputChange(): void {
 /**
  * Updates column span checkboxes based on number of columns
  */
-function updateColumnSpanCheckboxes(): void {
-  const container = document.getElementById('columnSpanCheckboxes');
-  if (!container) return;
+function updateColumnSpanSlider(): void {
+  const slider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+  const valueDisplay = document.getElementById('columnSpanValue');
+  if (!slider) return;
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
   
-  // Clear existing checkboxes
-  container.innerHTML = '';
+  // Update slider max to match number of columns
+  slider.max = numCols.toString();
   
-  // Create checkboxes for each column
-  for (let i = 1; i <= numCols; i++) {
-    const label = document.createElement('label');
-    label.className = 'layer-checkbox';
-    
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = i.toString();
-    checkbox.checked = true; // All columns selected by default
-    checkbox.id = `columnSpan${i}`;
-    
-    checkbox.addEventListener('change', () => {
-      // Ensure at least one column is selected
-      const checked = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]:checked');
-      if (checked.length === 0) {
-        checkbox.checked = true;
-      }
-      // Update text column checkboxes to match span
-      updateTextColumnCheckboxes();
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-    
-    const span = document.createElement('span');
-    span.textContent = i.toString();
-    
-    label.appendChild(checkbox);
-    label.appendChild(span);
-    container.appendChild(label);
+  // Ensure slider value doesn't exceed max
+  const currentValue = parseInt(slider.value, 10);
+  if (currentValue > numCols) {
+    slider.value = numCols.toString();
+  }
+  
+  // Update display value
+  if (valueDisplay) {
+    valueDisplay.textContent = slider.value;
   }
   
   // Update text column checkboxes when span changes
@@ -1073,15 +1056,11 @@ function saveSettings(): void {
     settings.numCols = numCols;
     settings.gutterWidth = gutterWidth;
     
-    // Column span checkboxes
-    const columnSpanCheckboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
-    const columnSpanValues: number[] = [];
-    columnSpanCheckboxes.forEach(cb => {
-      if (cb.checked) {
-        columnSpanValues.push(parseInt(cb.value, 10));
-      }
-    });
-    settings.columnSpan = columnSpanValues;
+    // Column span slider
+    const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+    if (columnSpanSlider) {
+      settings.columnSpanValue = columnSpanSlider.value;
+    }
     
     // Text column checkboxes
     const textColumnCheckboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
@@ -1508,19 +1487,35 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Populate column span checkboxes
-  updateColumnSpanCheckboxes();
+  // Initialize column span slider
+  updateColumnSpanSlider();
+  
+  // Handle column span slider
+  const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+  if (columnSpanSlider) {
+    const columnSpanValue = document.getElementById('columnSpanValue');
+    columnSpanSlider.addEventListener('input', () => {
+      if (columnSpanValue) {
+        columnSpanValue.textContent = columnSpanSlider.value;
+      }
+      updateTextColumnCheckboxes();
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    columnSpanSlider.addEventListener('change', () => {
+      updateTextColumnCheckboxes();
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+  }
   
   // Handle number of columns change
   const numColsInput = document.getElementById('numCols') as HTMLInputElement;
   if (numColsInput) {
     numColsInput.addEventListener('change', () => {
-      updateColumnSpanCheckboxes();
+      updateColumnSpanSlider();
       updateVisualizationOnInputChange();
-      // Delay save to allow checkboxes to be created first
-      setTimeout(() => {
-        saveSettings();
-      }, 50);
+      saveSettings();
     });
   }
 

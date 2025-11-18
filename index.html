@@ -152,9 +152,12 @@
           <span id="autoGutterNote" class="helper-text"></span>
         </div>
         <div class="form-group">
-          <label>Text box spans columns</label>
-          <div id="columnSpanCheckboxes" class="column-span-checkboxes"></div>
-          <span class="helper-text">Select which columns the text box should span</span>
+          <label for="columnSpanSlider">Text box spans columns</label>
+          <div class="slider-container">
+            <input type="range" id="columnSpanSlider" min="1" max="2" value="2" class="slider-input">
+            <span id="columnSpanValue" class="slider-value">2</span>
+          </div>
+          <span class="helper-text">Number of columns the text box should span</span>
         </div>
         <div class="form-group">
           <label>Text appears in columns</label>
