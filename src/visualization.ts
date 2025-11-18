@@ -469,17 +469,29 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
     
     // Debug logging
+    const textBoxEndX = textBoxX + textBoxWidth;
+    const rightMarginEdge = pageOffsetX + singlePageWidth - scaledRightMargin;
+    const leftMarginEdge = pageOffsetX + scaledLeftMargin;
     console.log('Single page - Text box calculation:', {
       columnSpanStart,
       columnSpanEnd,
       spanCols,
       spanGutters,
       spanStartIndex,
+      pageOffsetX,
+      scaledLeftMargin,
+      scaledRightMargin,
+      singlePageWidth,
+      leftMarginEdge,
+      rightMarginEdge,
       fullTextBoxX,
       actualColumnWidth,
       scaledGutterWidth,
       textBoxX,
       textBoxWidth,
+      textBoxEndX,
+      extendsBeyondRight: textBoxEndX > rightMarginEdge,
+      extendsBeyondLeft: textBoxX < leftMarginEdge,
       expectedWidth: `(${actualColumnWidth} * ${spanCols}) + (${scaledGutterWidth} * ${spanGutters}) = ${textBoxWidth}`
     });
     
@@ -533,10 +545,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
       if (columnsToShowText.length > 0) {
         // Create a single text element that spans the full text box width
         // The textGroup should span the full width including gutters, with padding applied via CSS
+        // Constrain textGroup to not extend beyond margins
+        const rightMarginEdge = pageOffsetX + singlePageWidth - scaledRightMargin;
+        const constrainedTextBoxX = Math.max(textBoxX, pageOffsetX + scaledLeftMargin);
+        const constrainedTextBoxWidth = Math.min(textBoxWidth, rightMarginEdge - constrainedTextBoxX);
+        const textGroupEndX = constrainedTextBoxX + constrainedTextBoxWidth;
+        
         const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        textGroup.setAttribute('x', textBoxX.toString()); // Start at text box edge, no padding offset
+        textGroup.setAttribute('x', constrainedTextBoxX.toString()); // Constrained to not extend beyond left margin
         textGroup.setAttribute('y', textBoxY.toString());
-        textGroup.setAttribute('width', textBoxWidth.toString()); // Full text box width
+        textGroup.setAttribute('width', constrainedTextBoxWidth.toString()); // Constrained to not extend beyond right margin
         textGroup.setAttribute('height', textBoxHeight.toString());
         
         // Debug logging for text rendering
@@ -548,7 +566,13 @@ export function updateVisualization(inputs: LayoutInputs): void {
           columnsToShowText,
           textBoxX,
           textBoxWidth,
-          textGroupWidth: textBoxWidth,
+          constrainedTextBoxX,
+          constrainedTextBoxWidth,
+          textGroupEndX,
+          rightMarginEdge,
+          leftMarginEdge: pageOffsetX + scaledLeftMargin,
+          wasConstrained: constrainedTextBoxX !== textBoxX || constrainedTextBoxWidth !== textBoxWidth,
+          textGroupWidth: constrainedTextBoxWidth,
           actualColumnWidth,
           scaledGutterWidth,
           padding,
@@ -559,7 +583,14 @@ export function updateVisualization(inputs: LayoutInputs): void {
           column2Start,
           column2End,
           totalShouldBe: column2End,
-          verification: `Column1(0-${column1End}) + Gutter(${column1End}-${column2Start}) + Column2(${column2Start}-${column2End}) = ${column2End}`
+          verification: `Column1(0-${column1End}) + Gutter(${column1End}-${column2Start}) + Column2(${column2Start}-${column2End}) = ${column2End}`,
+          // Column positions relative to constrainedTextBoxX
+          col1AbsoluteStart: constrainedTextBoxX,
+          col1AbsoluteEnd: constrainedTextBoxX + actualColumnWidth,
+          col2AbsoluteStart: constrainedTextBoxX + column2Start,
+          col2AbsoluteEnd: constrainedTextBoxX + column2End,
+          gutterAbsoluteStart: constrainedTextBoxX + column1End,
+          gutterAbsoluteEnd: constrainedTextBoxX + column2Start
         });
         
         // Create clipping path to only show text in selected columns
