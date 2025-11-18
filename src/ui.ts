@@ -682,8 +682,8 @@ function updateMarginLabels(): void {
     'bottomMarginLabel': 'Bottom',
     'leftMarginLabel': 'Left',
     'rightMarginLabel': 'Right',
-    'innerMarginLeftLabel': 'Inner left',
-    'innerMarginRightLabel': 'Inner right',
+    'innerMarginLeftLabel': 'Inner left (left)',
+    'innerMarginRightLabel': 'Inner right (right)',
     'outerMarginLeftLabel': 'Outer left',
     'outerMarginRightLabel': 'Outer right',
     'gutterWidthLabel': 'Gutter width'
