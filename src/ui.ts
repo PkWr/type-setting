@@ -1344,12 +1344,70 @@ function hideIntroModal(): void {
   }
 }
 
+/**
+ * Adds random letterpress decoration images to the visualization container
+ */
+function addLetterpressDecorations(): void {
+  const container = document.getElementById('visualizationContainer');
+  if (!container) return;
+  
+  // Check if decorations already exist
+  if (container.querySelector('.letterpress-decoration')) return;
+  
+  const decorations = [
+    {
+      src: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80',
+      alt: 'Composing stick with lead type',
+      name: 'composing-stick'
+    },
+    {
+      src: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&q=80',
+      alt: 'Chase with type',
+      name: 'chase'
+    },
+    {
+      src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80',
+      alt: 'Capital wooden M',
+      name: 'wooden-m'
+    }
+  ];
+  
+  decorations.forEach((decoration, index) => {
+    const img = document.createElement('img');
+    img.src = decoration.src;
+    img.alt = decoration.alt;
+    img.className = 'letterpress-decoration';
+    img.id = `decoration-${decoration.name}`;
+    
+    // Random position within container bounds
+    const containerRect = container.getBoundingClientRect();
+    const maxX = containerRect.width - 150;
+    const maxY = containerRect.height - 150;
+    const randomX = Math.random() * Math.max(0, maxX);
+    const randomY = Math.random() * Math.max(0, maxY);
+    
+    img.style.left = `${randomX}px`;
+    img.style.top = `${randomY}px`;
+    
+    // Random rotation between -15 and 15 degrees
+    const rotation = (Math.random() * 30) - 15;
+    img.style.transform = `rotate(${rotation}deg)`;
+    
+    container.appendChild(img);
+  });
+}
+
 export function initializeCalculator(): void {
   // Load saved settings first
   loadSettings();
   
   // Initialize orientation toggle state
   updateOrientationToggleState();
+  
+  // Add letterpress decorations
+  setTimeout(() => {
+    addLetterpressDecorations();
+  }, 100);
   
   // Initialize modal
   const modal = document.getElementById('introModal');
