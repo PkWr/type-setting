@@ -319,8 +319,8 @@ function updateSpecification(): void {
     const inputs = getFormInputs();
     const results = calculateLayout(inputs);
     const facingPages = isFacingPages();
-    const orientationPortrait = (document.getElementById('orientationPortrait') as HTMLInputElement)?.checked ?? true;
-    const orientation = orientationPortrait ? 'Portrait' : 'Landscape';
+    const orientationToggle = (document.getElementById('orientationToggle') as HTMLInputElement)?.checked ?? false;
+    const orientation = orientationToggle ? 'Landscape' : 'Portrait';
     
     const specContent = document.getElementById('specificationContent');
     if (!specContent) return;
@@ -607,8 +607,8 @@ function populatePaperSizeDropdown(): void {
  * Gets current orientation
  */
 function getOrientation(): 'portrait' | 'landscape' {
-  const portraitRadio = document.getElementById('orientationPortrait') as HTMLInputElement;
-  return portraitRadio?.checked ? 'portrait' : 'landscape';
+  const orientationToggle = document.getElementById('orientationToggle') as HTMLInputElement;
+  return orientationToggle?.checked ? 'landscape' : 'portrait';
 }
 
 /**
@@ -656,6 +656,31 @@ function updateOrientation(): void {
   pageHeightInput.value = currentWidth.toString();
   
   updateVisualizationOnInputChange();
+}
+
+/**
+ * Updates the visual state of orientation toggle icons
+ */
+function updateOrientationToggleState(): void {
+  const orientationToggle = document.getElementById('orientationToggle') as HTMLInputElement;
+  const portraitOption = document.querySelector('.unit-option-portrait');
+  const landscapeOption = document.querySelector('.unit-option-landscape');
+  
+  if (orientationToggle && portraitOption && landscapeOption) {
+    if (orientationToggle.checked) {
+      // Landscape selected
+      portraitOption.classList.remove('unit-option-mm');
+      portraitOption.classList.add('unit-option-em');
+      landscapeOption.classList.remove('unit-option-em');
+      landscapeOption.classList.add('unit-option-mm');
+    } else {
+      // Portrait selected
+      portraitOption.classList.remove('unit-option-em');
+      portraitOption.classList.add('unit-option-mm');
+      landscapeOption.classList.remove('unit-option-mm');
+      landscapeOption.classList.add('unit-option-em');
+    }
+  }
 }
 
 /**
@@ -1022,12 +1047,12 @@ function saveSettings(): void {
     const pageWidth = (document.getElementById('pageWidth') as HTMLInputElement)?.value || '';
     const pageHeight = (document.getElementById('pageHeight') as HTMLInputElement)?.value || '';
     const paperSizeSelect = (document.getElementById('paperSizeSelect') as HTMLSelectElement)?.value || '';
-    const orientationPortrait = (document.getElementById('orientationPortrait') as HTMLInputElement)?.checked ?? true;
+    const orientationToggle = (document.getElementById('orientationToggle') as HTMLInputElement)?.checked ?? false;
     
     settings.pageWidth = pageWidth;
     settings.pageHeight = pageHeight;
     settings.paperSizeSelect = paperSizeSelect;
-    settings.orientationPortrait = orientationPortrait;
+    settings.orientationToggle = orientationToggle;
     
     // Margins
     const marginUnitToggle = (document.getElementById('marginUnitToggle') as HTMLInputElement)?.checked ?? false;
@@ -1133,11 +1158,9 @@ function loadSettings(): void {
       const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
       if (paperSizeSelect) paperSizeSelect.value = settings.paperSizeSelect;
     }
-    if (settings.orientationPortrait !== undefined) {
-      const orientationPortrait = document.getElementById('orientationPortrait') as HTMLInputElement;
-      const orientationLandscape = document.getElementById('orientationLandscape') as HTMLInputElement;
-      if (orientationPortrait) orientationPortrait.checked = settings.orientationPortrait;
-      if (orientationLandscape) orientationLandscape.checked = !settings.orientationPortrait;
+    if (settings.orientationToggle !== undefined) {
+      const orientationToggle = document.getElementById('orientationToggle') as HTMLInputElement;
+      if (orientationToggle) orientationToggle.checked = settings.orientationToggle;
     }
     
     // Margin unit
@@ -1324,6 +1347,9 @@ function hideIntroModal(): void {
 export function initializeCalculator(): void {
   // Load saved settings first
   loadSettings();
+  
+  // Initialize orientation toggle state
+  updateOrientationToggleState();
   
   // Initialize modal
   const modal = document.getElementById('introModal');
@@ -1609,10 +1635,12 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Handle orientation change
-  const orientationRadios = document.querySelectorAll('input[name="orientation"]') as NodeListOf<HTMLInputElement>;
-  orientationRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
+  // Handle orientation toggle change
+  const orientationToggle = document.getElementById('orientationToggle') as HTMLInputElement;
+  if (orientationToggle) {
+    orientationToggle.addEventListener('change', () => {
+      // Update active state for icons
+      updateOrientationToggleState();
       // If a paper size is selected, reapply it with new orientation
       if (paperSizeSelect && paperSizeSelect.value) {
         applyPaperSize(paperSizeSelect.value);
@@ -1622,7 +1650,7 @@ export function initializeCalculator(): void {
         saveSettings();
       }
     });
-  });
+  }
 
   // Update visualization when inputs change
   const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin', 'numCols', 'gutterWidth'];

@@ -164,6 +164,18 @@ h1 {
   font-weight: 500;
 }
 
+.unit-option-portrait,
+.unit-option-landscape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unit-option-portrait .material-icons,
+.unit-option-landscape .material-icons {
+  font-size: 1.2rem;
+}
+
 .unit-toggle-container {
   position: relative;
   display: inline-block;
