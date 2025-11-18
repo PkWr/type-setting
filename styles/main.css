@@ -260,6 +260,8 @@ h2 {
   padding: var(--spacing-md);
   background-color: transparent;
   border-top: 0.5px solid #333333;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-section:first-child {
@@ -281,6 +283,7 @@ h2 {
   margin-bottom: var(--spacing-md);
   width: 100%;
   clear: both;
+  flex-shrink: 0;
 }
 
 /* Force 2 columns for width/height row */
@@ -294,6 +297,7 @@ h2 {
   display: grid !important;
   width: 100% !important;
   clear: both !important;
+  flex-shrink: 0 !important;
 }
 
 @media (min-width: 1200px) {
