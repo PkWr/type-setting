@@ -14,6 +14,7 @@ export interface LayoutInputs {
   gutterWidth: number;
   columnSpanStart?: number; // First column in span (1-indexed)
   columnSpanEnd?: number; // Last column in span (1-indexed)
+  textColumns?: number[]; // Array of column indices where text appears (1-indexed)
 }
 
 export interface LayoutResults {

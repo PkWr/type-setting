@@ -218,4 +218,10 @@ This file tracks all changes made to the type-setting project.
   - Text box outline drawn to match span width
   - Columns outside span shown with reduced opacity (0.2) for reference
   - Text only appears in columns within the span
+  - Added separate checkboxes for which columns text appears in
+  - Text column checkboxes dynamically update based on column span
+  - Only shows checkboxes for columns within the span
+  - Text appears only in selected text columns
+  - Columns with text shown at 0.6 opacity, columns without text at 0.4 opacity
+  - Allows independent control of text box width and text placement
 

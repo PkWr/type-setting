@@ -39,6 +39,14 @@ function getColumnSpan(): { start: number; end: number } | null {
   };
 }
 
+/**
+ * Gets text columns from checkboxes
+ */
+function getTextColumns(): number[] {
+  const checkboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]:checked') as NodeListOf<HTMLInputElement>;
+  return Array.from(checkboxes).map(cb => parseInt(cb.value, 10)).sort((a, b) => a - b);
+}
+
 function getFormInputs(): LayoutInputs {
   const unit = getCurrentUnit();
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
@@ -54,6 +62,7 @@ function getFormInputs(): LayoutInputs {
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
   const columnSpan = getColumnSpan();
+  const textColumns = getTextColumns();
   
   const inputs: LayoutInputs = {
     pageWidth: convertToMM(pageWidth, unit, typeSize),
@@ -70,6 +79,10 @@ function getFormInputs(): LayoutInputs {
   if (columnSpan) {
     inputs.columnSpanStart = columnSpan.start;
     inputs.columnSpanEnd = columnSpan.end;
+  }
+  
+  if (textColumns.length > 0) {
+    inputs.textColumns = textColumns;
   }
   
   return inputs;
@@ -209,6 +222,57 @@ function updateColumnSpanCheckboxes(): void {
     checkbox.addEventListener('change', () => {
       // Ensure at least one column is selected
       const checked = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]:checked');
+      if (checked.length === 0) {
+        checkbox.checked = true;
+      }
+      // Update text column checkboxes to match span
+      updateTextColumnCheckboxes();
+      updateVisualizationOnInputChange();
+    });
+    
+    const span = document.createElement('span');
+    span.textContent = i.toString();
+    
+    label.appendChild(checkbox);
+    label.appendChild(span);
+    container.appendChild(label);
+  }
+  
+  // Update text column checkboxes when span changes
+  updateTextColumnCheckboxes();
+}
+
+/**
+ * Updates text column checkboxes based on column span
+ */
+function updateTextColumnCheckboxes(): void {
+  const container = document.getElementById('textColumnCheckboxes');
+  if (!container) return;
+  
+  const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
+  const columnSpan = getColumnSpan();
+  
+  // Clear existing checkboxes
+  container.innerHTML = '';
+  
+  if (!columnSpan) {
+    return;
+  }
+  
+  // Only show checkboxes for columns within the span
+  for (let i = columnSpan.start; i <= columnSpan.end; i++) {
+    const label = document.createElement('label');
+    label.className = 'layer-checkbox';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = i.toString();
+    checkbox.checked = true; // All columns in span selected by default
+    checkbox.id = `textColumn${i}`;
+    
+    checkbox.addEventListener('change', () => {
+      // Ensure at least one column is selected
+      const checked = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]:checked');
       if (checked.length === 0) {
         checkbox.checked = true;
       }
