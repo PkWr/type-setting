@@ -102,12 +102,22 @@
           </div>
           <span class="helper-text">Estimated based on column width and type size</span>
         </div>
+        <div class="form-group">
+          <label for="sampleText">Sample text</label>
+          <textarea id="sampleText" rows="4" placeholder="Enter sample text to preview how it will look in your layout..."></textarea>
+          <span class="helper-text">Preview how your text will appear in the calculated columns</span>
+        </div>
       </section>
 
       <div class="form-actions">
         <button type="button" id="calcButton" class="btn-primary">Calculate</button>
       </div>
     </form>
+
+    <section class="sample-text-section">
+      <h2>Text Preview</h2>
+      <div id="sampleTextPreview" class="sample-text-preview"></div>
+    </section>
 
     <section class="visualization-section">
       <h2>Page Layout Preview</h2>

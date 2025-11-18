@@ -77,6 +77,7 @@ export function calcLayout(): void {
   displayResults(results);
   updateVisualization(inputs);
   updateWordsPerLine();
+  updateSampleTextPreview();
 }
 
 /**
@@ -122,6 +123,63 @@ function updateWordsPerLine(): void {
 }
 
 /**
+ * Updates sample text preview
+ */
+function updateSampleTextPreview(): void {
+  try {
+    const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
+    const previewDiv = document.getElementById('sampleTextPreview');
+    
+    if (!previewDiv || !sampleTextInput) return;
+    
+    const sampleText = sampleTextInput.value.trim();
+    
+    if (!sampleText) {
+      previewDiv.innerHTML = '';
+      return;
+    }
+    
+    const inputs = getFormInputs();
+    const results = calculateLayout(inputs);
+    const unit = getCurrentUnit();
+    const typeSize = inputs.typeSize;
+    
+    // Convert column width to pixels for display (approximate: 1mm ≈ 3.78px at 96dpi)
+    const columnWidthMM = results.columnWidth;
+    const columnWidthPX = columnWidthMM * 3.78;
+    
+    // Set font size based on type size (convert pt to px: 1pt ≈ 1.33px)
+    const fontSizePX = typeSize * 1.33;
+    
+    // Create columns
+    previewDiv.innerHTML = '';
+    previewDiv.style.gridTemplateColumns = `repeat(${inputs.numCols}, 1fr)`;
+    previewDiv.style.fontSize = `${fontSizePX}px`;
+    
+    // Split text into words
+    const words = sampleText.split(/\s+/);
+    const wordsPerColumn = Math.ceil(words.length / inputs.numCols);
+    
+    // Create columns
+    for (let col = 0; col < inputs.numCols; col++) {
+      const columnDiv = document.createElement('div');
+      columnDiv.className = 'sample-text-column';
+      columnDiv.style.width = `${columnWidthPX}px`;
+      columnDiv.style.maxWidth = '100%';
+      
+      const startIdx = col * wordsPerColumn;
+      const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
+      const columnWords = words.slice(startIdx, endIdx);
+      
+      columnDiv.textContent = columnWords.join(' ');
+      previewDiv.appendChild(columnDiv);
+    }
+  } catch (e) {
+    // Silently fail if inputs are invalid
+  }
+}
+
+/**
  * Updates visualization when inputs change
  */
 function updateVisualizationOnInputChange(): void {
@@ -129,6 +187,7 @@ function updateVisualizationOnInputChange(): void {
     const inputs = getFormInputs();
     updateVisualization(inputs);
     updateWordsPerLine();
+    updateSampleTextPreview();
   } catch (e) {
     // Silently fail if inputs are invalid
   }
@@ -343,6 +402,13 @@ export function initializeCalculator(): void {
     });
   }
 
+  // Handle sample text input
+  const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
+  if (sampleTextInput) {
+    sampleTextInput.addEventListener('input', updateSampleTextPreview);
+    sampleTextInput.addEventListener('change', updateSampleTextPreview);
+  }
+
   // Populate paper size dropdown
   populatePaperSizeDropdown();
 
@@ -391,8 +457,9 @@ export function initializeCalculator(): void {
     }
   });
 
-  // Initial visualization and words per line
+  // Initial visualization, words per line, and sample text preview
   updateVisualizationOnInputChange();
   updateWordsPerLine();
+  updateSampleTextPreview();
 }
 
