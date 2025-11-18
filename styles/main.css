@@ -300,6 +300,7 @@ select option {
   gap: var(--spacing-sm);
   cursor: pointer;
   font-weight: 500;
+  color: #ffffff;
 }
 
 .checkbox-input {
