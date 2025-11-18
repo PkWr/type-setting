@@ -898,7 +898,7 @@ button {
   .visualization-section {
     flex: 0 0 auto;
     margin-top: 0;
-    padding-top: var(--spacing-lg);
+    padding-top: var(--spacing-xl);
     border-top: none;
     display: flex;
     flex-direction: column;
