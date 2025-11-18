@@ -23,9 +23,19 @@ export function calculateGutterWidth(typeSize: number): number {
  * @returns Calculated layout results
  */
 export function calculateLayout(inputs: LayoutInputs): LayoutResults {
-  const textBoxWidth = inputs.pageWidth - inputs.leftMargin - inputs.rightMargin;
+  // Calculate full text box width (all columns)
+  const fullTextBoxWidth = inputs.pageWidth - inputs.leftMargin - inputs.rightMargin;
   const totalGutterWidth = (inputs.numCols - 1) * inputs.gutterWidth;
-  const columnWidth = (textBoxWidth - totalGutterWidth) / inputs.numCols;
+  const columnWidth = (fullTextBoxWidth - totalGutterWidth) / inputs.numCols;
+  
+  // Calculate actual text box width based on column span
+  let textBoxWidth = fullTextBoxWidth;
+  if (inputs.columnSpanStart && inputs.columnSpanEnd) {
+    const spanCols = inputs.columnSpanEnd - inputs.columnSpanStart + 1;
+    const spanGutters = spanCols - 1;
+    textBoxWidth = (columnWidth * spanCols) + (inputs.gutterWidth * spanGutters);
+  }
+  
   const optimalColumnWidth = BRINGHURST_COLUMN_MULTIPLIER * inputs.typeSize * PT_TO_MM;
 
   return {

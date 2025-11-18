@@ -213,4 +213,9 @@ This file tracks all changes made to the type-setting project.
   - All measurements now properly positioned within visible area
   - 50px padding added around page for measurement space
   - Measurements adjusted for both single page and facing pages layouts
+  - Column span now controls text box width, not just text placement
+  - Text box width calculated based on selected column span
+  - Text box outline drawn to match span width
+  - Columns outside span shown with reduced opacity (0.2) for reference
+  - Text only appears in columns within the span
 

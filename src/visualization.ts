@@ -174,28 +174,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       svg.appendChild(rightMarginPath);
     }
 
-    // Text box outlines
-    const leftTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    leftTextBoxRect.setAttribute('x', leftPageTextX.toString());
-    leftTextBoxRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
-    leftTextBoxRect.setAttribute('width', leftPageTextWidth.toString());
-    leftTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
-    leftTextBoxRect.setAttribute('fill', 'none');
-    leftTextBoxRect.setAttribute('stroke', '#64748b');
-    leftTextBoxRect.setAttribute('stroke-width', '1.5');
-    leftTextBoxRect.setAttribute('stroke-dasharray', '4,2');
-    svg.appendChild(leftTextBoxRect);
-
-    const rightTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rightTextBoxRect.setAttribute('x', rightPageTextX.toString());
-    rightTextBoxRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
-    rightTextBoxRect.setAttribute('width', rightPageTextWidth.toString());
-    rightTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
-    rightTextBoxRect.setAttribute('fill', 'none');
-    rightTextBoxRect.setAttribute('stroke', '#64748b');
-    rightTextBoxRect.setAttribute('stroke-width', '1.5');
-    rightTextBoxRect.setAttribute('stroke-dasharray', '4,2');
-    svg.appendChild(rightTextBoxRect);
+    // Text box outlines are now drawn within drawColumns function
 
     // Draw columns for both pages
     const drawColumns = (pageTextX: number, pageTextWidth: number) => {
@@ -206,7 +185,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const actualColumnWidth = availableWidth / inputs.numCols;
       const sampleText = getSampleText();
       const words = sampleText ? sampleText.split(/\s+/) : [];
-      const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
       
       // Calculate font size in SVG units (scaled)
       // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
@@ -215,12 +193,30 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const lineHeight = fontSizeSVG * 1.5;
       const padding = fontSizeSVG * 0.5;
 
-      // Determine which columns to show text in
+      // Determine column span
       const columnSpanStart = inputs.columnSpanStart || 1;
       const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
       const spanCols = columnSpanEnd - columnSpanStart + 1;
       const wordsPerSpanColumn = words.length > 0 ? Math.ceil(words.length / spanCols) : 0;
       
+      // Calculate text box position and width based on span
+      const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
+      const spanTextBoxX = pageTextX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
+      const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * (spanCols - 1));
+      
+      // Draw text box outline for span
+      const spanTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      spanTextBoxRect.setAttribute('x', spanTextBoxX.toString());
+      spanTextBoxRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
+      spanTextBoxRect.setAttribute('width', spanTextBoxWidth.toString());
+      spanTextBoxRect.setAttribute('height', textBoxHeight.toString());
+      spanTextBoxRect.setAttribute('fill', 'none');
+      spanTextBoxRect.setAttribute('stroke', '#64748b');
+      spanTextBoxRect.setAttribute('stroke-width', '1.5');
+      spanTextBoxRect.setAttribute('stroke-dasharray', '4,2');
+      svg.appendChild(spanTextBoxRect);
+      
+      // Draw all columns (for reference)
       for (let i = 0; i < inputs.numCols; i++) {
         const colIndex = i + 1; // 1-indexed
         const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
@@ -235,7 +231,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
           colRect.setAttribute('fill', '#e0e7ff');
           colRect.setAttribute('stroke', '#2563eb');
           colRect.setAttribute('stroke-width', '1');
-          colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.3');
+          colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.2');
           svg.appendChild(colRect);
         }
 
@@ -279,6 +275,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
           divider.setAttribute('stroke', '#2563eb');
           divider.setAttribute('stroke-width', '2');
           divider.setAttribute('stroke-dasharray', '3,3');
+          divider.setAttribute('opacity', isInSpan ? '1' : '0.3');
           svg.appendChild(divider);
         }
       }
@@ -414,9 +411,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   } else {
     // Single page mode (existing code)
-    const textBoxX = pageOffsetX + scaledLeftMargin;
+    const fullTextBoxX = pageOffsetX + scaledLeftMargin;
     const textBoxY = pageOffsetY + scaledTopMargin;
-    const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
+    const fullTextBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
     const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
 
     // Page background
@@ -445,7 +442,33 @@ export function updateVisualization(inputs: LayoutInputs): void {
       svg.appendChild(marginPath);
     }
 
-    // Text box area outline
+    // Columns
+    const scaledGutterWidth = inputs.gutterWidth * scaleX;
+    const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
+    const availableWidth = fullTextBoxWidth - totalGutters;
+    const actualColumnWidth = availableWidth / inputs.numCols;
+    const sampleText = getSampleText();
+    const words = sampleText ? sampleText.split(/\s+/) : [];
+    
+    // Calculate font size in SVG units (scaled)
+    // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
+    const typeSizeMM = inputs.typeSize * 0.3528;
+    const fontSizeSVG = typeSizeMM * scaleY;
+    const lineHeight = fontSizeSVG * 1.5;
+    const padding = fontSizeSVG * 0.5;
+
+    // Determine column span
+    const columnSpanStart = inputs.columnSpanStart || 1;
+    const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
+    const spanCols = columnSpanEnd - columnSpanStart + 1;
+    const wordsPerSpanColumn = words.length > 0 ? Math.ceil(words.length / spanCols) : 0;
+    
+    // Calculate text box position and width based on span
+    const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
+    const textBoxX = fullTextBoxX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
+    const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * (spanCols - 1));
+    
+    // Draw text box outline for span
     const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     textBoxRect.setAttribute('x', textBoxX.toString());
     textBoxRect.setAttribute('y', textBoxY.toString());
@@ -456,32 +479,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     textBoxRect.setAttribute('stroke-width', '1.5');
     textBoxRect.setAttribute('stroke-dasharray', '4,2');
     svg.appendChild(textBoxRect);
-
-    // Columns
-    const scaledGutterWidth = inputs.gutterWidth * scaleX;
-    const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
-    const availableWidth = textBoxWidth - totalGutters;
-    const actualColumnWidth = availableWidth / inputs.numCols;
-    const sampleText = getSampleText();
-    const words = sampleText ? sampleText.split(/\s+/) : [];
-    const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
     
-    // Calculate font size in SVG units (scaled)
-    // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
-    const typeSizeMM = inputs.typeSize * 0.3528;
-    const fontSizeSVG = typeSizeMM * scaleY;
-    const lineHeight = fontSizeSVG * 1.5;
-    const padding = fontSizeSVG * 0.5;
-
-    // Determine which columns to show text in
-    const columnSpanStart = inputs.columnSpanStart || 1;
-    const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
-    const spanCols = columnSpanEnd - columnSpanStart + 1;
-    const wordsPerSpanColumn = words.length > 0 ? Math.ceil(words.length / spanCols) : 0;
-    
+    // Draw all columns (for reference)
     for (let i = 0; i < inputs.numCols; i++) {
       const colIndex = i + 1; // 1-indexed
-      const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+      const colX = fullTextBoxX + (i * (actualColumnWidth + scaledGutterWidth));
       const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
       
       if (layerVisibility.columns) {
@@ -493,7 +495,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
         colRect.setAttribute('fill', '#e0e7ff');
         colRect.setAttribute('stroke', '#2563eb');
         colRect.setAttribute('stroke-width', '1');
-        colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.3');
+        colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.2');
         svg.appendChild(colRect);
       }
 
@@ -537,6 +539,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
         divider.setAttribute('stroke', '#2563eb');
         divider.setAttribute('stroke-width', '2');
         divider.setAttribute('stroke-dasharray', '3,3');
+        divider.setAttribute('opacity', isInSpan ? '1' : '0.3');
         svg.appendChild(divider);
       }
     }
@@ -658,21 +661,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
     addMeasurement(pageOffsetX - measurementOffset, pageOffsetY + visHeight - scaledBottomMargin, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
       convertFromMM(inputs.bottomMargin, unit, typeSize), unit);
     
-    // Text box width
+    // Text box width (span width)
     addMeasurement(textBoxX, textBoxY + textBoxHeight + measurementOffset, textBoxX + textBoxWidth, textBoxY + textBoxHeight + measurementOffset,
       convertFromMM(results.textBoxWidth, unit, typeSize), unit);
     
     // Column width (if columns visible)
     if (layerVisibility.columns && inputs.numCols > 0) {
-      const firstColX = textBoxX;
-      const firstColWidth = (textBoxWidth - (inputs.numCols - 1) * inputs.gutterWidth * scaleX) / inputs.numCols;
+      const firstColX = fullTextBoxX;
+      const firstColWidth = actualColumnWidth;
       addMeasurement(firstColX, textBoxY + textBoxHeight + measurementOffset + 12, firstColX + firstColWidth, textBoxY + textBoxHeight + measurementOffset + 12,
         convertFromMM(results.columnWidth, unit, typeSize), unit);
     }
     
     // Gutter width (if multiple columns)
     if (inputs.numCols > 1) {
-      const gutterX = textBoxX + (textBoxWidth - (inputs.numCols - 1) * inputs.gutterWidth * scaleX) / inputs.numCols;
+      const gutterX = fullTextBoxX + actualColumnWidth;
       addMeasurement(gutterX, textBoxY + textBoxHeight + measurementOffset + 24, gutterX + inputs.gutterWidth * scaleX, textBoxY + textBoxHeight + measurementOffset + 24,
         convertFromMM(inputs.gutterWidth, unit, typeSize), unit);
     }
