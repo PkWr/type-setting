@@ -120,8 +120,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
   pageRect.setAttribute('width', singlePageWidth.toString());
   pageRect.setAttribute('height', visHeight.toString());
   pageRect.setAttribute('fill', '#ffffff');
-  pageRect.setAttribute('stroke', '#1e293b');
-  pageRect.setAttribute('stroke-width', '2');
+  pageRect.setAttribute('stroke', '#000000');
+  pageRect.setAttribute('stroke-width', '1');
   svg.appendChild(pageRect);
 
   // Margins area (only if margins layer is visible) - using keylines instead of fills
