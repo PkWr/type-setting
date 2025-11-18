@@ -10,7 +10,7 @@ import { updateVisualization } from './visualization.js';
 import { Unit, UNITS, convertFromMM, convertToMM, formatValue } from './units.js';
 import { DEFAULT_SAMPLE_TEXT } from './defaultText.js';
 
-// Page dimensions and margins are always in mm, gutter is always in em
+// Page dimensions are always in mm, gutter is always in em
 const PAGE_UNIT: Unit = 'mm';
 const GUTTER_UNIT: Unit = 'em';
 
@@ -53,11 +53,23 @@ function getFormInputs(): LayoutInputs {
   }
   const facingPages = isFacingPages();
 
-  // Page dimensions and margins are always in mm (no conversion needed)
+  // Get margin unit
+  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
+  const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+
+  // Page dimensions are always in mm (no conversion needed)
   const pageWidth = parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value);
   const pageHeight = parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value);
-  const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
-  const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
+  
+  // Get margins and convert to mm if needed
+  let topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
+  let bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
+  
+  // Convert margins to mm if they're in em
+  if (marginUnit === 'em') {
+    topMargin = convertToMM(topMargin, 'em', typeSize);
+    bottomMargin = convertToMM(bottomMargin, 'em', typeSize);
+  }
   
   // Get margins based on facing pages mode
   let leftMargin: number;
@@ -65,10 +77,18 @@ function getFormInputs(): LayoutInputs {
   
   if (facingPages) {
     // Facing pages: use inner and outer margins
-    const innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
-    const innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
-    const outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
-    const outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+    let innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
+    let innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
+    let outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
+    let outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+    
+    // Convert to mm if needed
+    if (marginUnit === 'em') {
+      innerMarginLeft = convertToMM(innerMarginLeft, 'em', typeSize);
+      innerMarginRight = convertToMM(innerMarginRight, 'em', typeSize);
+      outerMarginLeft = convertToMM(outerMarginLeft, 'em', typeSize);
+      outerMarginRight = convertToMM(outerMarginRight, 'em', typeSize);
+    }
     
     // For compatibility, set leftMargin = average inner, rightMargin = average outer
     leftMargin = (innerMarginLeft + innerMarginRight) / 2;
@@ -77,6 +97,12 @@ function getFormInputs(): LayoutInputs {
     // Single page: use left and right margins
     leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
     rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
+    
+    // Convert to mm if needed
+    if (marginUnit === 'em') {
+      leftMargin = convertToMM(leftMargin, 'em', typeSize);
+      rightMargin = convertToMM(rightMargin, 'em', typeSize);
+    }
   }
   
   // Gutter is always in ems - convert to mm for calculations
@@ -110,12 +136,25 @@ function getFormInputs(): LayoutInputs {
     hyphenation, // Hyphenation enabled/disabled
   };
   
-  // Add facing pages specific margins if in facing pages mode
+  // Add facing pages specific margins if in facing pages mode (already converted to mm above)
   if (facingPages) {
-    inputs.innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
-    inputs.innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
-    inputs.outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
-    inputs.outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+    let innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
+    let innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
+    let outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
+    let outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+    
+    // Convert to mm if needed
+    if (marginUnit === 'em') {
+      innerMarginLeft = convertToMM(innerMarginLeft, 'em', typeSize);
+      innerMarginRight = convertToMM(innerMarginRight, 'em', typeSize);
+      outerMarginLeft = convertToMM(outerMarginLeft, 'em', typeSize);
+      outerMarginRight = convertToMM(outerMarginRight, 'em', typeSize);
+    }
+    
+    inputs.innerMarginLeft = innerMarginLeft;
+    inputs.innerMarginRight = innerMarginRight;
+    inputs.outerMarginLeft = outerMarginLeft;
+    inputs.outerMarginRight = outerMarginRight;
   }
   
   if (columnSpan) {
@@ -286,19 +325,55 @@ function updateSpecification(): void {
     html += `<div class="spec-item"><span class="spec-label">Facing pages:</span><span class="spec-value">${facingPages ? 'Yes' : 'No'}</span></div>`;
     html += '</div>';
     
+    // Get margin unit for display
+    const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
+    const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+    
     // Margins
     html += '<div class="spec-group"><h4>Margins</h4>';
     if (facingPages) {
-      html += `<div class="spec-item"><span class="spec-label">Inner left:</span><span class="spec-value">${inputs.innerMarginLeft || 0} mm</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Inner right:</span><span class="spec-value">${inputs.innerMarginRight || 0} mm</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Outer left:</span><span class="spec-value">${inputs.outerMarginLeft || 0} mm</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Outer right:</span><span class="spec-value">${inputs.outerMarginRight || 0} mm</span></div>`;
+      let innerMarginLeft = inputs.innerMarginLeft || 0;
+      let innerMarginRight = inputs.innerMarginRight || 0;
+      let outerMarginLeft = inputs.outerMarginLeft || 0;
+      let outerMarginRight = inputs.outerMarginRight || 0;
+      
+      // Convert to display unit if needed
+      if (marginUnit === 'em') {
+        innerMarginLeft = convertFromMM(innerMarginLeft, 'em', inputs.typeSize);
+        innerMarginRight = convertFromMM(innerMarginRight, 'em', inputs.typeSize);
+        outerMarginLeft = convertFromMM(outerMarginLeft, 'em', inputs.typeSize);
+        outerMarginRight = convertFromMM(outerMarginRight, 'em', inputs.typeSize);
+      }
+      
+      html += `<div class="spec-item"><span class="spec-label">Inner left:</span><span class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Inner right:</span><span class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Outer left:</span><span class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Outer right:</span><span class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
     } else {
-      html += `<div class="spec-item"><span class="spec-label">Left:</span><span class="spec-value">${inputs.leftMargin} mm</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Right:</span><span class="spec-value">${inputs.rightMargin} mm</span></div>`;
+      let leftMargin = inputs.leftMargin;
+      let rightMargin = inputs.rightMargin;
+      
+      // Convert to display unit if needed
+      if (marginUnit === 'em') {
+        leftMargin = convertFromMM(leftMargin, 'em', inputs.typeSize);
+        rightMargin = convertFromMM(rightMargin, 'em', inputs.typeSize);
+      }
+      
+      html += `<div class="spec-item"><span class="spec-label">Left:</span><span class="spec-value">${leftMargin.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Right:</span><span class="spec-value">${rightMargin.toFixed(1)} ${marginUnit}</span></div>`;
     }
-    html += `<div class="spec-item"><span class="spec-label">Top:</span><span class="spec-value">${inputs.topMargin} mm</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Bottom:</span><span class="spec-value">${inputs.bottomMargin} mm</span></div>`;
+    
+    let topMargin = inputs.topMargin;
+    let bottomMargin = inputs.bottomMargin;
+    
+    // Convert to display unit if needed
+    if (marginUnit === 'em') {
+      topMargin = convertFromMM(topMargin, 'em', inputs.typeSize);
+      bottomMargin = convertFromMM(bottomMargin, 'em', inputs.typeSize);
+    }
+    
+    html += `<div class="spec-item"><span class="spec-label">Top:</span><span class="spec-value">${topMargin.toFixed(1)} ${marginUnit}</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Bottom:</span><span class="spec-value">${bottomMargin.toFixed(1)} ${marginUnit}</span></div>`;
     html += '</div>';
     
     // Typography
@@ -566,6 +641,79 @@ function isFacingPages(): boolean {
 /**
  * Updates margin inputs visibility and syncs values when switching modes
  */
+/**
+ * Updates margin labels to show the selected unit
+ */
+function updateMarginLabels(): void {
+  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
+  const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+  const unitLabel = marginUnit === 'em' ? 'em' : 'mm';
+  
+  const labels = [
+    'topMarginLabel',
+    'bottomMarginLabel',
+    'leftMarginLabel',
+    'rightMarginLabel',
+    'innerMarginLeftLabel',
+    'innerMarginRightLabel',
+    'outerMarginLeftLabel',
+    'outerMarginRightLabel'
+  ];
+  
+  labels.forEach(labelId => {
+    const label = document.getElementById(labelId);
+    if (label) {
+      const baseText = label.textContent?.replace(/\(mm\)|\(em\)/g, '').trim() || '';
+      label.textContent = `${baseText} (${unitLabel})`;
+    }
+  });
+}
+
+/**
+ * Converts margin values when switching units
+ */
+function convertMarginValues(fromUnit: Unit, toUnit: Unit): void {
+  if (fromUnit === toUnit) return;
+  
+  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  const marginInputs = [
+    'topMargin',
+    'bottomMargin',
+    'leftMargin',
+    'rightMargin',
+    'innerMarginLeft',
+    'innerMarginRight',
+    'outerMarginLeft',
+    'outerMarginRight'
+  ];
+  
+  marginInputs.forEach(inputId => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    if (input && input.value) {
+      const currentValue = parseFloat(input.value);
+      if (!isNaN(currentValue)) {
+        // Convert to mm first, then to target unit
+        let valueInMM: number;
+        if (fromUnit === 'em') {
+          valueInMM = convertToMM(currentValue, 'em', typeSize);
+        } else {
+          valueInMM = currentValue; // Already in mm
+        }
+        
+        // Convert from mm to target unit
+        let newValue: number;
+        if (toUnit === 'em') {
+          newValue = convertFromMM(valueInMM, 'em', typeSize);
+        } else {
+          newValue = valueInMM; // Already in mm
+        }
+        
+        input.value = newValue.toFixed(1);
+      }
+    }
+  });
+}
+
 function updateMarginInputs(): void {
   const facingPages = isFacingPages();
   const singlePageMargins = document.getElementById('singlePageMargins') as HTMLElement;
@@ -578,6 +726,9 @@ function updateMarginInputs(): void {
   const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
   const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
   const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+  
+  // Update labels
+  updateMarginLabels();
   
   if (facingPages) {
     // Show facing pages inputs, hide single page inputs
@@ -729,6 +880,19 @@ function exportVisualizationAsHTML(): void {
 export function initializeCalculator(): void {
   // Initialize margin inputs visibility
   updateMarginInputs();
+  
+  // Handle margin unit change
+  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
+  if (marginUnitSelect) {
+    let previousUnit: Unit = (marginUnitSelect.value as Unit) || 'mm';
+    marginUnitSelect.addEventListener('change', () => {
+      const newUnit: Unit = (marginUnitSelect.value as Unit) || 'mm';
+      convertMarginValues(previousUnit, newUnit);
+      updateMarginLabels();
+      previousUnit = newUnit;
+      updateVisualizationOnInputChange();
+    });
+  }
 
   // Handle facing pages checkbox
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
