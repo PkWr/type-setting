@@ -243,9 +243,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Create SVG
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+  // Use 'meet' to scale to fit longest edge - SVG will scale to fit container
+  // while maintaining aspect ratio, fitting by whichever dimension is smaller
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  // Don't set width/height to 100% - let CSS max-width/max-height handle scaling
-  // This ensures the SVG scales to fit without being cropped
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
   svg.classList.add('page-visualization');
 
   if (facingPages) {
