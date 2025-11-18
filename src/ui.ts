@@ -81,6 +81,7 @@ function getFormInputs(): LayoutInputs {
   }
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
+  const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement).value;
   const columnSpan = getColumnSpan();
   const textColumns = getTextColumns();
   
@@ -92,6 +93,7 @@ function getFormInputs(): LayoutInputs {
     topMargin, // Already in mm
     bottomMargin, // Already in mm
     typeSize, // Type size is always in points
+    fontFamily, // Font family name
     numCols,
     gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
   };
