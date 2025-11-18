@@ -281,6 +281,16 @@ h2 {
   margin-bottom: var(--spacing-md);
 }
 
+/* Force 2 columns for width/height row */
+.form-row-two-col {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Force single column for facing pages row */
+.form-row-single-col {
+  grid-template-columns: 1fr !important;
+}
+
 @media (min-width: 1200px) {
   .form-row {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -293,7 +303,7 @@ h2 {
   
   /* Force single column for facing pages row */
   .form-row-single-col {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 }
 
