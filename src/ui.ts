@@ -1365,19 +1365,19 @@ function addLetterpressDecorations(): void {
   
   const decorations = [
     {
-      src: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&q=80',
+      src: 'images/compositor.jpg',
       alt: 'Composing stick with lead type',
-      name: 'composing-stick'
+      name: 'compositor'
     },
     {
-      src: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&q=80',
+      src: 'images/chase.jpg',
       alt: 'Chase with type',
       name: 'chase'
     },
     {
-      src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80',
+      src: 'images/M.jpg',
       alt: 'Capital wooden M',
-      name: 'wooden-m'
+      name: 'M'
     }
   ];
   
@@ -1391,6 +1391,12 @@ function addLetterpressDecorations(): void {
       img.alt = decoration.alt;
       img.className = 'letterpress-decoration';
       img.id = `decoration-${decoration.name}`;
+      
+      // Handle image load errors gracefully
+      img.onerror = () => {
+        console.warn(`Failed to load decoration image: ${decoration.src}`);
+        img.style.display = 'none';
+      };
       
       // Random position within container bounds
       const containerRect = container.getBoundingClientRect();
