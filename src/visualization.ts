@@ -20,7 +20,8 @@ function getLayerVisibility() {
   const showMargins = (document.getElementById('showMargins') as HTMLInputElement)?.checked ?? true;
   const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
   const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
-  return { margins: showMargins, columns: showColumns, text: showText };
+  const solidFills = (document.getElementById('solidFills') as HTMLInputElement)?.checked ?? false;
+  return { margins: showMargins, columns: showColumns, text: showText, solidFills };
 }
 
 // Page dimensions and margins are always in mm, gutter is always in em
@@ -53,7 +54,7 @@ function drawPage(
   bottomMargin: number,
   scaleX: number,
   scaleY: number,
-  layerVisibility: { margins: boolean; columns: boolean; text: boolean }
+  layerVisibility: { margins: boolean; columns: boolean; text: boolean; solidFills: boolean }
 ): void {
   // Draw page background
   const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -72,16 +73,21 @@ function drawPage(
   const scaledLeftMargin = Math.max(leftMargin * scaleX, MIN_MARGIN_VISUAL);
   const scaledRightMargin = Math.max(rightMargin * scaleX, MIN_MARGIN_VISUAL);
 
-  // Draw margin keylines
+  // Draw margins
   if (layerVisibility.margins) {
     const marginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     marginRect.setAttribute('x', (pageX + scaledLeftMargin).toString());
     marginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
     marginRect.setAttribute('width', (pageWidth - scaledLeftMargin - scaledRightMargin).toString());
     marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
-    marginRect.setAttribute('fill', 'none');
-    marginRect.setAttribute('stroke', '#000000');
-    marginRect.setAttribute('stroke-width', '0.5');
+    if (layerVisibility.solidFills) {
+      marginRect.setAttribute('fill', '#ff0000'); // Red fill
+      marginRect.setAttribute('stroke', 'none');
+    } else {
+      marginRect.setAttribute('fill', 'none');
+      marginRect.setAttribute('stroke', '#000000');
+      marginRect.setAttribute('stroke-width', '0.5');
+    }
     svg.appendChild(marginRect);
   }
 
@@ -104,9 +110,14 @@ function drawPage(
       colRect.setAttribute('y', textBoxY.toString());
       colRect.setAttribute('width', columnWidth.toString());
       colRect.setAttribute('height', textBoxHeight.toString());
-      colRect.setAttribute('fill', 'none');
-      colRect.setAttribute('stroke', '#000000');
-      colRect.setAttribute('stroke-width', '0.5');
+      if (layerVisibility.solidFills) {
+        colRect.setAttribute('fill', '#ffff00'); // Yellow fill
+        colRect.setAttribute('stroke', 'none');
+      } else {
+        colRect.setAttribute('fill', 'none');
+        colRect.setAttribute('stroke', '#000000');
+        colRect.setAttribute('stroke-width', '0.5');
+      }
       svg.appendChild(colRect);
     }
   }

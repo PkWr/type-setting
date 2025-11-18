@@ -1091,10 +1091,12 @@ function saveSettings(): void {
     const showMargins = (document.getElementById('showMargins') as HTMLInputElement)?.checked ?? true;
     const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
     const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
+    const solidFills = (document.getElementById('solidFills') as HTMLInputElement)?.checked ?? false;
     
     settings.showMargins = showMargins;
     settings.showColumns = showColumns;
     settings.showText = showText;
+    settings.solidFills = solidFills;
     
     localStorage.setItem('compositorSettings', JSON.stringify(settings));
   } catch (e) {
