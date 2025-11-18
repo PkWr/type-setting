@@ -1290,9 +1290,87 @@ function loadSettings(): void {
   }
 }
 
+/**
+ * Shows the introduction modal
+ */
+function showIntroModal(): void {
+  const modal = document.getElementById('introModal');
+  if (modal) {
+    modal.classList.add('show');
+  }
+}
+
+/**
+ * Hides the introduction modal
+ */
+function hideIntroModal(): void {
+  const modal = document.getElementById('introModal');
+  if (modal) {
+    modal.classList.remove('show');
+  }
+}
+
 export function initializeCalculator(): void {
   // Load saved settings first
   loadSettings();
+  
+  // Initialize modal
+  const modal = document.getElementById('introModal');
+  const readMeLink = document.getElementById('readMeLink');
+  const closeModal = document.getElementById('closeModal');
+  
+  if (readMeLink) {
+    readMeLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      showIntroModal();
+    });
+  }
+  
+  if (closeModal) {
+    closeModal.addEventListener('click', () => {
+      hideIntroModal();
+    });
+  }
+  
+  // Close modal when clicking outside
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideIntroModal();
+      }
+    });
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('show')) {
+        hideIntroModal();
+      }
+    });
+    
+    // Show modal on page load (only if not previously dismissed)
+    const modalDismissed = localStorage.getItem('introModalDismissed');
+    if (!modalDismissed) {
+      // Small delay to ensure page is loaded
+      setTimeout(() => {
+        showIntroModal();
+      }, 100);
+    }
+  }
+  
+  // Save dismissal state when closing
+  if (closeModal) {
+    closeModal.addEventListener('click', () => {
+      localStorage.setItem('introModalDismissed', 'true');
+    });
+  }
+  
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        localStorage.setItem('introModalDismissed', 'true');
+      }
+    });
+  }
   
   // Initialize margin inputs visibility
   updateMarginInputs();
