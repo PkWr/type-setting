@@ -117,6 +117,34 @@
       </section>
 
       <section class="form-section">
+        <h2>Columns</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="numCols">Number of columns</label>
+            <input type="number" id="numCols" value="2" min="1" class="input-small" required>
+          </div>
+          <div class="form-group gutter-group">
+            <label for="gutterWidth">Gutter width (em)</label>
+            <input type="number" id="gutterWidth" value="" step="0.001" class="input-small" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <span id="columnWidthDisplay" class="helper-text"></span>
+          <span id="autoGutterNote" class="helper-text"></span>
+        </div>
+        <div class="form-group">
+          <label>Text box spans columns</label>
+          <div id="columnSpanCheckboxes" class="column-span-checkboxes"></div>
+          <span class="helper-text">Select which columns the text box should span</span>
+        </div>
+        <div class="form-group">
+          <label>Text appears in columns</label>
+          <div id="textColumnCheckboxes" class="column-span-checkboxes"></div>
+          <span class="helper-text">Select which columns within the span should display text</span>
+        </div>
+      </section>
+
+      <section class="form-section">
         <h2>Typography Settings</h2>
         <div class="form-group">
           <label for="fontFamily">Typeface</label>
@@ -158,23 +186,6 @@
             <label for="leading">Leading (pt)</label>
             <input type="number" id="leading" value="" step="0.1" class="input-small" required>
           </div>
-          <div class="form-group">
-            <label for="numCols">Columns</label>
-            <input type="number" id="numCols" value="2" min="1" class="input-small" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <span id="columnWidthDisplay" class="helper-text"></span>
-        </div>
-        <div class="form-group">
-          <label>Text box spans columns</label>
-          <div id="columnSpanCheckboxes" class="column-span-checkboxes"></div>
-          <span class="helper-text">Select which columns the text box should span</span>
-        </div>
-        <div class="form-group">
-          <label>Text appears in columns</label>
-          <div id="textColumnCheckboxes" class="column-span-checkboxes"></div>
-          <span class="helper-text">Select which columns within the span should display text</span>
         </div>
         <div class="form-group">
           <label class="checkbox-label">
@@ -182,11 +193,6 @@
             <span>Enable hyphenation</span>
           </label>
           <span class="helper-text">Automatically hyphenate words at line breaks</span>
-        </div>
-        <div class="form-group gutter-group">
-          <label for="gutterWidth">Gutter width (em)</label>
-          <input type="number" id="gutterWidth" value="" step="0.001" class="input-small" required>
-          <span id="autoGutterNote" class="helper-text"></span>
         </div>
         <div class="form-group">
           <div class="info-display">
