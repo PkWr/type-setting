@@ -315,17 +315,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
           
           // Add rectangles for each column that should show text
           // Clipping coordinates are relative to the textGroup (which starts at spanTextBoxX)
+          // The textGroup spans the full text box width, and clipping should align with column positions
           columnsToShowText.forEach(colIndex => {
             const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
+            // Calculate clipX relative to textGroup origin (0,0)
+            // Column positions: colOffset * (columnWidth + gutterWidth)
             const clipX = colOffset * (actualColumnWidth + scaledGutterWidth);
             const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
+            // Position relative to textGroup origin
             // Column 1 (offset 0): x=0
             // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
+            // Note: textDiv padding is internal, clipping is applied to textGroup
             clipRect.setAttribute('x', clipX.toString());
-            clipRect.setAttribute('y', padding.toString()); // Account for padding
+            clipRect.setAttribute('y', '0'); // Start from top of textGroup
             clipRect.setAttribute('width', actualColumnWidth.toString());
-            clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
+            clipRect.setAttribute('height', textBoxHeight.toString()); // Full height of textGroup
             clipPath.appendChild(clipRect);
             
             const clipEndX = clipX + actualColumnWidth;
@@ -335,9 +339,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
               clipX,
               clipEndX,
               width: actualColumnWidth,
-              height: textBoxHeight - padding * 2,
+              height: textBoxHeight,
+              expectedX: colOffset === 0 ? '0' : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`,
               nextColumnStart: colOffset === 0 ? actualColumnWidth : null,
-              gap: colOffset === 0 ? scaledGutterWidth : null
+              gap: colOffset === 0 ? scaledGutterWidth : null,
+              textGroupX: spanTextBoxX,
+              textGroupWidth: spanTextBoxWidth
             });
           });
           
@@ -351,7 +358,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textDiv.style.color = '#1e293b';
           textDiv.style.width = '100%';
           textDiv.style.height = '100%';
-          textDiv.style.padding = `${padding}px`;
+          // Only apply vertical padding to avoid horizontal clipping issues
+          // Horizontal padding would require adjusting clipping rectangles
+          textDiv.style.paddingTop = `${padding}px`;
+          textDiv.style.paddingBottom = `${padding}px`;
+          textDiv.style.paddingLeft = '0';
+          textDiv.style.paddingRight = '0';
           textDiv.style.boxSizing = 'border-box';
           textDiv.style.overflow = 'hidden';
           textDiv.style.wordWrap = 'break-word';
@@ -529,6 +541,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
         
         // Debug logging for text rendering
         const expectedTotalWidth = (actualColumnWidth * columnsToShowText.length) + (scaledGutterWidth * (columnsToShowText.length - 1));
+        const column1End = actualColumnWidth;
+        const column2Start = actualColumnWidth + scaledGutterWidth;
+        const column2End = column2Start + actualColumnWidth;
         console.log('Single page - Text rendering:', {
           columnsToShowText,
           textBoxX,
@@ -539,7 +554,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
           padding,
           expectedTotalWidth,
           matches: Math.abs(textBoxWidth - expectedTotalWidth) < 0.01 ? 'YES' : 'NO',
-          difference: textBoxWidth - expectedTotalWidth
+          difference: textBoxWidth - expectedTotalWidth,
+          column1End,
+          column2Start,
+          column2End,
+          totalShouldBe: column2End,
+          verification: `Column1(0-${column1End}) + Gutter(${column1End}-${column2Start}) + Column2(${column2Start}-${column2End}) = ${column2End}`
         });
         
         // Create clipping path to only show text in selected columns
@@ -549,17 +569,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
         
         // Add rectangles for each column that should show text
         // Clipping coordinates are relative to the textGroup (which starts at textBoxX)
+        // The textGroup spans the full text box width, and clipping should align with column positions
         columnsToShowText.forEach(colIndex => {
           const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
+          // Calculate clipX relative to textGroup origin (0,0)
+          // Column positions: colOffset * (columnWidth + gutterWidth)
           const clipX = colOffset * (actualColumnWidth + scaledGutterWidth);
           const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
+          // Position relative to textGroup origin
           // Column 1 (offset 0): x=0
           // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
+          // Note: textDiv padding is internal, clipping is applied to textGroup
           clipRect.setAttribute('x', clipX.toString());
-          clipRect.setAttribute('y', padding.toString()); // Account for padding
+          clipRect.setAttribute('y', '0'); // Start from top of textGroup
           clipRect.setAttribute('width', actualColumnWidth.toString());
-          clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
+          clipRect.setAttribute('height', textBoxHeight.toString()); // Full height of textGroup
           clipPath.appendChild(clipRect);
           
           const clipEndX = clipX + actualColumnWidth;
@@ -569,10 +593,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
             clipX,
             clipEndX,
             width: actualColumnWidth,
-            height: textBoxHeight - padding * 2,
-            expectedX: colOffset === 0 ? 0 : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`,
+            height: textBoxHeight,
+            expectedX: colOffset === 0 ? '0' : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`,
             nextColumnStart: colOffset === 0 ? actualColumnWidth : null,
-            gap: colOffset === 0 ? scaledGutterWidth : null
+            gap: colOffset === 0 ? scaledGutterWidth : null,
+            textGroupX: textBoxX,
+            textGroupWidth: textBoxWidth
           });
         });
         
@@ -586,7 +612,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textDiv.style.color = '#1e293b';
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
-        textDiv.style.padding = `${padding}px`;
+        // Only apply vertical padding to avoid horizontal clipping issues
+        // Horizontal padding would require adjusting clipping rectangles
+        textDiv.style.paddingTop = `${padding}px`;
+        textDiv.style.paddingBottom = `${padding}px`;
+        textDiv.style.paddingLeft = '0';
+        textDiv.style.paddingRight = '0';
         textDiv.style.boxSizing = 'border-box';
         textDiv.style.overflow = 'hidden';
         textDiv.style.wordWrap = 'break-word';
