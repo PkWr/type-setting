@@ -226,9 +226,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
     singlePageHeight = VISUALIZATION_SIZE * aspectRatio;
   }
 
-  // For facing pages, show two pages side by side
-  const gapBetweenPages = 20;
-  const visWidth = facingPages ? singlePageWidth * 2 + gapBetweenPages : singlePageWidth;
+  // For facing pages, show two pages side by side (flush, no gap)
+  const visWidth = facingPages ? singlePageWidth * 2 : singlePageWidth;
   const visHeight = singlePageHeight;
   
   // SVG dimensions
@@ -248,11 +247,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
   svg.classList.add('page-visualization');
 
   if (facingPages) {
-    // Draw two pages side by side
+    // Draw two pages side by side (flush, no gap)
     // Left page: outer margin = rightMargin (left side), inner margin = leftMargin (right side)
     // Right page: inner margin = leftMargin (left side), outer margin = rightMargin (right side)
     const leftPageX = 0;
-    const rightPageX = singlePageWidth + gapBetweenPages;
+    const rightPageX = singlePageWidth;
     
     // Left page
     drawPage(
