@@ -131,7 +131,9 @@ export function suggestGutter(): void {
   // Gutter is always 1em (always displayed in ems)
   gutterInput.value = '1.000';
   if (noteSpan) {
-    noteSpan.textContent = '1em (based on type size)';
+    // Show actual value: 1em = typeSize pt = typeSize * 0.3528 mm
+    const gutterMM = typeSize * 0.3528;
+    noteSpan.textContent = `1em = ${typeSize}pt (${gutterMM.toFixed(2)}mm)`;
   }
 }
 
