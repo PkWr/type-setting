@@ -828,6 +828,7 @@ button {
   max-width: 150px;
   max-height: 150px;
   object-fit: contain;
+  transition: opacity 0.3s ease-out;
 }
 
 .page-visualization {
