@@ -193,8 +193,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const padding = fontSizeSVG * 0.5;
 
       // Determine column span
-      const columnSpanStart = inputs.columnSpanStart || 1;
-      const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
+      // Only use defaults if columnSpanStart/End are explicitly undefined
+      // If they're 0 or null, that means no span was selected
+      const columnSpanStart = inputs.columnSpanStart !== undefined ? inputs.columnSpanStart : 1;
+      const columnSpanEnd = inputs.columnSpanEnd !== undefined ? inputs.columnSpanEnd : inputs.numCols;
       const spanCols = columnSpanEnd - columnSpanStart + 1;
       
       // Get text columns (which columns text appears in)
@@ -208,6 +210,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
       // This ensures the text box spans the exact width of selected columns + gutters
       const spanGutters = spanCols - 1;
+      // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
       const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
       
       // Draw text box outline for span
@@ -367,8 +370,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const padding = fontSizeSVG * 0.5;
 
     // Determine column span
-    const columnSpanStart = inputs.columnSpanStart || 1;
-    const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
+    // Only use defaults if columnSpanStart/End are explicitly undefined
+    // If they're 0 or null, that means no span was selected
+    const columnSpanStart = inputs.columnSpanStart !== undefined ? inputs.columnSpanStart : 1;
+    const columnSpanEnd = inputs.columnSpanEnd !== undefined ? inputs.columnSpanEnd : inputs.numCols;
     const spanCols = columnSpanEnd - columnSpanStart + 1;
     
     // Get text columns (which columns text appears in)
@@ -382,6 +387,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
     // This ensures the text box spans the exact width of selected columns + gutters
     const spanGutters = spanCols - 1;
+    // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
     const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
     
     // Draw text box outline for span
