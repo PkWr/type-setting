@@ -1,0 +1,39 @@
+/**
+ * Main stylesheet for Typography Layout Calculator
+ */
+
+body {
+  font-family: sans-serif;
+  max-width: 550px;
+  margin: 40px auto;
+}
+
+label {
+  display: block;
+  margin: 10px 0 4px;
+}
+
+input {
+  width: 80px;
+  margin-right: 12px;
+}
+
+button {
+  margin-left: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+#results {
+  margin-top: 20px;
+}
+
+#results ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#results li {
+  margin: 8px 0;
+}
+
