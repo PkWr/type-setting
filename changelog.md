@@ -226,6 +226,7 @@ This file tracks all changes made to the type-setting project.
   - Allows independent control of text box width and text placement
   - Removed measurements from visualization
   - Removed measurement padding, SVG now matches visualization size exactly
-  - Fixed text box width calculation to use results.textBoxWidth directly
+  - Fixed text box width calculation to calculate directly in visualization
   - Text box width now correctly calculated as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
+  - Text box now visually spans multiple columns when selected (e.g., 2 columns = 2 columns + 1 gutter wide)
 

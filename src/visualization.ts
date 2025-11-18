@@ -203,11 +203,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
       
       // Calculate text box position and width based on span
-      // Use the calculated textBoxWidth from results, scaled to visualization
       const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
       const spanTextBoxX = pageTextX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
-      // Use results.textBoxWidth scaled to match visualization
-      const spanTextBoxWidth = results.textBoxWidth * scaleX;
+      // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
+      // This ensures the text box spans the exact width of selected columns + gutters
+      const spanGutters = spanCols - 1;
+      const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
       
       // Draw text box outline for span
       const spanTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -352,11 +353,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
     
     // Calculate text box position and width based on span
-    // Use the calculated textBoxWidth from results, scaled to visualization
     const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
     const textBoxX = fullTextBoxX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
-    // Use results.textBoxWidth scaled to match visualization
-    const textBoxWidth = results.textBoxWidth * scaleX;
+    // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
+    // This ensures the text box spans the exact width of selected columns + gutters
+    const spanGutters = spanCols - 1;
+    const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
     
     // Draw text box outline for span
     const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
