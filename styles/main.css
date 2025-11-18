@@ -510,11 +510,14 @@ button {
   justify-content: center;
   align-items: center;
   min-height: 300px;
+  max-height: calc(100vh - 400px);
   overflow: hidden;
 }
 
 .page-visualization {
   max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
 }
 
@@ -603,6 +606,17 @@ button {
     top: var(--spacing-lg);
     max-height: calc(100vh - var(--spacing-lg) * 2);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .visualization-container {
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
