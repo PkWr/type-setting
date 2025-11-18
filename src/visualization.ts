@@ -259,17 +259,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   } else {
-    // Height is longer - fit by height using slice (fills height, may crop width)
-    // But we want to avoid cropping, so we'll use meet but ensure height is constraint
-    // Calculate the width that would result from fitting height
+    // Height is longer - fit by height
+    // Don't set width attribute - only set height so height becomes the constraint
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    // Set height to 100% and let width be calculated from aspect ratio
     svg.setAttribute('height', '100%');
-    // Use CSS to ensure width scales from aspect ratio, not container width
+    // Explicitly don't set width attribute - SVG will calculate width from aspect ratio
+    // Use CSS to ensure proper scaling
     svg.style.width = 'auto';
     svg.style.height = '100%';
     svg.style.maxWidth = '100%';
-    svg.style.objectFit = 'contain';
   }
   
   svg.classList.add('page-visualization');
