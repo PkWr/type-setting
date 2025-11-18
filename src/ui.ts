@@ -159,6 +159,30 @@ function calculateWordsPerLine(columnWidthMM: number, typeSize: number): number 
 }
 
 /**
+ * Updates column width display
+ */
+function updateColumnWidthDisplay(): void {
+  try {
+    const inputs = getFormInputs();
+    const results = calculateLayout(inputs);
+    
+    // Column width is in mm, convert to em
+    const columnWidthMM = results.columnWidth;
+    const columnWidthEM = convertFromMM(columnWidthMM, GUTTER_UNIT, inputs.typeSize);
+    
+    const columnWidthDisplay = document.getElementById('columnWidthDisplay');
+    if (columnWidthDisplay) {
+      columnWidthDisplay.textContent = `Column width: ${formatValue(columnWidthEM, GUTTER_UNIT, 2)} (${formatValue(columnWidthMM, PAGE_UNIT, 2)})`;
+    }
+  } catch (e) {
+    const columnWidthDisplay = document.getElementById('columnWidthDisplay');
+    if (columnWidthDisplay) {
+      columnWidthDisplay.textContent = '';
+    }
+  }
+}
+
+/**
  * Updates words per line indicator with Bringhurst's guidance
  */
 function updateWordsPerLine(): void {
@@ -213,6 +237,7 @@ function updateVisualizationOnInputChange(): void {
     const results = calculateLayout(inputs);
     updateVisualization(inputs);
     updateWordsPerLine();
+    updateColumnWidthDisplay();
   } catch (e) {
     // Silently fail if inputs are invalid
   }
