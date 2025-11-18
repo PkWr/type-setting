@@ -696,8 +696,12 @@ function updateMarginLabels(): void {
       const label = document.getElementById(labelId);
       if (label) {
         if (labelId === 'gutterWidthLabel') {
-          // For gutter width, show conversion value in parentheses
+          // For gutter width, show only the unit in label
+          label.textContent = `Gutter width (${unitLabel})`;
+          
+          // Show conversion value in helper text below input
           const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
+          const conversionElement = document.getElementById('gutterWidthConversion') as HTMLElement;
           let gutterValue = gutterInput ? parseFloat(gutterInput.value) : NaN;
           
           // If gutter value is empty or invalid, use default (1em or equivalent)
@@ -709,7 +713,7 @@ function updateMarginLabels(): void {
             }
           }
           
-          if (!isNaN(typeSize) && !isNaN(gutterValue) && gutterValue > 0) {
+          if (conversionElement && !isNaN(typeSize) && !isNaN(gutterValue) && gutterValue > 0) {
             let conversionValue: number;
             let conversionUnit: string;
             
@@ -717,15 +721,15 @@ function updateMarginLabels(): void {
               // Show mm equivalent
               conversionValue = convertToMM(gutterValue, 'em', typeSize);
               conversionUnit = 'mm';
-              label.textContent = `Gutter width (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+              conversionElement.textContent = `${conversionValue.toFixed(1)} ${conversionUnit}`;
             } else {
               // Show em equivalent
               conversionValue = convertFromMM(gutterValue, 'em', typeSize);
               conversionUnit = 'em';
-              label.textContent = `Gutter width (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+              conversionElement.textContent = `${conversionValue.toFixed(1)} ${conversionUnit}`;
             }
-          } else {
-            label.textContent = `Gutter width (${unitLabel})`;
+          } else if (conversionElement) {
+            conversionElement.textContent = '';
           }
         } else {
           // For margin labels, show only the unit in label
