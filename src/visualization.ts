@@ -173,7 +173,9 @@ function drawPage(
       const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
       textDiv.style.fontSize = `${fontSizeSVG}px`;
       textDiv.style.lineHeight = `${lineHeight}px`;
-      textDiv.style.fontFamily = 'serif';
+      // Use selected font family or default to serif
+      const fontFamily = inputs.fontFamily || 'serif';
+      textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
       textDiv.style.color = '#000000';
       textDiv.style.width = '100%';
       textDiv.style.height = '100%';

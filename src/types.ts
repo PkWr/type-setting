@@ -10,6 +10,7 @@ export interface LayoutInputs {
   topMargin: number;
   bottomMargin: number;
   typeSize: number;
+  fontFamily?: string; // Font family name
   numCols: number;
   gutterWidth: number;
   columnSpanStart?: number; // First column in span (1-indexed)
