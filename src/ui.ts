@@ -731,8 +731,21 @@ export function initializeCalculator(): void {
   if (typeSizeInput) {
     typeSizeInput.addEventListener('input', () => {
       suggestGutter();
+      // Auto-update leading to 1.5x type size if leading is empty
+      const leadingInput = document.getElementById('leading') as HTMLInputElement;
+      if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
+        const newTypeSize = parseFloat(typeSizeInput.value);
+        leadingInput.value = (newTypeSize * 1.5).toFixed(1);
+      }
       updateVisualizationOnInputChange();
     });
+  }
+
+  // Handle leading input
+  const leadingInput = document.getElementById('leading') as HTMLInputElement;
+  if (leadingInput) {
+    leadingInput.addEventListener('input', updateVisualizationOnInputChange);
+    leadingInput.addEventListener('change', updateVisualizationOnInputChange);
   }
 
   // Export as HTML button
