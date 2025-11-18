@@ -248,15 +248,25 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const svgAspectRatio = svgWidth / svgHeight;
   const isLandscape = svgAspectRatio > 1;
   
-  // Set preserveAspectRatio to maintain aspect ratio
-  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  // For portrait (height is longer), we want to fit by height
+  // For landscape (width is longer), we want to fit by width
+  // Use 'slice' for portrait to ensure height fits, 'meet' for landscape to ensure width fits
+  // But 'slice' crops, so we'll use a different approach: set the constraining dimension
   
-  // Always set both width and height to 100% to fill container
-  // The preserveAspectRatio will ensure it scales correctly
-  // For landscape: width will be constraining, height will scale proportionally
-  // For portrait: height will be constraining, width will scale proportionally
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
+  if (isLandscape) {
+    // Width is longer - fit by width using meet
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+  } else {
+    // Height is longer - fit by height
+    // Remove width attribute and set height to 100% so height is the constraint
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.setAttribute('height', '100%');
+    // Don't set width attribute - let it scale automatically based on aspect ratio
+    svg.style.width = 'auto';
+    svg.style.maxWidth = '100%';
+  }
   
   svg.classList.add('page-visualization');
 
