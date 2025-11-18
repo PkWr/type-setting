@@ -1037,6 +1037,27 @@ export function initializeCalculator(): void {
       updateMarginLabels();
     });
   }
+  
+  // Handle margin input changes to update labels with conversion values
+  const marginInputs = [
+    'topMargin',
+    'bottomMargin',
+    'leftMargin',
+    'rightMargin',
+    'innerMarginLeft',
+    'innerMarginRight',
+    'outerMarginLeft',
+    'outerMarginRight'
+  ];
+  
+  marginInputs.forEach(inputId => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    if (input) {
+      input.addEventListener('input', () => {
+        updateMarginLabels();
+      });
+    }
+  });
 
   // Handle facing pages checkbox
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
