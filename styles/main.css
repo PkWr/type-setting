@@ -360,7 +360,7 @@ select,
 textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid #444444;
+  border: 1px solid #333333;
   border-radius: var(--border-radius-sm);
   font-size: 0.85rem;
   font-family: var(--font-family);
@@ -655,7 +655,7 @@ button {
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 1px solid #666666;
+  border: 1px solid #333333;
 }
 
 .slider-input::-moz-range-thumb {
@@ -664,7 +664,7 @@ button {
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 1px solid #666666;
+  border: 1px solid #333333;
 }
 
 .slider-value {
@@ -793,7 +793,7 @@ button {
   padding: var(--spacing-md);
   background-color: transparent;
   border-radius: var(--border-radius-sm);
-  border: 1px solid #666666;
+  border: 1px solid #333333;
   display: flex;
   justify-content: center;
   align-items: center;
