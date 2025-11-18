@@ -188,9 +188,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const spanCols = columnSpanEnd - columnSpanStart + 1;
       const spanGutters = Math.max(0, spanCols - 1);
       
-      // Text box width is determined by the span
-      const textBoxWidth = (columnWidth * spanCols) + (scaledGutterWidth * spanGutters);
-      
       // Determine which column text starts in (from textColumns - determines POSITION)
       // If textColumns is specified, text starts at the first selected column
       // Otherwise, text starts at the first column of the span
@@ -202,8 +199,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const textStartIndex = Math.max(0, textStartColumn - 1); // Convert to 0-indexed
       
       // Calculate text box position - starts at the column where text begins
-      // Position is independent of span - can start at any column
       const textBoxX = fullTextBoxX + (textStartIndex * (columnWidth + scaledGutterWidth));
+      
+      // Calculate maximum available width from starting column to end
+      const maxAvailableCols = inputs.numCols - textStartIndex;
+      const maxAvailableGutters = Math.max(0, maxAvailableCols - 1);
+      const maxAvailableWidth = (columnWidth * maxAvailableCols) + (scaledGutterWidth * maxAvailableGutters);
+      
+      // Text box width is determined by the span, but constrained to fit available columns
+      const requestedWidth = (columnWidth * spanCols) + (scaledGutterWidth * spanGutters);
+      const textBoxWidth = Math.min(requestedWidth, maxAvailableWidth);
       
       // Calculate font size in SVG units (scaled)
       // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
