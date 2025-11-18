@@ -929,7 +929,9 @@ button {
   }
 
   .container {
-    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 var(--spacing-md);
   }
 
   h1 {
@@ -951,7 +953,9 @@ button {
 
 @media (max-width: 480px) {
   .container {
-    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 var(--spacing-md);
   }
 
   .form-section {
