@@ -690,12 +690,12 @@ button {
 }
 
 .spec-label {
-  color: var(--color-text-light);
+  color: #999999;
   font-weight: 500;
 }
 
 .spec-value {
-  color: var(--color-text);
+  color: #ffffff;
   font-weight: 600;
   text-align: right;
   font-variant-numeric: tabular-nums;
