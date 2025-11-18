@@ -1252,7 +1252,9 @@ function loadSettings(): void {
             cb.checked = true;
           }
         });
-      }, 100);
+        // Trigger visualization update after restoring checkboxes
+        updateVisualizationOnInputChange();
+      }, 150);
     }
     
     // Restore text column checkboxes (need to wait for them to be created)
@@ -1264,7 +1266,14 @@ function loadSettings(): void {
             cb.checked = true;
           }
         });
-      }, 100);
+        // Trigger visualization update after restoring checkboxes
+        updateVisualizationOnInputChange();
+      }, 150);
+    } else {
+      // If no saved checkboxes, trigger update anyway
+      setTimeout(() => {
+        updateVisualizationOnInputChange();
+      }, 150);
     }
   } catch (e) {
     // Silently fail if localStorage is not available or data is corrupted
