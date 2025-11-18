@@ -7,13 +7,14 @@
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Typography Layout Calculator</h1>
-      <p class="subtitle">Calculate optimal column widths based on Bringhurst principles</p>
-    </header>
+  <div class="app-wrapper">
+    <div class="container">
+      <header>
+        <h1>Typography Layout Calculator</h1>
+        <p class="subtitle">Calculate optimal column widths based on Bringhurst principles</p>
+      </header>
 
-    <form id="layoutForm">
+      <form id="layoutForm">
       <section class="form-section">
         <h2>Preferences</h2>
         <div class="form-group">
@@ -111,7 +112,13 @@
           <span class="helper-text">Preview how your text will appear in the calculated columns</span>
         </div>
       </section>
-    </form>
+      </form>
+
+      <section id="results" class="results-section">
+        <h2>Results</h2>
+        <div id="resultsContent" class="results-content"></div>
+      </section>
+    </div>
 
     <section class="visualization-section">
       <div class="section-header">
@@ -133,11 +140,6 @@
         </label>
       </div>
       <div id="visualizationContainer" class="visualization-container"></div>
-    </section>
-
-    <section id="results" class="results-section">
-      <h2>Results</h2>
-      <div id="resultsContent" class="results-content"></div>
     </section>
   </div>
 

@@ -186,4 +186,8 @@ This file tracks all changes made to the type-setting project.
   - Checkboxes positioned above visualization for easy access
   - All layers visible by default
   - Visualization updates automatically when checkboxes change
+  - Desktop layout: preview fixed on right side (screens ≥1200px)
+  - Form and preview side-by-side on desktop with sticky positioning
+  - Both sections scroll independently if content overflows
+  - Mobile layout remains stacked vertically
 

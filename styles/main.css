@@ -38,6 +38,13 @@ body {
   line-height: 1.6;
 }
 
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  max-width: 100%;
+}
+
 .container {
   max-width: 700px;
   margin: 0 auto;
@@ -45,7 +52,9 @@ body {
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   padding: var(--spacing-2xl);
+  width: 100%;
 }
+
 
 header {
   margin-bottom: var(--spacing-2xl);
@@ -434,6 +443,42 @@ button {
   border-top: 1px solid var(--color-border);
   color: var(--color-text-light);
   font-size: 0.9rem;
+}
+
+/* Desktop layout - fixed preview on right */
+@media (min-width: 1200px) {
+  body {
+    padding: var(--spacing-lg);
+  }
+
+  .app-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 1600px;
+    margin: 0 auto;
+    gap: var(--spacing-xl);
+  }
+
+  .container {
+    flex: 0 0 600px;
+    max-width: 600px;
+    margin: 0;
+    position: sticky;
+    top: var(--spacing-lg);
+    max-height: calc(100vh - var(--spacing-lg) * 2);
+    overflow-y: auto;
+  }
+
+  .visualization-section {
+    flex: 1;
+    margin-top: 0;
+    padding-top: var(--spacing-xl);
+    border-top: none;
+    position: sticky;
+    top: var(--spacing-lg);
+    max-height: calc(100vh - var(--spacing-lg) * 2);
+    overflow-y: auto;
+  }
 }
 
 /* Responsive design */
