@@ -720,12 +720,6 @@ export function initializeCalculator(): void {
   // Set gutter on load
   suggestGutter();
 
-  // Attach event listeners
-  const suggestGutterButton = document.getElementById('suggestGutterButton');
-  if (suggestGutterButton) {
-    suggestGutterButton.addEventListener('click', suggestGutter);
-  }
-
   // Get type size and leading inputs
   const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
   const leadingInput = document.getElementById('leading') as HTMLInputElement;
