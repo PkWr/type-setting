@@ -195,7 +195,7 @@ h1 {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: var(--color-border, #ddd);
+  background-color: #000000;
   border-radius: 12px;
   outline: none;
   cursor: pointer;
