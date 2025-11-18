@@ -1228,6 +1228,10 @@ function loadSettings(): void {
       const showTextCheckbox = document.getElementById('showText') as HTMLInputElement;
       if (showTextCheckbox) showTextCheckbox.checked = settings.showText;
     }
+    if (settings.solidFills !== undefined) {
+      const solidFillsCheckbox = document.getElementById('solidFills') as HTMLInputElement;
+      if (solidFillsCheckbox) solidFillsCheckbox.checked = settings.solidFills;
+    }
     
     // Update margin labels and inputs visibility after loading
     updateMarginLabels();
@@ -1468,11 +1472,14 @@ export function initializeCalculator(): void {
   }
 
   // Handle layer visibility checkboxes
-  const layerCheckboxes = ['showMargins', 'showColumns', 'showText'];
+  const layerCheckboxes = ['showMargins', 'showColumns', 'showText', 'solidFills'];
   layerCheckboxes.forEach(id => {
     const checkbox = document.getElementById(id) as HTMLInputElement;
     if (checkbox) {
-      checkbox.addEventListener('change', updateVisualizationOnInputChange);
+      checkbox.addEventListener('change', () => {
+        updateVisualizationOnInputChange();
+        saveSettings();
+      });
     }
   });
 
