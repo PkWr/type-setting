@@ -176,7 +176,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
       
       // Calculate font size in SVG units (scaled)
-      const fontSizeSVG = (inputs.typeSize * scaleY) * 0.75; // Scale font size to fit visualization
+      // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
+      const typeSizeMM = inputs.typeSize * 0.3528;
+      const fontSizeSVG = typeSizeMM * scaleY;
       const lineHeight = fontSizeSVG * 1.5;
       const padding = fontSizeSVG * 0.5;
 
@@ -294,7 +296,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
     
     // Calculate font size in SVG units (scaled)
-    const fontSizeSVG = (inputs.typeSize * scaleY) * 0.75;
+    // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
+    const typeSizeMM = inputs.typeSize * 0.3528;
+    const fontSizeSVG = typeSizeMM * scaleY;
     const lineHeight = fontSizeSVG * 1.5;
     const padding = fontSizeSVG * 0.5;
 

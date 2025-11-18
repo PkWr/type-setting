@@ -179,4 +179,6 @@ This file tracks all changes made to the type-setting project.
   - Removed calculate button - all calculations now update automatically in real-time
   - Results section updates automatically as inputs change
   - Simplified UI by removing redundant form actions section
+  - Fixed text scaling in preview - now properly converts points to millimeters before scaling
+  - Text size now accurately reflects type size relative to page dimensions
 
