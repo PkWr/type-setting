@@ -68,3 +68,30 @@ This file tracks all changes made to the type-setting project.
   - Added proper form labels with `for` attributes for accessibility
   - Improved gutter controls layout
 
+### [2025-01-27 - Paper Size Dropdown Feature]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Created paperSizes.ts module with comprehensive paper size data from papersizes.io
+  - Added paper size dropdown with grouped options (A Series, B Series, US Paper, ANSI, Architectural, Books)
+  - Implemented automatic population of width/height fields when paper size is selected
+  - Default paper size set to A4 (210 × 297 mm)
+  - Added styled select dropdown with custom arrow icon
+  - Paper sizes organized by category with optgroups for better UX
+  - Users can still enter custom dimensions manually
+
+### [2025-01-27 - Page Layout Visualization]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Created visualization.ts module for SVG-based page layout preview
+  - Added real-time visual representation showing page dimensions, margins, and columns
+  - Visualization updates automatically when form inputs change
+  - Shows page outline, margin areas, text box boundaries, and column divisions
+  - Includes dimension labels and margin annotations
+  - Responsive SVG that scales to fit container while maintaining aspect ratio
+  - Color-coded elements: white page, gray margins, blue columns with gutters
+  - Visualization section added between form and results
+

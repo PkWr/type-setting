@@ -17,6 +17,12 @@
       <section class="form-section">
         <h2>Page Dimensions</h2>
         <div class="form-group">
+          <label for="paperSizeSelect">Preset paper size</label>
+          <select id="paperSizeSelect" class="paper-size-select">
+            <option value="">Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="pageWidth">Page width (mm)</label>
           <input type="number" id="pageWidth" value="210" required>
         </div>
@@ -74,6 +80,11 @@
         <button type="button" id="calcButton" class="btn-primary">Calculate</button>
       </div>
     </form>
+
+    <section class="visualization-section">
+      <h2>Page Layout Preview</h2>
+      <div id="visualizationContainer" class="visualization-container"></div>
+    </section>
 
     <section id="results" class="results-section">
       <h2>Results</h2>

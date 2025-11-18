@@ -5,6 +5,8 @@
 
 import { calculateGutterWidth, calculateLayout } from './calculator';
 import { LayoutInputs, LayoutResults } from './types';
+import { PAPER_SIZES, getPaperSize, getDefaultPaperSize, PaperSize } from './paperSizes';
+import { updateVisualization } from './visualization';
 
 /**
  * Gets all input values from the form
@@ -46,6 +48,19 @@ export function calcLayout(): void {
   const inputs = getFormInputs();
   const results = calculateLayout(inputs);
   displayResults(results);
+  updateVisualization(inputs);
+}
+
+/**
+ * Updates visualization when inputs change
+ */
+function updateVisualizationOnInputChange(): void {
+  try {
+    const inputs = getFormInputs();
+    updateVisualization(inputs);
+  } catch (e) {
+    // Silently fail if inputs are invalid
+  }
 }
 
 /**
@@ -69,9 +84,62 @@ function displayResults(results: LayoutResults): void {
 }
 
 /**
+ * Populates the paper size dropdown
+ */
+function populatePaperSizeDropdown(): void {
+  const select = document.getElementById('paperSizeSelect') as HTMLSelectElement;
+  if (!select) return;
+
+  // Group paper sizes by category
+  const categories = new Map<string, PaperSize[]>();
+  PAPER_SIZES.forEach(size => {
+    if (!categories.has(size.category)) {
+      categories.set(size.category, []);
+    }
+    categories.get(size.category)!.push(size);
+  });
+
+  // Add optgroups for each category
+  categories.forEach((sizes, category) => {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = category;
+    sizes.forEach(size => {
+      const option = document.createElement('option');
+      option.value = size.name;
+      option.textContent = `${size.name} (${size.width} × ${size.height} mm)`;
+      optgroup.appendChild(option);
+    });
+    select.appendChild(optgroup);
+  });
+
+  // Set default to A4
+  const defaultSize = getDefaultPaperSize();
+  select.value = defaultSize.name;
+  applyPaperSize(defaultSize.name);
+}
+
+/**
+ * Applies a paper size to the width and height inputs
+ * @param paperSizeName - Name of the paper size to apply
+ */
+function applyPaperSize(paperSizeName: string): void {
+  const size = getPaperSize(paperSizeName);
+  if (!size) return;
+
+  const widthInput = document.getElementById('pageWidth') as HTMLInputElement;
+  const heightInput = document.getElementById('pageHeight') as HTMLInputElement;
+
+  if (widthInput) widthInput.value = size.width.toString();
+  if (heightInput) heightInput.value = size.height.toString();
+}
+
+/**
  * Initializes the calculator UI
  */
 export function initializeCalculator(): void {
+  // Populate paper size dropdown
+  populatePaperSizeDropdown();
+
   // Set gutter on load
   suggestGutter();
 
@@ -91,5 +159,30 @@ export function initializeCalculator(): void {
   if (typeSizeInput) {
     typeSizeInput.addEventListener('input', suggestGutter);
   }
+
+  // Handle paper size selection
+  const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
+  if (paperSizeSelect) {
+    paperSizeSelect.addEventListener('change', (e) => {
+      const target = e.target as HTMLSelectElement;
+      if (target.value) {
+        applyPaperSize(target.value);
+      }
+      updateVisualizationOnInputChange();
+    });
+  }
+
+  // Update visualization when inputs change
+  const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin', 'numCols', 'gutterWidth'];
+  inputIds.forEach(id => {
+    const input = document.getElementById(id) as HTMLInputElement;
+    if (input) {
+      input.addEventListener('input', updateVisualizationOnInputChange);
+      input.addEventListener('change', updateVisualizationOnInputChange);
+    }
+  });
+
+  // Initial visualization
+  updateVisualizationOnInputChange();
 }
 
