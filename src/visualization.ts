@@ -272,10 +272,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
           colRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
           colRect.setAttribute('width', actualColumnWidth.toString());
           colRect.setAttribute('height', textBoxHeight.toString());
-          colRect.setAttribute('fill', '#e0e7ff');
+          // Remove fill when text is visible to prevent obscuring text
+          // Only show fill when text layer is hidden
+          if (!layerVisibility.text) {
+            colRect.setAttribute('fill', '#e0e7ff');
+            colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
+          } else {
+            colRect.setAttribute('fill', 'none');
+          }
           colRect.setAttribute('stroke', '#2563eb');
           colRect.setAttribute('stroke-width', '1');
-          colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
           svg.appendChild(colRect);
         }
       }
@@ -539,10 +545,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
           colRect.setAttribute('y', textBoxY.toString());
           colRect.setAttribute('width', actualColumnWidth.toString());
           colRect.setAttribute('height', textBoxHeight.toString());
-          colRect.setAttribute('fill', '#e0e7ff');
+          // Remove fill when text is visible to prevent obscuring text
+          // Only show fill when text layer is hidden
+          if (!layerVisibility.text) {
+            colRect.setAttribute('fill', '#e0e7ff');
+            colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
+          } else {
+            colRect.setAttribute('fill', 'none');
+          }
           colRect.setAttribute('stroke', '#2563eb');
           colRect.setAttribute('stroke-width', '1');
-          colRect.setAttribute('opacity', isInSpan ? (hasText ? '0.6' : '0.4') : '0.2');
           svg.appendChild(colRect);
         }
     }
