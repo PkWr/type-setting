@@ -265,10 +265,22 @@ function updateSpecification(): void {
     const columnSpan = getColumnSpan();
     const textColumns = getTextColumns();
     
+    // Get paper size name if preset is selected
+    const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
+    const selectedPaperSize = paperSizeSelect?.value || '';
+    let pageSizeLabel = 'Custom';
+    if (selectedPaperSize) {
+      const paperSize = getPaperSize(selectedPaperSize);
+      if (paperSize) {
+        pageSizeLabel = paperSize.name;
+      }
+    }
+    
     let html = '<div class="spec-grid">';
     
     // Page dimensions
     html += '<div class="spec-group"><h4>Page</h4>';
+    html += `<div class="spec-item"><span class="spec-label">Size:</span><span class="spec-value">${pageSizeLabel}</span></div>`;
     html += `<div class="spec-item"><span class="spec-label">Dimensions:</span><span class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</span></div>`;
     html += `<div class="spec-item"><span class="spec-label">Orientation:</span><span class="spec-value">${orientation}</span></div>`;
     html += `<div class="spec-item"><span class="spec-label">Facing pages:</span><span class="spec-value">${facingPages ? 'Yes' : 'No'}</span></div>`;
