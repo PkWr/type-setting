@@ -243,4 +243,9 @@ This file tracks all changes made to the type-setting project.
   - Added validation before drawing text boxes to prevent NaN in SVG attributes
   - Fixed gutter width NaN error on page load by auto-suggesting gutter width if input is empty
   - Gutter width now automatically calculated and set if input field is empty or invalid
+  - Fixed text clipping and gutter overlap issues in column span visualization
+  - TextGroup now spans full text box width (columns + gutters) without subtracting padding
+  - Padding applied via CSS on textDiv instead of reducing textGroup dimensions
+  - Clipping rectangles now correctly positioned relative to textGroup with padding accounted for
+  - Text now flows correctly across full span width without being clipped on the right
 

@@ -271,11 +271,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
         
         if (columnsToShowText.length > 0) {
           // Create a single text element that spans the full text box width
+          // The textGroup should span the full width including gutters, with padding
           const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-          textGroup.setAttribute('x', (spanTextBoxX + padding).toString());
-          textGroup.setAttribute('y', (pageOffsetY + scaledTopMargin + padding).toString());
-          textGroup.setAttribute('width', (spanTextBoxWidth - padding * 2).toString());
-          textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+          textGroup.setAttribute('x', spanTextBoxX.toString()); // Start at text box edge, no padding offset
+          textGroup.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
+          textGroup.setAttribute('width', spanTextBoxWidth.toString()); // Full text box width
+          textGroup.setAttribute('height', textBoxHeight.toString());
           
           // Create clipping path to only show text in selected columns
           const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
@@ -283,13 +284,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
           clipPath.setAttribute('id', clipId);
           
           // Add rectangles for each column that should show text
+          // Clipping coordinates are relative to the textGroup (which starts at spanTextBoxX)
           columnsToShowText.forEach(colIndex => {
-            const colOffset = colIndex - columnSpanStart; // Offset within span
+            const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
             const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
+            // Column 1 (offset 0): x=0
+            // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
             clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
-            clipRect.setAttribute('y', '0');
+            clipRect.setAttribute('y', padding.toString()); // Account for padding
             clipRect.setAttribute('width', actualColumnWidth.toString());
-            clipRect.setAttribute('height', textBoxHeight.toString());
+            clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
             clipPath.appendChild(clipRect);
           });
           
@@ -303,6 +308,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textDiv.style.color = '#1e293b';
           textDiv.style.width = '100%';
           textDiv.style.height = '100%';
+          textDiv.style.padding = `${padding}px`;
+          textDiv.style.boxSizing = 'border-box';
           textDiv.style.overflow = 'hidden';
           textDiv.style.wordWrap = 'break-word';
           textDiv.style.hyphens = 'auto';
@@ -455,11 +462,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
       
       if (columnsToShowText.length > 0) {
         // Create a single text element that spans the full text box width
+        // The textGroup should span the full width including gutters, with padding applied via CSS
         const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        textGroup.setAttribute('x', (textBoxX + padding).toString());
-        textGroup.setAttribute('y', (textBoxY + padding).toString());
-        textGroup.setAttribute('width', (textBoxWidth - padding * 2).toString());
-        textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+        textGroup.setAttribute('x', textBoxX.toString()); // Start at text box edge, no padding offset
+        textGroup.setAttribute('y', textBoxY.toString());
+        textGroup.setAttribute('width', textBoxWidth.toString()); // Full text box width
+        textGroup.setAttribute('height', textBoxHeight.toString());
         
         // Create clipping path to only show text in selected columns
         const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
@@ -467,13 +475,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
         clipPath.setAttribute('id', clipId);
         
         // Add rectangles for each column that should show text
+        // Clipping coordinates are relative to the textGroup (which starts at textBoxX)
         columnsToShowText.forEach(colIndex => {
-          const colOffset = colIndex - columnSpanStart; // Offset within span
+          const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
           const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
+          // Column 1 (offset 0): x=0
+          // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
           clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
-          clipRect.setAttribute('y', '0');
+          clipRect.setAttribute('y', padding.toString()); // Account for padding
           clipRect.setAttribute('width', actualColumnWidth.toString());
-          clipRect.setAttribute('height', textBoxHeight.toString());
+          clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
           clipPath.appendChild(clipRect);
         });
         
@@ -487,6 +499,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textDiv.style.color = '#1e293b';
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
+        textDiv.style.padding = `${padding}px`;
+        textDiv.style.boxSizing = 'border-box';
         textDiv.style.overflow = 'hidden';
         textDiv.style.wordWrap = 'break-word';
         textDiv.style.hyphens = 'auto';
