@@ -14,6 +14,16 @@ function getSampleText(): string {
   return sampleTextInput?.value.trim() || '';
 }
 
+/**
+ * Gets layer visibility states from checkboxes
+ */
+function getLayerVisibility(): { margins: boolean; columns: boolean; text: boolean } {
+  const showMargins = (document.getElementById('showMargins') as HTMLInputElement)?.checked ?? true;
+  const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
+  const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
+  return { margins: showMargins, columns: showColumns, text: showText };
+}
+
 const VISUALIZATION_SIZE = 400; // Maximum size for the visualization in pixels
 const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility
 
@@ -35,6 +45,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   const facingPages = isFacingPages();
   const results = calculateLayout(inputs);
+  const layerVisibility = getLayerVisibility();
 
   // Calculate scale to fit visualization
   const aspectRatio = inputs.pageHeight / inputs.pageWidth;
@@ -116,30 +127,34 @@ export function updateVisualization(inputs: LayoutInputs): void {
     svg.appendChild(rightPageRect);
 
     // Draw margins for left page
-    const leftMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    leftMarginPath.setAttribute('d', `
-      M ${leftPageX},0 L ${leftPageX + singlePageWidth},0 L ${leftPageX + singlePageWidth},${visHeight} L ${leftPageX},${visHeight} Z
-      M ${leftPageX + leftPageOuterMargin},${scaledTopMargin}
-      L ${leftPageX + singlePageWidth - leftPageInnerMargin},${scaledTopMargin}
-      L ${leftPageX + singlePageWidth - leftPageInnerMargin},${visHeight - scaledBottomMargin}
-      L ${leftPageX + leftPageOuterMargin},${visHeight - scaledBottomMargin} Z
-    `);
-    leftMarginPath.setAttribute('fill', '#f1f5f9');
-    leftMarginPath.setAttribute('fill-rule', 'evenodd');
-    svg.appendChild(leftMarginPath);
+    if (layerVisibility.margins) {
+      const leftMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      leftMarginPath.setAttribute('d', `
+        M ${leftPageX},0 L ${leftPageX + singlePageWidth},0 L ${leftPageX + singlePageWidth},${visHeight} L ${leftPageX},${visHeight} Z
+        M ${leftPageX + leftPageOuterMargin},${scaledTopMargin}
+        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${scaledTopMargin}
+        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${visHeight - scaledBottomMargin}
+        L ${leftPageX + leftPageOuterMargin},${visHeight - scaledBottomMargin} Z
+      `);
+      leftMarginPath.setAttribute('fill', '#f1f5f9');
+      leftMarginPath.setAttribute('fill-rule', 'evenodd');
+      svg.appendChild(leftMarginPath);
+    }
 
     // Draw margins for right page
-    const rightMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    rightMarginPath.setAttribute('d', `
-      M ${rightPageX},0 L ${rightPageX + singlePageWidth},0 L ${rightPageX + singlePageWidth},${visHeight} L ${rightPageX},${visHeight} Z
-      M ${rightPageX + rightPageInnerMargin},${scaledTopMargin}
-      L ${rightPageX + singlePageWidth - rightPageOuterMargin},${scaledTopMargin}
-      L ${rightPageX + singlePageWidth - rightPageOuterMargin},${visHeight - scaledBottomMargin}
-      L ${rightPageX + rightPageInnerMargin},${visHeight - scaledBottomMargin} Z
-    `);
-    rightMarginPath.setAttribute('fill', '#f1f5f9');
-    rightMarginPath.setAttribute('fill-rule', 'evenodd');
-    svg.appendChild(rightMarginPath);
+    if (layerVisibility.margins) {
+      const rightMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      rightMarginPath.setAttribute('d', `
+        M ${rightPageX},0 L ${rightPageX + singlePageWidth},0 L ${rightPageX + singlePageWidth},${visHeight} L ${rightPageX},${visHeight} Z
+        M ${rightPageX + rightPageInnerMargin},${scaledTopMargin}
+        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${scaledTopMargin}
+        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${visHeight - scaledBottomMargin}
+        L ${rightPageX + rightPageInnerMargin},${visHeight - scaledBottomMargin} Z
+      `);
+      rightMarginPath.setAttribute('fill', '#f1f5f9');
+      rightMarginPath.setAttribute('fill-rule', 'evenodd');
+      svg.appendChild(rightMarginPath);
+    }
 
     // Text box outlines
     const leftTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -185,19 +200,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
       for (let i = 0; i < inputs.numCols; i++) {
         const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
         
-        const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        colRect.setAttribute('x', colX.toString());
-        colRect.setAttribute('y', scaledTopMargin.toString());
-        colRect.setAttribute('width', actualColumnWidth.toString());
-        colRect.setAttribute('height', textBoxHeight.toString());
-        colRect.setAttribute('fill', '#e0e7ff');
-        colRect.setAttribute('stroke', '#2563eb');
-        colRect.setAttribute('stroke-width', '1');
-        colRect.setAttribute('opacity', '0.6');
-        svg.appendChild(colRect);
+        if (layerVisibility.columns) {
+          const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          colRect.setAttribute('x', colX.toString());
+          colRect.setAttribute('y', scaledTopMargin.toString());
+          colRect.setAttribute('width', actualColumnWidth.toString());
+          colRect.setAttribute('height', textBoxHeight.toString());
+          colRect.setAttribute('fill', '#e0e7ff');
+          colRect.setAttribute('stroke', '#2563eb');
+          colRect.setAttribute('stroke-width', '1');
+          colRect.setAttribute('opacity', '0.6');
+          svg.appendChild(colRect);
+        }
 
         // Add text to column if sample text exists
-        if (words.length > 0) {
+        if (layerVisibility.text && words.length > 0) {
           const startIdx = i * wordsPerColumn;
           const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
           const columnWords = words.slice(startIdx, endIdx);
@@ -225,7 +242,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
           svg.appendChild(textGroup);
         }
 
-        if (i < inputs.numCols - 1) {
+        if (layerVisibility.columns && i < inputs.numCols - 1) {
           const dividerX = colX + actualColumnWidth;
           const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           divider.setAttribute('x1', dividerX.toString());
@@ -262,17 +279,19 @@ export function updateVisualization(inputs: LayoutInputs): void {
     svg.appendChild(pageRect);
 
     // Margins area
-    const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    marginPath.setAttribute('d', `
-      M 0,0 L ${singlePageWidth},0 L ${singlePageWidth},${visHeight} L 0,${visHeight} Z
-      M ${scaledLeftMargin},${scaledTopMargin}
-      L ${singlePageWidth - scaledRightMargin},${scaledTopMargin}
-      L ${singlePageWidth - scaledRightMargin},${visHeight - scaledBottomMargin}
-      L ${scaledLeftMargin},${visHeight - scaledBottomMargin} Z
-    `);
-    marginPath.setAttribute('fill', '#f1f5f9');
-    marginPath.setAttribute('fill-rule', 'evenodd');
-    svg.appendChild(marginPath);
+    if (layerVisibility.margins) {
+      const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      marginPath.setAttribute('d', `
+        M 0,0 L ${singlePageWidth},0 L ${singlePageWidth},${visHeight} L 0,${visHeight} Z
+        M ${scaledLeftMargin},${scaledTopMargin}
+        L ${singlePageWidth - scaledRightMargin},${scaledTopMargin}
+        L ${singlePageWidth - scaledRightMargin},${visHeight - scaledBottomMargin}
+        L ${scaledLeftMargin},${visHeight - scaledBottomMargin} Z
+      `);
+      marginPath.setAttribute('fill', '#f1f5f9');
+      marginPath.setAttribute('fill-rule', 'evenodd');
+      svg.appendChild(marginPath);
+    }
 
     // Text box area outline
     const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -305,19 +324,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
     for (let i = 0; i < inputs.numCols; i++) {
       const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
       
-      const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      colRect.setAttribute('x', colX.toString());
-      colRect.setAttribute('y', textBoxY.toString());
-      colRect.setAttribute('width', actualColumnWidth.toString());
-      colRect.setAttribute('height', textBoxHeight.toString());
-      colRect.setAttribute('fill', '#e0e7ff');
-      colRect.setAttribute('stroke', '#2563eb');
-      colRect.setAttribute('stroke-width', '1');
-      colRect.setAttribute('opacity', '0.6');
-      svg.appendChild(colRect);
+      if (layerVisibility.columns) {
+        const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        colRect.setAttribute('x', colX.toString());
+        colRect.setAttribute('y', textBoxY.toString());
+        colRect.setAttribute('width', actualColumnWidth.toString());
+        colRect.setAttribute('height', textBoxHeight.toString());
+        colRect.setAttribute('fill', '#e0e7ff');
+        colRect.setAttribute('stroke', '#2563eb');
+        colRect.setAttribute('stroke-width', '1');
+        colRect.setAttribute('opacity', '0.6');
+        svg.appendChild(colRect);
+      }
 
       // Add text to column if sample text exists
-      if (words.length > 0) {
+      if (layerVisibility.text && words.length > 0) {
         const startIdx = i * wordsPerColumn;
         const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
         const columnWords = words.slice(startIdx, endIdx);
@@ -345,7 +366,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
         svg.appendChild(textGroup);
       }
 
-      if (i < inputs.numCols - 1) {
+      if (layerVisibility.columns && i < inputs.numCols - 1) {
         const dividerX = colX + actualColumnWidth;
         const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         divider.setAttribute('x1', dividerX.toString());

@@ -181,4 +181,9 @@ This file tracks all changes made to the type-setting project.
   - Simplified UI by removing redundant form actions section
   - Fixed text scaling in preview - now properly converts points to millimeters before scaling
   - Text size now accurately reflects type size relative to page dimensions
+  - Added layer visibility checkboxes to preview (Margins, Columns, Text)
+  - Users can toggle individual layers on/off to focus on specific elements
+  - Checkboxes positioned above visualization for easy access
+  - All layers visible by default
+  - Visualization updates automatically when checkboxes change
 

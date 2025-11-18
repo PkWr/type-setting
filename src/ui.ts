@@ -343,6 +343,15 @@ export function initializeCalculator(): void {
     sampleTextInput.addEventListener('change', updateVisualizationOnInputChange);
   }
 
+  // Handle layer visibility checkboxes
+  const layerCheckboxes = ['showMargins', 'showColumns', 'showText'];
+  layerCheckboxes.forEach(id => {
+    const checkbox = document.getElementById(id) as HTMLInputElement;
+    if (checkbox) {
+      checkbox.addEventListener('change', updateVisualizationOnInputChange);
+    }
+  });
+
   // Handle load default text button
   const loadDefaultTextButton = document.getElementById('loadDefaultTextButton');
   if (loadDefaultTextButton && sampleTextInput) {
