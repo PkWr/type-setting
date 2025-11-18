@@ -310,7 +310,9 @@ button {
   border: 1px solid var(--color-border);
   min-height: 200px;
   display: grid;
-  gap: var(--spacing-lg);
+  align-items: start;
+  overflow: hidden;
+  position: relative;
 }
 
 .sample-text-preview:empty::before {
