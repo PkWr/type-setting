@@ -326,13 +326,22 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Update scale indicator
   // Since we maintain aspect ratio, scaleX and scaleY should be the same
   // Calculate the scale ratio (e.g., if scaleX = 0.5, that's 1/2 scale)
-  const scaleRatio = 1 / scaleX; // Invert to show "1:N" format
+  // scaleX represents pixels per mm, so if scaleX = 1.5, that's 1.5px per mm
+  // To show as a ratio, we want to show how many mm in reality = 1mm in preview
+  // So if scaleX = 1.5, then 1mm preview = 1/1.5 = 0.67mm reality, or scale is 1:1.5
+  const scaleRatio = 1 / scaleX; // Invert to show "1:N" format where N is the reduction factor
   const scaleIndicator = document.getElementById('scaleIndicator');
   if (scaleIndicator) {
-    if (scaleRatio !== 1) {
-      // Round to nearest reasonable fraction for display
-      const roundedRatio = Math.round(scaleRatio * 100) / 100;
-      scaleIndicator.textContent = `Scale: 1/${roundedRatio.toFixed(2)}`;
+    // Format: if scaleX = 0.5 (50% size), show "Scale: 1:2" (1 unit preview = 2 units reality)
+    // Or if scaleX = 2 (200% size), show "Scale: 2:1" (2 units preview = 1 unit reality)
+    if (scaleX < 1) {
+      // Preview is smaller than reality
+      const ratio = Math.round((1 / scaleX) * 100) / 100;
+      scaleIndicator.textContent = `Scale: 1:${ratio.toFixed(2)}`;
+    } else if (scaleX > 1) {
+      // Preview is larger than reality
+      const ratio = Math.round(scaleX * 100) / 100;
+      scaleIndicator.textContent = `Scale: ${ratio.toFixed(2)}:1`;
     } else {
       scaleIndicator.textContent = 'Scale: 1:1';
     }
