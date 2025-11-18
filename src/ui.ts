@@ -25,6 +25,20 @@ function getCurrentUnit(): Unit {
  * Gets all input values from the form, converting from selected unit to mm
  * @returns LayoutInputs object with form values in millimeters
  */
+/**
+ * Gets column span from checkboxes
+ */
+function getColumnSpan(): { start: number; end: number } | null {
+  const checkboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]:checked') as NodeListOf<HTMLInputElement>;
+  if (checkboxes.length === 0) return null;
+  
+  const checkedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value, 10)).sort((a, b) => a - b);
+  return {
+    start: checkedIndices[0],
+    end: checkedIndices[checkedIndices.length - 1]
+  };
+}
+
 function getFormInputs(): LayoutInputs {
   const unit = getCurrentUnit();
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
@@ -37,8 +51,11 @@ function getFormInputs(): LayoutInputs {
   const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
   const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
   const gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
-
-  return {
+  
+  const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
+  const columnSpan = getColumnSpan();
+  
+  const inputs: LayoutInputs = {
     pageWidth: convertToMM(pageWidth, unit, typeSize),
     pageHeight: convertToMM(pageHeight, unit, typeSize),
     leftMargin: convertToMM(leftMargin, unit, typeSize),
@@ -46,9 +63,16 @@ function getFormInputs(): LayoutInputs {
     topMargin: convertToMM(topMargin, unit, typeSize),
     bottomMargin: convertToMM(bottomMargin, unit, typeSize),
     typeSize, // Type size is always in points
-    numCols: parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10),
+    numCols,
     gutterWidth: convertToMM(gutterWidth, unit, typeSize),
   };
+  
+  if (columnSpan) {
+    inputs.columnSpanStart = columnSpan.start;
+    inputs.columnSpanEnd = columnSpan.end;
+  }
+  
+  return inputs;
 }
 
 /**
@@ -157,6 +181,47 @@ function displayResults(results: LayoutResults): void {
     <p>Tip: Auto-set the gutter to font size (1em) for optimal spacing, or adjust manually.</p>
   `;
   resultsDiv.innerHTML = res;
+}
+
+/**
+ * Updates column span checkboxes based on number of columns
+ */
+function updateColumnSpanCheckboxes(): void {
+  const container = document.getElementById('columnSpanCheckboxes');
+  if (!container) return;
+  
+  const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
+  
+  // Clear existing checkboxes
+  container.innerHTML = '';
+  
+  // Create checkboxes for each column
+  for (let i = 1; i <= numCols; i++) {
+    const label = document.createElement('label');
+    label.className = 'layer-checkbox';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = i.toString();
+    checkbox.checked = true; // All columns selected by default
+    checkbox.id = `columnSpan${i}`;
+    
+    checkbox.addEventListener('change', () => {
+      // Ensure at least one column is selected
+      const checked = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]:checked');
+      if (checked.length === 0) {
+        checkbox.checked = true;
+      }
+      updateVisualizationOnInputChange();
+    });
+    
+    const span = document.createElement('span');
+    span.textContent = i.toString();
+    
+    label.appendChild(checkbox);
+    label.appendChild(span);
+    container.appendChild(label);
+  }
 }
 
 /**
@@ -357,6 +422,18 @@ export function initializeCalculator(): void {
   if (loadDefaultTextButton && sampleTextInput) {
     loadDefaultTextButton.addEventListener('click', () => {
       sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+      updateVisualizationOnInputChange();
+    });
+  }
+
+  // Populate column span checkboxes
+  updateColumnSpanCheckboxes();
+  
+  // Handle number of columns change
+  const numColsInput = document.getElementById('numCols') as HTMLInputElement;
+  if (numColsInput) {
+    numColsInput.addEventListener('change', () => {
+      updateColumnSpanCheckboxes();
       updateVisualizationOnInputChange();
     });
   }

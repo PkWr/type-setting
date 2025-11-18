@@ -341,6 +341,13 @@ button {
   font-weight: 500;
 }
 
+.column-span-checkboxes {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-xs);
+}
+
 .sample-text-preview {
   padding: var(--spacing-lg);
   background-color: var(--color-bg-light);

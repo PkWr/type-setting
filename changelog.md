@@ -190,4 +190,10 @@ This file tracks all changes made to the type-setting project.
   - Form and preview side-by-side on desktop with sticky positioning
   - Both sections scroll independently if content overflows
   - Mobile layout remains stacked vertically
+  - Added column span checkboxes in Typography Settings
+  - Users can select which columns the text box should span
+  - Checkboxes dynamically update when number of columns changes
+  - Text only appears in selected columns in visualization
+  - Columns outside span shown with reduced opacity
+  - At least one column must always be selected
 

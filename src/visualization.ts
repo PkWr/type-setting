@@ -197,8 +197,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const lineHeight = fontSizeSVG * 1.5;
       const padding = fontSizeSVG * 0.5;
 
+      // Determine which columns to show text in
+      const columnSpanStart = inputs.columnSpanStart || 1;
+      const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
+      const spanCols = columnSpanEnd - columnSpanStart + 1;
+      const wordsPerSpanColumn = words.length > 0 ? Math.ceil(words.length / spanCols) : 0;
+      
       for (let i = 0; i < inputs.numCols; i++) {
+        const colIndex = i + 1; // 1-indexed
         const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
+        const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
         
         if (layerVisibility.columns) {
           const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -209,14 +217,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
           colRect.setAttribute('fill', '#e0e7ff');
           colRect.setAttribute('stroke', '#2563eb');
           colRect.setAttribute('stroke-width', '1');
-          colRect.setAttribute('opacity', '0.6');
+          colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.3');
           svg.appendChild(colRect);
         }
 
-        // Add text to column if sample text exists
-        if (layerVisibility.text && words.length > 0) {
-          const startIdx = i * wordsPerColumn;
-          const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
+        // Add text to column if sample text exists and column is in span
+        if (layerVisibility.text && words.length > 0 && isInSpan) {
+          const spanIndex = colIndex - columnSpanStart; // Index within span (0-indexed)
+          const startIdx = spanIndex * wordsPerSpanColumn;
+          const endIdx = Math.min(startIdx + wordsPerSpanColumn, words.length);
           const columnWords = words.slice(startIdx, endIdx);
           
           // Create text element with wrapping
@@ -321,8 +330,16 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const lineHeight = fontSizeSVG * 1.5;
     const padding = fontSizeSVG * 0.5;
 
+    // Determine which columns to show text in
+    const columnSpanStart = inputs.columnSpanStart || 1;
+    const columnSpanEnd = inputs.columnSpanEnd || inputs.numCols;
+    const spanCols = columnSpanEnd - columnSpanStart + 1;
+    const wordsPerSpanColumn = words.length > 0 ? Math.ceil(words.length / spanCols) : 0;
+    
     for (let i = 0; i < inputs.numCols; i++) {
+      const colIndex = i + 1; // 1-indexed
       const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+      const isInSpan = colIndex >= columnSpanStart && colIndex <= columnSpanEnd;
       
       if (layerVisibility.columns) {
         const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -333,14 +350,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
         colRect.setAttribute('fill', '#e0e7ff');
         colRect.setAttribute('stroke', '#2563eb');
         colRect.setAttribute('stroke-width', '1');
-        colRect.setAttribute('opacity', '0.6');
+        colRect.setAttribute('opacity', isInSpan ? '0.6' : '0.3');
         svg.appendChild(colRect);
       }
 
-      // Add text to column if sample text exists
-      if (layerVisibility.text && words.length > 0) {
-        const startIdx = i * wordsPerColumn;
-        const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
+      // Add text to column if sample text exists and column is in span
+      if (layerVisibility.text && words.length > 0 && isInSpan) {
+        const spanIndex = colIndex - columnSpanStart; // Index within span (0-indexed)
+        const startIdx = spanIndex * wordsPerSpanColumn;
+        const endIdx = Math.min(startIdx + wordsPerSpanColumn, words.length);
         const columnWords = words.slice(startIdx, endIdx);
         
         // Create text element with wrapping

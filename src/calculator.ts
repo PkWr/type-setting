@@ -36,3 +36,22 @@ export function calculateLayout(inputs: LayoutInputs): LayoutResults {
   };
 }
 
+/**
+ * Calculates the width of a column span
+ * @param inputs - Layout input parameters
+ * @returns Width of the spanned columns in millimeters
+ */
+export function calculateColumnSpanWidth(inputs: LayoutInputs): number {
+  const textBoxWidth = inputs.pageWidth - inputs.leftMargin - inputs.rightMargin;
+  const totalGutterWidth = (inputs.numCols - 1) * inputs.gutterWidth;
+  const columnWidth = (textBoxWidth - totalGutterWidth) / inputs.numCols;
+  
+  if (inputs.columnSpanStart && inputs.columnSpanEnd) {
+    const spanCols = inputs.columnSpanEnd - inputs.columnSpanStart + 1;
+    const spanGutters = spanCols - 1;
+    return (columnWidth * spanCols) + (inputs.gutterWidth * spanGutters);
+  }
+  
+  return textBoxWidth;
+}
+

@@ -12,6 +12,8 @@ export interface LayoutInputs {
   typeSize: number;
   numCols: number;
   gutterWidth: number;
+  columnSpanStart?: number; // First column in span (1-indexed)
+  columnSpanEnd?: number; // Last column in span (1-indexed)
 }
 
 export interface LayoutResults {
