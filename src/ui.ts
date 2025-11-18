@@ -54,8 +54,8 @@ function getFormInputs(): LayoutInputs {
   const facingPages = isFacingPages();
 
   // Get margin unit
-  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
-  const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+  const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  const marginUnit: Unit = (marginUnitToggle?.checked ? 'em' : 'mm');
 
   // Page dimensions are always in mm (no conversion needed)
   const pageWidth = parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value);
@@ -326,8 +326,8 @@ function updateSpecification(): void {
     html += '</div>';
     
     // Get margin unit for display
-    const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
-    const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+    const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+    const marginUnit: Unit = (marginUnitToggle?.checked ? 'em' : 'mm');
     
     // Margins
     html += '<div class="spec-group"><h4>Margins</h4>';
@@ -645,8 +645,8 @@ function isFacingPages(): boolean {
  * Updates margin labels to show the selected unit
  */
 function updateMarginLabels(): void {
-  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
-  const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
+  const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  const marginUnit: Unit = (marginUnitToggle?.checked ? 'em' : 'mm');
   const unitLabel = marginUnit === 'em' ? 'em' : 'mm';
   
   const labelMap: Record<string, string> = {
@@ -880,12 +880,12 @@ export function initializeCalculator(): void {
   // Initialize margin inputs visibility
   updateMarginInputs();
   
-  // Handle margin unit change
-  const marginUnitSelect = document.getElementById('marginUnit') as HTMLSelectElement;
-  if (marginUnitSelect) {
-    let previousUnit: Unit = (marginUnitSelect.value as Unit) || 'mm';
-    marginUnitSelect.addEventListener('change', () => {
-      const newUnit: Unit = (marginUnitSelect.value as Unit) || 'mm';
+  // Handle margin unit toggle
+  const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  if (marginUnitToggle) {
+    let previousUnit: Unit = marginUnitToggle.checked ? 'em' : 'mm';
+    marginUnitToggle.addEventListener('change', () => {
+      const newUnit: Unit = marginUnitToggle.checked ? 'em' : 'mm';
       convertMarginValues(previousUnit, newUnit);
       updateMarginLabels();
       previousUnit = newUnit;

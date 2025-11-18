@@ -14,7 +14,17 @@
   <div class="app-wrapper">
     <div class="container">
       <header>
-        <h1>Compositor</h1>
+        <div class="header-top">
+          <h1>Compositor</h1>
+          <div class="unit-toggle-wrapper">
+            <label class="unit-toggle-label">
+              <span class="unit-option">mm</span>
+              <input type="checkbox" id="marginUnitToggle" class="unit-toggle-input">
+              <span class="unit-toggle-slider"></span>
+              <span class="unit-option">em</span>
+            </label>
+          </div>
+        </div>
         <p class="subtitle">Calculate optimal column widths based on Bringhurst principles</p>
       </header>
 
@@ -68,15 +78,6 @@
 
       <section class="form-section">
         <h2>Margins</h2>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="marginUnit">Unit</label>
-            <select id="marginUnit" class="input-small">
-              <option value="mm">mm</option>
-              <option value="em">em</option>
-            </select>
-          </div>
-        </div>
         <div class="form-row">
           <div class="form-group">
             <label for="topMargin" id="topMarginLabel">Top (mm)</label>
