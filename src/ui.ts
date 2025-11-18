@@ -201,17 +201,26 @@ function applyPaperSize(paperSizeName: string): void {
 }
 
 /**
- * Updates all input labels to show the current unit
+ * Checks if facing pages mode is enabled
+ */
+function isFacingPages(): boolean {
+  const checkbox = document.getElementById('facingPages') as HTMLInputElement;
+  return checkbox?.checked || false;
+}
+
+/**
+ * Updates all input labels to show the current unit and facing pages mode
  */
 function updateInputLabels(): void {
   const unit = getCurrentUnit();
   const unitAbbr = UNITS[unit].abbreviation;
+  const facingPages = isFacingPages();
 
   const labels: Record<string, string> = {
     pageWidth: `Page width (${unitAbbr})`,
     pageHeight: `Page height (${unitAbbr})`,
-    leftMargin: `Left (${unitAbbr})`,
-    rightMargin: `Right (${unitAbbr})`,
+    leftMargin: facingPages ? `Inner (${unitAbbr})` : `Left (${unitAbbr})`,
+    rightMargin: facingPages ? `Outer (${unitAbbr})` : `Right (${unitAbbr})`,
     topMargin: `Top (${unitAbbr})`,
     bottomMargin: `Bottom (${unitAbbr})`,
     gutterWidth: `Gutter width (${unitAbbr})`,
@@ -277,6 +286,15 @@ export function initializeCalculator(): void {
       updateInputLabels();
       updateUnitDescription();
       suggestGutter(); // Recalculate gutter in new unit
+      updateVisualizationOnInputChange();
+    });
+  }
+
+  // Handle facing pages checkbox
+  const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
+  if (facingPagesCheckbox) {
+    facingPagesCheckbox.addEventListener('change', () => {
+      updateInputLabels();
       updateVisualizationOnInputChange();
     });
   }

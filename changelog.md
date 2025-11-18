@@ -122,3 +122,17 @@ This file tracks all changes made to the type-setting project.
   - Results display in selected unit with appropriate decimal precision
   - Unit changes automatically convert existing input values
 
+### [2025-01-27 - Facing Pages Feature]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Added facing pages checkbox in Preferences section
+  - When enabled, margin labels change from Left/Right to Inner/Outer
+  - Visualization shows two pages side by side for facing pages layout
+  - Left page uses rightMargin as outer, leftMargin as inner
+  - Right page uses leftMargin as inner, rightMargin as outer
+  - Both pages show columns and text boxes correctly
+  - Helper text explains facing pages are for book layouts
+  - Checkbox styling matches form design
+

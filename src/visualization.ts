@@ -10,6 +10,14 @@ const VISUALIZATION_SIZE = 400; // Maximum size for the visualization in pixels
 const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility
 
 /**
+ * Checks if facing pages mode is enabled
+ */
+function isFacingPages(): boolean {
+  const checkbox = document.getElementById('facingPages') as HTMLInputElement;
+  return checkbox?.checked || false;
+}
+
+/**
  * Updates the page layout visualization
  * @param inputs - Layout input parameters
  */
@@ -17,26 +25,32 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const container = document.getElementById('visualizationContainer');
   if (!container) return;
 
+  const facingPages = isFacingPages();
   const results = calculateLayout(inputs);
 
   // Calculate scale to fit visualization
   const aspectRatio = inputs.pageHeight / inputs.pageWidth;
-  let visWidth: number;
-  let visHeight: number;
+  let singlePageWidth: number;
+  let singlePageHeight: number;
 
   if (aspectRatio > 1) {
     // Portrait orientation
-    visHeight = VISUALIZATION_SIZE;
-    visWidth = VISUALIZATION_SIZE / aspectRatio;
+    singlePageHeight = VISUALIZATION_SIZE;
+    singlePageWidth = VISUALIZATION_SIZE / aspectRatio;
   } else {
     // Landscape orientation
-    visWidth = VISUALIZATION_SIZE;
-    visHeight = VISUALIZATION_SIZE * aspectRatio;
+    singlePageWidth = VISUALIZATION_SIZE;
+    singlePageHeight = VISUALIZATION_SIZE * aspectRatio;
   }
 
-  // Calculate scaled dimensions
-  const scaleX = visWidth / inputs.pageWidth;
-  const scaleY = visHeight / inputs.pageHeight;
+  // For facing pages, show two pages side by side
+  const gapBetweenPages = 20;
+  const visWidth = facingPages ? singlePageWidth * 2 + gapBetweenPages : singlePageWidth;
+  const visHeight = singlePageHeight;
+
+  // Calculate scaled dimensions (scale based on single page)
+  const scaleX = singlePageWidth / inputs.pageWidth;
+  const scaleY = singlePageHeight / inputs.pageHeight;
 
   // Calculate scaled margins
   const scaledTopMargin = Math.max(inputs.topMargin * scaleY, MIN_MARGIN_VISUAL);
@@ -44,18 +58,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const scaledLeftMargin = Math.max(inputs.leftMargin * scaleX, MIN_MARGIN_VISUAL);
   const scaledRightMargin = Math.max(inputs.rightMargin * scaleX, MIN_MARGIN_VISUAL);
 
-  // Calculate text box area
-  const textBoxX = scaledLeftMargin;
-  const textBoxY = scaledTopMargin;
-  const textBoxWidth = visWidth - scaledLeftMargin - scaledRightMargin;
-  const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
-
-  // Calculate column positions
-  const scaledGutterWidth = inputs.gutterWidth * scaleX;
-  const scaledColumnWidth = results.columnWidth * scaleX;
-  const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
-  const availableWidth = textBoxWidth - totalGutters;
-  const actualColumnWidth = availableWidth / inputs.numCols;
+  // For facing pages: left page uses leftMargin as outer, rightMargin as inner
+  // Right page uses leftMargin as inner, rightMargin as outer
+  const leftPageOuterMargin = facingPages ? scaledRightMargin : scaledLeftMargin;
+  const leftPageInnerMargin = facingPages ? scaledLeftMargin : scaledRightMargin;
+  const rightPageOuterMargin = facingPages ? scaledLeftMargin : scaledRightMargin;
+  const rightPageInnerMargin = facingPages ? scaledRightMargin : scaledLeftMargin;
 
   // Create SVG
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -65,76 +73,204 @@ export function updateVisualization(inputs: LayoutInputs): void {
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   svg.classList.add('page-visualization');
 
-  // Page background
-  const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  pageRect.setAttribute('x', '0');
-  pageRect.setAttribute('y', '0');
-  pageRect.setAttribute('width', visWidth.toString());
-  pageRect.setAttribute('height', visHeight.toString());
-  pageRect.setAttribute('fill', '#ffffff');
-  pageRect.setAttribute('stroke', '#1e293b');
-  pageRect.setAttribute('stroke-width', '2');
-  svg.appendChild(pageRect);
-
-  // Margins area (semi-transparent overlay)
-  const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  const marginD = `
-    M 0,0
-    L ${visWidth},0
-    L ${visWidth},${visHeight}
-    L 0,${visHeight}
-    Z
-    M ${scaledLeftMargin},${scaledTopMargin}
-    L ${visWidth - scaledRightMargin},${scaledTopMargin}
-    L ${visWidth - scaledRightMargin},${visHeight - scaledBottomMargin}
-    L ${scaledLeftMargin},${visHeight - scaledBottomMargin}
-    Z
-  `;
-  marginPath.setAttribute('d', marginD);
-  marginPath.setAttribute('fill', '#f1f5f9');
-  marginPath.setAttribute('fill-rule', 'evenodd');
-  svg.appendChild(marginPath);
-
-  // Text box area outline
-  const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  textBoxRect.setAttribute('x', textBoxX.toString());
-  textBoxRect.setAttribute('y', textBoxY.toString());
-  textBoxRect.setAttribute('width', textBoxWidth.toString());
-  textBoxRect.setAttribute('height', textBoxHeight.toString());
-  textBoxRect.setAttribute('fill', 'none');
-  textBoxRect.setAttribute('stroke', '#64748b');
-  textBoxRect.setAttribute('stroke-width', '1.5');
-  textBoxRect.setAttribute('stroke-dasharray', '4,2');
-  svg.appendChild(textBoxRect);
-
-  // Columns
-  for (let i = 0; i < inputs.numCols; i++) {
-    const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+  // Draw pages
+  if (facingPages) {
+    // Left page (even/left page)
+    const leftPageX = 0;
+    const leftPageTextX = leftPageX + leftPageOuterMargin;
+    const leftPageTextWidth = singlePageWidth - leftPageOuterMargin - leftPageInnerMargin;
     
-    // Column rectangle
-    const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    colRect.setAttribute('x', colX.toString());
-    colRect.setAttribute('y', textBoxY.toString());
-    colRect.setAttribute('width', actualColumnWidth.toString());
-    colRect.setAttribute('height', textBoxHeight.toString());
-    colRect.setAttribute('fill', '#e0e7ff');
-    colRect.setAttribute('stroke', '#2563eb');
-    colRect.setAttribute('stroke-width', '1');
-    colRect.setAttribute('opacity', '0.6');
-    svg.appendChild(colRect);
+    // Right page (odd/right page)
+    const rightPageX = singlePageWidth + gapBetweenPages;
+    const rightPageTextX = rightPageX + rightPageInnerMargin;
+    const rightPageTextWidth = singlePageWidth - rightPageInnerMargin - rightPageOuterMargin;
 
-    // Column divider line
-    if (i < inputs.numCols - 1) {
-      const dividerX = colX + actualColumnWidth;
-      const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      divider.setAttribute('x1', dividerX.toString());
-      divider.setAttribute('y1', textBoxY.toString());
-      divider.setAttribute('x2', dividerX.toString());
-      divider.setAttribute('y2', (textBoxY + textBoxHeight).toString());
-      divider.setAttribute('stroke', '#2563eb');
-      divider.setAttribute('stroke-width', '2');
-      divider.setAttribute('stroke-dasharray', '3,3');
-      svg.appendChild(divider);
+    // Draw left page
+    const leftPageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    leftPageRect.setAttribute('x', leftPageX.toString());
+    leftPageRect.setAttribute('y', '0');
+    leftPageRect.setAttribute('width', singlePageWidth.toString());
+    leftPageRect.setAttribute('height', visHeight.toString());
+    leftPageRect.setAttribute('fill', '#ffffff');
+    leftPageRect.setAttribute('stroke', '#1e293b');
+    leftPageRect.setAttribute('stroke-width', '2');
+    svg.appendChild(leftPageRect);
+
+    // Draw right page
+    const rightPageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rightPageRect.setAttribute('x', rightPageX.toString());
+    rightPageRect.setAttribute('y', '0');
+    rightPageRect.setAttribute('width', singlePageWidth.toString());
+    rightPageRect.setAttribute('height', visHeight.toString());
+    rightPageRect.setAttribute('fill', '#ffffff');
+    rightPageRect.setAttribute('stroke', '#1e293b');
+    rightPageRect.setAttribute('stroke-width', '2');
+    svg.appendChild(rightPageRect);
+
+    // Draw margins for left page
+    const leftMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    leftMarginPath.setAttribute('d', `
+      M ${leftPageX},0 L ${leftPageX + singlePageWidth},0 L ${leftPageX + singlePageWidth},${visHeight} L ${leftPageX},${visHeight} Z
+      M ${leftPageX + leftPageOuterMargin},${scaledTopMargin}
+      L ${leftPageX + singlePageWidth - leftPageInnerMargin},${scaledTopMargin}
+      L ${leftPageX + singlePageWidth - leftPageInnerMargin},${visHeight - scaledBottomMargin}
+      L ${leftPageX + leftPageOuterMargin},${visHeight - scaledBottomMargin} Z
+    `);
+    leftMarginPath.setAttribute('fill', '#f1f5f9');
+    leftMarginPath.setAttribute('fill-rule', 'evenodd');
+    svg.appendChild(leftMarginPath);
+
+    // Draw margins for right page
+    const rightMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    rightMarginPath.setAttribute('d', `
+      M ${rightPageX},0 L ${rightPageX + singlePageWidth},0 L ${rightPageX + singlePageWidth},${visHeight} L ${rightPageX},${visHeight} Z
+      M ${rightPageX + rightPageInnerMargin},${scaledTopMargin}
+      L ${rightPageX + singlePageWidth - rightPageOuterMargin},${scaledTopMargin}
+      L ${rightPageX + singlePageWidth - rightPageOuterMargin},${visHeight - scaledBottomMargin}
+      L ${rightPageX + rightPageInnerMargin},${visHeight - scaledBottomMargin} Z
+    `);
+    rightMarginPath.setAttribute('fill', '#f1f5f9');
+    rightMarginPath.setAttribute('fill-rule', 'evenodd');
+    svg.appendChild(rightMarginPath);
+
+    // Text box outlines
+    const leftTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    leftTextBoxRect.setAttribute('x', leftPageTextX.toString());
+    leftTextBoxRect.setAttribute('y', scaledTopMargin.toString());
+    leftTextBoxRect.setAttribute('width', leftPageTextWidth.toString());
+    leftTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
+    leftTextBoxRect.setAttribute('fill', 'none');
+    leftTextBoxRect.setAttribute('stroke', '#64748b');
+    leftTextBoxRect.setAttribute('stroke-width', '1.5');
+    leftTextBoxRect.setAttribute('stroke-dasharray', '4,2');
+    svg.appendChild(leftTextBoxRect);
+
+    const rightTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rightTextBoxRect.setAttribute('x', rightPageTextX.toString());
+    rightTextBoxRect.setAttribute('y', scaledTopMargin.toString());
+    rightTextBoxRect.setAttribute('width', rightPageTextWidth.toString());
+    rightTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
+    rightTextBoxRect.setAttribute('fill', 'none');
+    rightTextBoxRect.setAttribute('stroke', '#64748b');
+    rightTextBoxRect.setAttribute('stroke-width', '1.5');
+    rightTextBoxRect.setAttribute('stroke-dasharray', '4,2');
+    svg.appendChild(rightTextBoxRect);
+
+    // Draw columns for both pages
+    const drawColumns = (pageTextX: number, pageTextWidth: number) => {
+      const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
+      const scaledGutterWidth = inputs.gutterWidth * scaleX;
+      const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
+      const availableWidth = pageTextWidth - totalGutters;
+      const actualColumnWidth = availableWidth / inputs.numCols;
+
+      for (let i = 0; i < inputs.numCols; i++) {
+        const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
+        
+        const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        colRect.setAttribute('x', colX.toString());
+        colRect.setAttribute('y', scaledTopMargin.toString());
+        colRect.setAttribute('width', actualColumnWidth.toString());
+        colRect.setAttribute('height', textBoxHeight.toString());
+        colRect.setAttribute('fill', '#e0e7ff');
+        colRect.setAttribute('stroke', '#2563eb');
+        colRect.setAttribute('stroke-width', '1');
+        colRect.setAttribute('opacity', '0.6');
+        svg.appendChild(colRect);
+
+        if (i < inputs.numCols - 1) {
+          const dividerX = colX + actualColumnWidth;
+          const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          divider.setAttribute('x1', dividerX.toString());
+          divider.setAttribute('y1', scaledTopMargin.toString());
+          divider.setAttribute('x2', dividerX.toString());
+          divider.setAttribute('y2', (scaledTopMargin + textBoxHeight).toString());
+          divider.setAttribute('stroke', '#2563eb');
+          divider.setAttribute('stroke-width', '2');
+          divider.setAttribute('stroke-dasharray', '3,3');
+          svg.appendChild(divider);
+        }
+      }
+    };
+
+    drawColumns(leftPageTextX, leftPageTextWidth);
+    drawColumns(rightPageTextX, rightPageTextWidth);
+
+  } else {
+    // Single page mode (existing code)
+    const textBoxX = scaledLeftMargin;
+    const textBoxY = scaledTopMargin;
+    const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
+    const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
+
+    // Page background
+    const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    pageRect.setAttribute('x', '0');
+    pageRect.setAttribute('y', '0');
+    pageRect.setAttribute('width', singlePageWidth.toString());
+    pageRect.setAttribute('height', visHeight.toString());
+    pageRect.setAttribute('fill', '#ffffff');
+    pageRect.setAttribute('stroke', '#1e293b');
+    pageRect.setAttribute('stroke-width', '2');
+    svg.appendChild(pageRect);
+
+    // Margins area
+    const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    marginPath.setAttribute('d', `
+      M 0,0 L ${singlePageWidth},0 L ${singlePageWidth},${visHeight} L 0,${visHeight} Z
+      M ${scaledLeftMargin},${scaledTopMargin}
+      L ${singlePageWidth - scaledRightMargin},${scaledTopMargin}
+      L ${singlePageWidth - scaledRightMargin},${visHeight - scaledBottomMargin}
+      L ${scaledLeftMargin},${visHeight - scaledBottomMargin} Z
+    `);
+    marginPath.setAttribute('fill', '#f1f5f9');
+    marginPath.setAttribute('fill-rule', 'evenodd');
+    svg.appendChild(marginPath);
+
+    // Text box area outline
+    const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    textBoxRect.setAttribute('x', textBoxX.toString());
+    textBoxRect.setAttribute('y', textBoxY.toString());
+    textBoxRect.setAttribute('width', textBoxWidth.toString());
+    textBoxRect.setAttribute('height', textBoxHeight.toString());
+    textBoxRect.setAttribute('fill', 'none');
+    textBoxRect.setAttribute('stroke', '#64748b');
+    textBoxRect.setAttribute('stroke-width', '1.5');
+    textBoxRect.setAttribute('stroke-dasharray', '4,2');
+    svg.appendChild(textBoxRect);
+
+    // Columns
+    const scaledGutterWidth = inputs.gutterWidth * scaleX;
+    const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
+    const availableWidth = textBoxWidth - totalGutters;
+    const actualColumnWidth = availableWidth / inputs.numCols;
+
+    for (let i = 0; i < inputs.numCols; i++) {
+      const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
+      
+      const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      colRect.setAttribute('x', colX.toString());
+      colRect.setAttribute('y', textBoxY.toString());
+      colRect.setAttribute('width', actualColumnWidth.toString());
+      colRect.setAttribute('height', textBoxHeight.toString());
+      colRect.setAttribute('fill', '#e0e7ff');
+      colRect.setAttribute('stroke', '#2563eb');
+      colRect.setAttribute('stroke-width', '1');
+      colRect.setAttribute('opacity', '0.6');
+      svg.appendChild(colRect);
+
+      if (i < inputs.numCols - 1) {
+        const dividerX = colX + actualColumnWidth;
+        const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        divider.setAttribute('x1', dividerX.toString());
+        divider.setAttribute('y1', textBoxY.toString());
+        divider.setAttribute('x2', dividerX.toString());
+        divider.setAttribute('y2', (textBoxY + textBoxHeight).toString());
+        divider.setAttribute('stroke', '#2563eb');
+        divider.setAttribute('stroke-width', '2');
+        divider.setAttribute('stroke-dasharray', '3,3');
+        svg.appendChild(divider);
+      }
     }
   }
 
@@ -153,24 +289,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
   };
 
   // Page dimensions label
-  addLabel(visWidth / 2, visHeight + 15, `${inputs.pageWidth} × ${inputs.pageHeight} mm`, 'page-dimensions');
-
-  // Margin labels (if visible)
-  if (scaledTopMargin > 5) {
-    addLabel(visWidth / 2, scaledTopMargin / 2, `Top: ${inputs.topMargin}mm`, 'margin-label');
-  }
-  if (scaledLeftMargin > 5) {
-    const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    leftLabel.setAttribute('x', (scaledLeftMargin / 2).toString());
-    leftLabel.setAttribute('y', (visHeight / 2).toString());
-    leftLabel.setAttribute('font-size', '10');
-    leftLabel.setAttribute('font-family', 'sans-serif');
-    leftLabel.setAttribute('fill', '#64748b');
-    leftLabel.setAttribute('text-anchor', 'middle');
-    leftLabel.setAttribute('transform', `rotate(-90 ${scaledLeftMargin / 2} ${visHeight / 2})`);
-    leftLabel.textContent = `Left: ${inputs.leftMargin}mm`;
-    svg.appendChild(leftLabel);
-  }
+  const labelText = facingPages 
+    ? `Facing pages: ${inputs.pageWidth} × ${inputs.pageHeight} mm each`
+    : `${inputs.pageWidth} × ${inputs.pageHeight} mm`;
+  addLabel(visWidth / 2, visHeight + 15, labelText, 'page-dimensions');
 
   // Clear container and add new SVG
   container.innerHTML = '';
