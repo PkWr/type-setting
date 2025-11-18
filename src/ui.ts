@@ -703,13 +703,14 @@ function updateMarginLabels(): void {
     'gutterWidthLabel': 'Gutter width'
   };
   
-  Object.keys(labelMap).forEach(labelId => {
-    const label = document.getElementById(labelId);
-    if (label) {
-      if (labelId === 'gutterWidthLabel') {
-        // For gutter width, show conversion value in parentheses
-        try {
-          const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  try {
+    const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+    
+    Object.keys(labelMap).forEach(labelId => {
+      const label = document.getElementById(labelId);
+      if (label) {
+        if (labelId === 'gutterWidthLabel') {
+          // For gutter width, show conversion value in parentheses
           const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
           const gutterValue = gutterInput ? parseFloat(gutterInput.value) : (marginUnit === 'em' ? 1.0 : 0);
           
@@ -731,14 +732,42 @@ function updateMarginLabels(): void {
           } else {
             label.textContent = `Gutter width (${unitLabel})`;
           }
-        } catch (e) {
-          label.textContent = `Gutter width (${unitLabel})`;
+        } else {
+          // For margin labels, show conversion value in parentheses
+          const inputId = labelId.replace('Label', '');
+          const input = document.getElementById(inputId) as HTMLInputElement;
+          const marginValue = input ? parseFloat(input.value) : 0;
+          
+          if (!isNaN(typeSize) && !isNaN(marginValue) && marginValue > 0) {
+            let conversionValue: number;
+            let conversionUnit: string;
+            
+            if (marginUnit === 'em') {
+              // Show mm equivalent
+              conversionValue = convertToMM(marginValue, 'em', typeSize);
+              conversionUnit = 'mm';
+              label.textContent = `${labelMap[labelId]} (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+            } else {
+              // Show em equivalent
+              conversionValue = convertFromMM(marginValue, 'em', typeSize);
+              conversionUnit = 'em';
+              label.textContent = `${labelMap[labelId]} (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+            }
+          } else {
+            label.textContent = `${labelMap[labelId]} (${unitLabel})`;
+          }
         }
-      } else {
+      }
+    });
+  } catch (e) {
+    // Fallback to simple labels if conversion fails
+    Object.keys(labelMap).forEach(labelId => {
+      const label = document.getElementById(labelId);
+      if (label) {
         label.textContent = `${labelMap[labelId]} (${unitLabel})`;
       }
-    }
-  });
+    });
+  }
 }
 
 /**
