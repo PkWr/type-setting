@@ -290,6 +290,11 @@ h2 {
   .form-row-two-col {
     grid-template-columns: 1fr 1fr;
   }
+  
+  /* Force single column for facing pages row */
+  .form-row-single-col {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-row:last-child {
