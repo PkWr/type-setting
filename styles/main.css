@@ -88,7 +88,7 @@ h2 {
 }
 
 .form-section {
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
   background-color: var(--color-bg-light);
   border-radius: var(--border-radius-sm);
@@ -96,7 +96,7 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .form-group:last-child {
@@ -105,7 +105,7 @@ h2 {
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
