@@ -297,7 +297,7 @@ h2 {
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   width: 100%;
@@ -320,7 +320,7 @@ h2 {
 
 @media (min-width: 1200px) {
   .form-row {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
   
   /* Force single column for facing pages row */
