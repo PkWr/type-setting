@@ -284,6 +284,17 @@ h2 {
   display: block;
 }
 
+.page-link {
+  color: #ffffff;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.page-link:hover {
+  color: #cccccc;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
