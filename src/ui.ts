@@ -105,14 +105,27 @@ function getFormInputs(): LayoutInputs {
     }
   }
   
-  // Gutter is always in ems - convert to mm for calculations
+  // Get gutter width - convert based on selected unit
   let gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
   if (isNaN(gutterWidth) || gutterWidth <= 0) {
-    gutterWidth = 1.0; // Default to 1em
+    // Default based on unit: 1em or equivalent in mm
+    if (marginUnit === 'em') {
+      gutterWidth = 1.0; // Default to 1em
+    } else {
+      gutterWidth = convertFromMM(convertToMM(1.0, 'em', typeSize), 'mm', typeSize); // 1em in mm
+    }
     const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
     if (gutterInput) {
-      gutterInput.value = '1.000';
+      gutterInput.value = marginUnit === 'em' ? '1.000' : gutterWidth.toFixed(3);
     }
+  }
+  
+  // Convert gutter width to mm for calculations
+  let gutterWidthMM: number;
+  if (marginUnit === 'em') {
+    gutterWidthMM = convertToMM(gutterWidth, 'em', typeSize);
+  } else {
+    gutterWidthMM = gutterWidth; // Already in mm
   }
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
@@ -132,7 +145,7 @@ function getFormInputs(): LayoutInputs {
     leading, // Leading (line height) in points
     fontFamily, // Font family name
     numCols,
-    gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
+    gutterWidth: gutterWidthMM, // Already converted to mm
     hyphenation, // Hyphenation enabled/disabled
   };
   
@@ -387,7 +400,26 @@ function updateSpecification(): void {
     // Columns
     html += '<div class="spec-group"><h4>Columns</h4>';
     html += `<div class="spec-item"><span class="spec-label">Number:</span><span class="spec-value">${inputs.numCols}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterEm.toFixed(1)} em (${results.gutterWidth.toFixed(1)} mm)</span></div>`;
+    
+    // Get gutter width in display unit
+    const gutterInputSpec = document.getElementById('gutterWidth') as HTMLInputElement;
+    const gutterDisplay = gutterInputSpec ? parseFloat(gutterInputSpec.value) : (marginUnit === 'em' ? 1.0 : results.gutterWidth);
+    let gutterDisplayValue: number;
+    let gutterDisplayUnit: string;
+    
+    if (marginUnit === 'em') {
+      // Show in ems with mm equivalent
+      gutterDisplayValue = gutterDisplay;
+      gutterDisplayUnit = 'em';
+      html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${results.gutterWidth.toFixed(1)} mm)</span></div>`;
+    } else {
+      // Show in mm with em equivalent
+      gutterDisplayValue = gutterDisplay;
+      gutterDisplayUnit = 'mm';
+      const gutterEm = convertFromMM(results.gutterWidth, 'em', inputs.typeSize);
+      html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${gutterEm.toFixed(1)} em)</span></div>`;
+    }
+    
     html += `<div class="spec-item"><span class="spec-label">Column width:</span><span class="spec-value">${results.columnWidth.toFixed(1)} mm</span></div>`;
     if (columnSpan) {
       html += `<div class="spec-item"><span class="spec-label">Text box spans:</span><span class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</span></div>`;
@@ -657,7 +689,8 @@ function updateMarginLabels(): void {
     'innerMarginLeftLabel': 'Inner left',
     'innerMarginRightLabel': 'Inner right',
     'outerMarginLeftLabel': 'Outer left',
-    'outerMarginRightLabel': 'Outer right'
+    'outerMarginRightLabel': 'Outer right',
+    'gutterWidthLabel': 'Gutter width'
   };
   
   Object.keys(labelMap).forEach(labelId => {
@@ -669,7 +702,7 @@ function updateMarginLabels(): void {
 }
 
 /**
- * Converts margin values when switching units
+ * Converts margin and gutter values when switching units
  */
 function convertMarginValues(fromUnit: Unit, toUnit: Unit): void {
   if (fromUnit === toUnit) return;
@@ -711,6 +744,31 @@ function convertMarginValues(fromUnit: Unit, toUnit: Unit): void {
       }
     }
   });
+  
+  // Convert gutter width
+  const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
+  if (gutterInput && gutterInput.value) {
+    const currentGutter = parseFloat(gutterInput.value);
+    if (!isNaN(currentGutter)) {
+      // Convert to mm first, then to target unit
+      let gutterInMM: number;
+      if (fromUnit === 'em') {
+        gutterInMM = convertToMM(currentGutter, 'em', typeSize);
+      } else {
+        gutterInMM = currentGutter; // Already in mm
+      }
+      
+      // Convert from mm to target unit
+      let newGutter: number;
+      if (toUnit === 'em') {
+        newGutter = convertFromMM(gutterInMM, 'em', typeSize);
+      } else {
+        newGutter = gutterInMM; // Already in mm
+      }
+      
+      gutterInput.value = newGutter.toFixed(3);
+    }
+  }
 }
 
 function updateMarginInputs(): void {
