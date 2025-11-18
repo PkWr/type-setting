@@ -314,17 +314,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
     );
   }
 
-  // Page dimensions label
-  const labelText = `${inputs.pageWidth} × ${inputs.pageHeight} mm`;
-  const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  label.setAttribute('x', (svgWidth / 2).toString());
-  label.setAttribute('y', (svgHeight - 5).toString());
-  label.setAttribute('font-size', '10');
-  label.setAttribute('font-family', 'sans-serif');
-  label.setAttribute('fill', '#64748b');
-  label.setAttribute('text-anchor', 'middle');
-  label.textContent = labelText;
-  svg.appendChild(label);
 
   // Clear container and add new SVG
   container.innerHTML = '';
