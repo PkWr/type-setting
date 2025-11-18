@@ -119,6 +119,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   svg.classList.add('page-visualization');
 
+  // Store textGroup to append at the end (after all other elements)
+  let textGroupToAppend: SVGForeignObjectElement | null = null;
+
   // Draw pages
   if (facingPages) {
     // Left page (even/left page)
@@ -658,7 +661,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textDiv.textContent = getSampleText();
         
         textGroup.appendChild(textDiv);
-        svg.appendChild(textGroup);
+        // Store textGroup to append at the end (after dividers and labels)
+        textGroupToAppend = textGroup;
       }
     }
 
@@ -745,6 +749,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     ? `Facing pages: ${inputs.pageWidth} × ${inputs.pageHeight} mm each`
     : `${inputs.pageWidth} × ${inputs.pageHeight} mm`;
   addLabel(svgWidth / 2, svgHeight - 5, labelText, 'page-dimensions');
+
+  // Append textGroup last so it appears on top of all other elements (dividers, labels, etc.)
+  if (textGroupToAppend) {
+    svg.appendChild(textGroupToAppend);
+  }
 
   // Clear container and add new SVG
   container.innerHTML = '';
