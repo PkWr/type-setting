@@ -203,4 +203,9 @@ This file tracks all changes made to the type-setting project.
   - Measurements displayed in selected unit (mm, pt, em, pc)
   - Measurement lines with tick marks and labels
   - Works for both single page and facing pages layouts
+  - Added portrait/landscape orientation selector
+  - Radio buttons for selecting page orientation
+  - When paper size is selected, orientation is applied automatically
+  - When custom dimensions are used, orientation swaps width and height
+  - Positioned under paper size selector in Page Dimensions section
 

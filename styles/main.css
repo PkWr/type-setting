@@ -348,6 +348,29 @@ button {
   margin-top: var(--spacing-xs);
 }
 
+.orientation-controls {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xs);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  user-select: none;
+}
+
+.radio-label input[type="radio"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
 .sample-text-preview {
   padding: var(--spacing-lg);
   background-color: var(--color-bg-light);

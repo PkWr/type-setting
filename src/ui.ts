@@ -280,6 +280,14 @@ function populatePaperSizeDropdown(): void {
 }
 
 /**
+ * Gets current orientation
+ */
+function getOrientation(): 'portrait' | 'landscape' {
+  const portraitRadio = document.getElementById('orientationPortrait') as HTMLInputElement;
+  return portraitRadio?.checked ? 'portrait' : 'landscape';
+}
+
+/**
  * Applies a paper size to the width and height inputs
  * @param paperSizeName - Name of the paper size to apply
  */
@@ -289,10 +297,16 @@ function applyPaperSize(paperSizeName: string): void {
 
   const unit = getCurrentUnit();
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  const orientation = getOrientation();
   
   // Convert from mm to selected unit
-  const width = convertFromMM(size.width, unit, typeSize);
-  const height = convertFromMM(size.height, unit, typeSize);
+  let width = convertFromMM(size.width, unit, typeSize);
+  let height = convertFromMM(size.height, unit, typeSize);
+
+  // Swap if landscape orientation
+  if (orientation === 'landscape') {
+    [width, height] = [height, width];
+  }
 
   const widthInput = document.getElementById('pageWidth') as HTMLInputElement;
   const heightInput = document.getElementById('pageHeight') as HTMLInputElement;
@@ -300,6 +314,25 @@ function applyPaperSize(paperSizeName: string): void {
   const decimals = unit === 'em' ? 3 : 2;
   if (widthInput) widthInput.value = width.toFixed(decimals);
   if (heightInput) heightInput.value = height.toFixed(decimals);
+  
+  updateVisualizationOnInputChange();
+}
+
+/**
+ * Swaps page width and height based on orientation
+ */
+function updateOrientation(): void {
+  const pageWidthInput = document.getElementById('pageWidth') as HTMLInputElement;
+  const pageHeightInput = document.getElementById('pageHeight') as HTMLInputElement;
+  
+  const currentWidth = parseFloat(pageWidthInput.value);
+  const currentHeight = parseFloat(pageHeightInput.value);
+  
+  // Swap width and height
+  pageWidthInput.value = currentHeight.toString();
+  pageHeightInput.value = currentWidth.toString();
+  
+  updateVisualizationOnInputChange();
 }
 
 /**
@@ -466,10 +499,25 @@ export function initializeCalculator(): void {
       const target = e.target as HTMLSelectElement;
       if (target.value) {
         applyPaperSize(target.value);
+      } else {
+        updateVisualizationOnInputChange();
       }
-      updateVisualizationOnInputChange();
     });
   }
+
+  // Handle orientation change
+  const orientationRadios = document.querySelectorAll('input[name="orientation"]') as NodeListOf<HTMLInputElement>;
+  orientationRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      // If a paper size is selected, reapply it with new orientation
+      if (paperSizeSelect && paperSizeSelect.value) {
+        applyPaperSize(paperSizeSelect.value);
+      } else {
+        // Otherwise, swap current width and height
+        updateOrientation();
+      }
+    });
+  });
 
   // Update visualization when inputs change
   const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin', 'numCols', 'gutterWidth'];
