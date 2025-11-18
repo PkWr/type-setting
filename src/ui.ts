@@ -774,6 +774,12 @@ export function initializeCalculator(): void {
     fontFamilySelect.addEventListener('change', updateVisualizationOnInputChange);
   }
 
+  // Handle hyphenation checkbox
+  const hyphenationCheckbox = document.getElementById('hyphenation') as HTMLInputElement;
+  if (hyphenationCheckbox) {
+    hyphenationCheckbox.addEventListener('change', updateVisualizationOnInputChange);
+  }
+
   // Initial visualization and words per line
   updateVisualizationOnInputChange();
   updateWordsPerLine();
