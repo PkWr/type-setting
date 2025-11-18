@@ -70,17 +70,6 @@ export function suggestGutter(): void {
 }
 
 /**
- * Calculates and displays layout results
- */
-export function calcLayout(): void {
-  const inputs = getFormInputs();
-  const results = calculateLayout(inputs);
-  displayResults(results);
-  updateVisualization(inputs);
-  updateWordsPerLine();
-}
-
-/**
  * Calculates words per line based on column width and type size
  * @param columnWidthMM - Column width in millimeters
  * @param typeSize - Type size in points
@@ -129,6 +118,8 @@ function updateWordsPerLine(): void {
 function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
+    const results = calculateLayout(inputs);
+    displayResults(results);
     updateVisualization(inputs);
     updateWordsPerLine();
   } catch (e) {
@@ -368,11 +359,6 @@ export function initializeCalculator(): void {
   suggestGutter();
 
   // Attach event listeners
-  const calcButton = document.getElementById('calcButton');
-  if (calcButton) {
-    calcButton.addEventListener('click', calcLayout);
-  }
-
   const suggestGutterButton = document.getElementById('suggestGutterButton');
   if (suggestGutterButton) {
     suggestGutterButton.addEventListener('click', suggestGutter);

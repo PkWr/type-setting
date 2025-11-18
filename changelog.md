@@ -176,4 +176,7 @@ This file tracks all changes made to the type-setting project.
   - Text uses SVG foreignObject for proper wrapping and formatting
   - Scale indicator moved to page layout preview header
   - Text updates automatically when sample text changes
+  - Removed calculate button - all calculations now update automatically in real-time
+  - Results section updates automatically as inputs change
+  - Simplified UI by removing redundant form actions section
 
