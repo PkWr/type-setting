@@ -166,7 +166,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
     }
   }
 
-  // STAGE 3 & 4: Add text rendering with clipping to show text only in selected columns
+  // STAGE 3: Add text rendering (simple, full width, no clipping)
+  // Text flows naturally - no clipping needed, just let it flow
   if (layerVisibility.text) {
     const sampleText = getSampleText();
     if (sampleText && sampleText.trim().length > 0) {
@@ -175,12 +176,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
       const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
       
-      // Calculate column dimensions (needed for clipping)
-      const scaledGutterWidth = inputs.gutterWidth * scaleX;
-      const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
-      const availableWidth = textBoxWidth - totalGutters;
-      const columnWidth = availableWidth / inputs.numCols;
-      
       // Calculate font size in SVG units (scaled)
       // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
       const typeSizeMM = inputs.typeSize * 0.3528;
@@ -188,39 +183,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const lineHeight = fontSizeSVG * 1.5;
       const padding = fontSizeSVG * 0.5;
       
-      // Determine which columns should show text
-      // If textColumns is specified, use those; otherwise show in all columns
-      const textColumns = inputs.textColumns && inputs.textColumns.length > 0 
-        ? inputs.textColumns 
-        : Array.from({ length: inputs.numCols }, (_, i) => i + 1); // Default: all columns (1-indexed)
-      
-      // Create clipping path to only show text in selected columns
-      const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
-      const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-      clipPath.setAttribute('id', clipId);
-      
-      // Add rectangles for each column that should show text
-      // Clipping coordinates are relative to the textGroup (which starts at textBoxX)
-      textColumns.forEach(colIndex => {
-        const colOffset = colIndex - 1; // Convert to 0-indexed
-        const clipX = colOffset * (columnWidth + scaledGutterWidth);
-        const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        clipRect.setAttribute('x', clipX.toString());
-        clipRect.setAttribute('y', '0');
-        clipRect.setAttribute('width', columnWidth.toString());
-        clipRect.setAttribute('height', textBoxHeight.toString());
-        clipPath.appendChild(clipRect);
-      });
-      
-      svg.appendChild(clipPath);
-      
       // Create foreignObject for HTML text rendering
       const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
       textGroup.setAttribute('x', textBoxX.toString());
       textGroup.setAttribute('y', textBoxY.toString());
       textGroup.setAttribute('width', textBoxWidth.toString());
       textGroup.setAttribute('height', textBoxHeight.toString());
-      textGroup.setAttribute('clip-path', `url(#${clipId})`);
       
       // Create div for text content
       const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
