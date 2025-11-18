@@ -1325,13 +1325,20 @@ export function initializeCalculator(): void {
   // Initialize modal
   const modal = document.getElementById('introModal');
   const readMeLink = document.getElementById('readMeLink');
+  const readMeLinkFixed = document.getElementById('readMeLinkFixed');
   const closeModal = document.getElementById('closeModal');
   
+  const handleReadMeClick = (e: Event) => {
+    e.preventDefault();
+    showIntroModal();
+  };
+  
   if (readMeLink) {
-    readMeLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      showIntroModal();
-    });
+    readMeLink.addEventListener('click', handleReadMeClick);
+  }
+  
+  if (readMeLinkFixed) {
+    readMeLinkFixed.addEventListener('click', handleReadMeClick);
   }
   
   if (closeModal) {
