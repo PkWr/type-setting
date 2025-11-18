@@ -1390,8 +1390,8 @@ function addLetterpressDecorations(): void {
     
     // Random position within container bounds
     const containerRect = container.getBoundingClientRect();
-    const maxX = containerRect.width - 150;
-    const maxY = containerRect.height - 150;
+    const maxX = containerRect.width - 250;
+    const maxY = containerRect.height - 250;
     const randomX = Math.random() * Math.max(0, maxX);
     const randomY = Math.random() * Math.max(0, maxY);
     

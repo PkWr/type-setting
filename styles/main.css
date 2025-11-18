@@ -821,12 +821,12 @@ button {
 
 .letterpress-decoration {
   position: absolute;
-  opacity: 0.3;
+  opacity: 1;
   filter: grayscale(100%);
   pointer-events: none;
   z-index: 1;
-  max-width: 150px;
-  max-height: 150px;
+  max-width: 250px;
+  max-height: 250px;
   object-fit: contain;
   transition: opacity 0.3s ease-out;
 }
