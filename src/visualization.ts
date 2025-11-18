@@ -83,7 +83,7 @@ function drawPage(
       topMarginRect.setAttribute('y', pageY.toString());
       topMarginRect.setAttribute('width', pageWidth.toString());
       topMarginRect.setAttribute('height', scaledTopMargin.toString());
-      topMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      topMarginRect.setAttribute('fill', '#ffff00'); // Yellow fill
       topMarginRect.setAttribute('stroke', 'none');
       svg.appendChild(topMarginRect);
       
@@ -93,7 +93,7 @@ function drawPage(
       bottomMarginRect.setAttribute('y', (pageY + pageHeight - scaledBottomMargin).toString());
       bottomMarginRect.setAttribute('width', pageWidth.toString());
       bottomMarginRect.setAttribute('height', scaledBottomMargin.toString());
-      bottomMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      bottomMarginRect.setAttribute('fill', '#ffff00'); // Yellow fill
       bottomMarginRect.setAttribute('stroke', 'none');
       svg.appendChild(bottomMarginRect);
       
@@ -103,7 +103,7 @@ function drawPage(
       leftMarginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
       leftMarginRect.setAttribute('width', scaledLeftMargin.toString());
       leftMarginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
-      leftMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      leftMarginRect.setAttribute('fill', '#ffff00'); // Yellow fill
       leftMarginRect.setAttribute('stroke', 'none');
       svg.appendChild(leftMarginRect);
       
@@ -113,7 +113,7 @@ function drawPage(
       rightMarginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
       rightMarginRect.setAttribute('width', scaledRightMargin.toString());
       rightMarginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
-      rightMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      rightMarginRect.setAttribute('fill', '#ffff00'); // Yellow fill
       rightMarginRect.setAttribute('stroke', 'none');
       svg.appendChild(rightMarginRect);
     } else {
@@ -150,7 +150,7 @@ function drawPage(
       colRect.setAttribute('width', columnWidth.toString());
       colRect.setAttribute('height', textBoxHeight.toString());
       if (layerVisibility.solidFills) {
-        colRect.setAttribute('fill', '#ffff00'); // Yellow fill
+        colRect.setAttribute('fill', '#ff0000'); // Red fill
         colRect.setAttribute('stroke', 'none');
       } else {
         colRect.setAttribute('fill', 'none');
