@@ -211,7 +211,6 @@ function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
     const results = calculateLayout(inputs);
-    displayResults(results);
     updateVisualization(inputs);
     updateWordsPerLine();
   } catch (e) {
@@ -219,33 +218,6 @@ function updateVisualizationOnInputChange(): void {
   }
 }
 
-/**
- * Displays calculation results in the results div
- * @param results - Layout calculation results (in millimeters)
- */
-function displayResults(results: LayoutResults): void {
-  const resultsDiv = document.getElementById('resultsContent');
-  if (!resultsDiv) return;
-
-  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
-
-  // Page dimensions and margins are displayed in mm, gutter in em
-  const textBoxWidth = results.textBoxWidth; // Already in mm
-  const columnWidth = results.columnWidth; // Already in mm
-  const gutterWidth = convertFromMM(results.gutterWidth, GUTTER_UNIT, typeSize); // Convert to em
-  const optimalColumnWidth = results.optimalColumnWidth; // Already in mm
-
-  const res = `
-    <ul>
-      <li><b>Text box width:</b> ${formatValue(textBoxWidth, PAGE_UNIT, 1)}</li>
-      <li><b>Column width:</b> ${formatValue(columnWidth, PAGE_UNIT, 1)} each</li>
-      <li><b>Gutter width:</b> ${formatValue(gutterWidth, GUTTER_UNIT, 3)}</li>
-      <li><b>Optimal column width (Bringhurst):</b> ${formatValue(optimalColumnWidth, PAGE_UNIT, 1)}</li>
-    </ul>
-    <p>Tip: Auto-set the gutter to font size (1em) for optimal spacing, or adjust manually.</p>
-  `;
-  resultsDiv.innerHTML = res;
-}
 
 /**
  * Updates column span checkboxes based on number of columns
