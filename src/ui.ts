@@ -1231,18 +1231,31 @@ function loadSettings(): void {
     updateMarginLabels();
     updateMarginInputs();
     
-    // Restore column span checkboxes (need to wait for them to be created)
-    if (settings.columnSpan && Array.isArray(settings.columnSpan)) {
-      setTimeout(() => {
-        const columnSpanCheckboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
-        columnSpanCheckboxes.forEach(cb => {
-          if (settings.columnSpan.includes(parseInt(cb.value, 10))) {
-            cb.checked = true;
-          }
-        });
-        // Trigger visualization update after restoring checkboxes
-        updateVisualizationOnInputChange();
-      }, 150);
+    // Restore column span slider
+    if (settings.columnSpanValue) {
+      const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+      const columnSpanValue = document.getElementById('columnSpanValue');
+      if (columnSpanSlider) {
+        const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
+        const savedValue = Math.min(parseInt(settings.columnSpanValue, 10), numCols); // Ensure value doesn't exceed max
+        columnSpanSlider.value = savedValue.toString();
+        if (columnSpanValue) {
+          columnSpanValue.textContent = savedValue.toString();
+        }
+      }
+    } else if (settings.columnSpan && Array.isArray(settings.columnSpan)) {
+      // Legacy support: convert old checkbox-based settings to slider
+      const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+      const columnSpanValue = document.getElementById('columnSpanValue');
+      if (columnSpanSlider && settings.columnSpan.length > 0) {
+        const spanCount = settings.columnSpan.length;
+        const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
+        const savedValue = Math.min(spanCount, numCols);
+        columnSpanSlider.value = savedValue.toString();
+        if (columnSpanValue) {
+          columnSpanValue.textContent = savedValue.toString();
+        }
+      }
     }
     
     // Restore text column checkboxes (need to wait for them to be created)
