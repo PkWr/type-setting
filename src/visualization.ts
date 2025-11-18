@@ -166,15 +166,33 @@ export function updateVisualization(inputs: LayoutInputs): void {
     }
   }
 
-  // STAGE 3: Add text rendering (simple, full width, no clipping)
-  // Text flows naturally - no clipping needed, just let it flow
+  // STAGE 3 & 5: Add text rendering with column span functionality
+  // Text box width adjusts based on which columns it spans
   if (layerVisibility.text) {
     const sampleText = getSampleText();
     if (sampleText && sampleText.trim().length > 0) {
-      const textBoxX = pageOffsetX + scaledLeftMargin;
+      const fullTextBoxX = pageOffsetX + scaledLeftMargin;
       const textBoxY = pageOffsetY + scaledTopMargin;
-      const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
+      const fullTextBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
       const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
+      
+      // Calculate column dimensions
+      const scaledGutterWidth = inputs.gutterWidth * scaleX;
+      const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
+      const availableWidth = fullTextBoxWidth - totalGutters;
+      const columnWidth = availableWidth / inputs.numCols;
+      
+      // Determine column span (which columns the text box spans)
+      const columnSpanStart = inputs.columnSpanStart !== undefined ? inputs.columnSpanStart : 1;
+      const columnSpanEnd = inputs.columnSpanEnd !== undefined ? inputs.columnSpanEnd : inputs.numCols;
+      const spanCols = columnSpanEnd - columnSpanStart + 1;
+      const spanGutters = Math.max(0, spanCols - 1);
+      
+      // Calculate text box position and width based on span
+      const spanStartIndex = Math.max(0, columnSpanStart - 1); // Convert to 0-indexed
+      const textBoxX = fullTextBoxX + (spanStartIndex * (columnWidth + scaledGutterWidth));
+      // Text box width = (columnWidth * spanCols) + (gutterWidth * spanGutters)
+      const textBoxWidth = (columnWidth * spanCols) + (scaledGutterWidth * spanGutters);
       
       // Calculate font size in SVG units (scaled)
       // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
