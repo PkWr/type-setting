@@ -405,6 +405,7 @@ button {
   font-size: 0.95rem;
   color: var(--color-text);
   user-select: none;
+  position: relative;
 }
 
 .radio-label input[type="radio"] {
@@ -412,6 +413,52 @@ button {
   margin: 0;
   cursor: pointer;
   accent-color: var(--color-primary);
+}
+
+.radio-label .material-icons {
+  font-size: 24px;
+  color: var(--color-text);
+  transition: color 0.2s;
+}
+
+.radio-label input[type="radio"]:checked + .material-icons {
+  color: var(--color-primary);
+}
+
+.radio-label:hover .material-icons {
+  color: var(--color-primary-hover);
+}
+
+.radio-label .tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-text);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+
+.radio-label .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--color-text);
+}
+
+.radio-label:hover .tooltip {
+  opacity: 1;
 }
 
 .sample-text-preview {
