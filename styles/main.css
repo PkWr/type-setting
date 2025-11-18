@@ -13,7 +13,7 @@
   --color-bg: #ffffff;
   --color-bg-light: #f8fafc;
   --color-success: #10b981;
-  --font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
