@@ -475,7 +475,7 @@ button {
   gap: var(--spacing-xs);
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--color-text);
+  color: #ffffff;
   user-select: none;
 }
 
