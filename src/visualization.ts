@@ -313,7 +313,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const leftPageX = 0;
     const rightPageX = singlePageWidth;
     
-    // Left page: outer margin on left, inner margin on right
+    // Verso (left page): outer margin on left, inner margin on right
     drawPage(
       svg,
       inputs,
@@ -330,7 +330,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       layerVisibility
     );
     
-    // Right page: inner margin on left, outer margin on right
+    // Recto (right page): inner margin on left, outer margin on right
     drawPage(
       svg,
       inputs,
