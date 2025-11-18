@@ -445,7 +445,8 @@ function updateMarginInputs(): void {
   
   const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
   const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
-  const innerMarginInput = document.getElementById('innerMargin') as HTMLInputElement;
+  const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+  const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
   const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
   const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
   
@@ -456,11 +457,12 @@ function updateMarginInputs(): void {
     if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'grid';
     
     // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
-    if (leftMarginInput && innerMarginInput && !innerMarginInput.dataset.synced) {
-      innerMarginInput.value = leftMarginInput.value;
+    if (leftMarginInput && innerMarginLeftInput && !innerMarginLeftInput.dataset.synced) {
+      innerMarginLeftInput.value = leftMarginInput.value;
+      innerMarginRightInput.value = leftMarginInput.value;
       outerMarginLeftInput.value = rightMarginInput.value;
       outerMarginRightInput.value = rightMarginInput.value;
-      innerMarginInput.dataset.synced = 'true';
+      innerMarginLeftInput.dataset.synced = 'true';
       // Clear the other sync flag
       if (leftMarginInput.dataset.synced) leftMarginInput.dataset.synced = '';
     }
@@ -470,14 +472,15 @@ function updateMarginInputs(): void {
     if (facingPagesMargins) facingPagesMargins.style.display = 'none';
     if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'none';
     
-    // Sync values: mirror inner to leftMargin, average outer to rightMargin (only if not already synced)
-    if (innerMarginInput && leftMarginInput && !leftMarginInput.dataset.synced) {
-      leftMarginInput.value = innerMarginInput.value;
+    // Sync values: average inner to leftMargin, average outer to rightMargin (only if not already synced)
+    if (innerMarginLeftInput && leftMarginInput && !leftMarginInput.dataset.synced) {
+      const avgInner = ((parseFloat(innerMarginLeftInput.value) + parseFloat(innerMarginRightInput.value)) / 2).toFixed(1);
+      leftMarginInput.value = avgInner;
       const avgOuter = ((parseFloat(outerMarginLeftInput.value) + parseFloat(outerMarginRightInput.value)) / 2).toFixed(1);
       rightMarginInput.value = avgOuter;
       leftMarginInput.dataset.synced = 'true';
       // Clear the other sync flag
-      if (innerMarginInput.dataset.synced) innerMarginInput.dataset.synced = '';
+      if (innerMarginLeftInput.dataset.synced) innerMarginLeftInput.dataset.synced = '';
     }
   }
 }
