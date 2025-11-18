@@ -130,7 +130,7 @@ function getFormInputs(): LayoutInputs {
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
   const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement).value;
-  const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? true;
+  const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? false;
   const columnSpan = getColumnSpan();
   const textColumns = getTextColumns();
   
@@ -1097,7 +1097,7 @@ function saveSettings(): void {
     const typeSize = (document.getElementById('typeSize') as HTMLInputElement)?.value || '';
     const leading = (document.getElementById('leading') as HTMLInputElement)?.value || '';
     const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement)?.value || '';
-    const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? true;
+    const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? false;
     
     settings.typeSize = typeSize;
     settings.leading = leading;
