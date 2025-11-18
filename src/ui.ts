@@ -855,7 +855,6 @@ function updateMarginInputs(): void {
   const facingPages = isFacingPages();
   const singlePageMargins = document.getElementById('singlePageMargins') as HTMLElement;
   const facingPagesMargins = document.getElementById('facingPagesMargins') as HTMLElement;
-  const facingPagesMarginsOuter = document.getElementById('facingPagesMarginsOuter') as HTMLElement;
   
   const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
   const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
@@ -871,7 +870,6 @@ function updateMarginInputs(): void {
     // Show facing pages inputs, hide single page inputs
     if (singlePageMargins) singlePageMargins.style.display = 'none';
     if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
-    if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'grid';
     
     // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
     if (leftMarginInput && innerMarginLeftInput && !innerMarginLeftInput.dataset.synced) {
@@ -887,7 +885,6 @@ function updateMarginInputs(): void {
     // Show single page inputs, hide facing pages inputs
     if (singlePageMargins) singlePageMargins.style.display = 'grid';
     if (facingPagesMargins) facingPagesMargins.style.display = 'none';
-    if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'none';
     
     // Sync values: average inner to leftMargin, average outer to rightMargin (only if not already synced)
     if (innerMarginLeftInput && leftMarginInput && !leftMarginInput.dataset.synced) {
