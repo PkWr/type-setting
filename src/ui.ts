@@ -35,7 +35,7 @@ export function suggestGutter(): void {
 
   gutterInput.value = autoGutter.toFixed(2);
   if (noteSpan) {
-    noteSpan.textContent = ' (1em, based on type size)';
+    noteSpan.textContent = '1em (based on type size)';
   }
 }
 
@@ -53,7 +53,7 @@ export function calcLayout(): void {
  * @param results - Layout calculation results
  */
 function displayResults(results: LayoutResults): void {
-  const resultsDiv = document.getElementById('results');
+  const resultsDiv = document.getElementById('resultsContent');
   if (!resultsDiv) return;
 
   const res = `
@@ -61,9 +61,9 @@ function displayResults(results: LayoutResults): void {
       <li><b>Text box width:</b> ${results.textBoxWidth.toFixed(1)} mm</li>
       <li><b>Column width:</b> ${results.columnWidth.toFixed(1)} mm each</li>
       <li><b>Gutter width:</b> ${results.gutterWidth.toFixed(2)} mm</li>
-      <li><b>Optimal column width (Bringhurst 66 char):</b> ${results.optimalColumnWidth.toFixed(1)} mm</li>
+      <li><b>Optimal column width (Bringhurst):</b> ${results.optimalColumnWidth.toFixed(1)} mm</li>
     </ul>
-    <p>Auto-set the gutter to font size (1em), or adjust manually.</p>
+    <p>Tip: Auto-set the gutter to font size (1em) for optimal spacing, or adjust manually.</p>
   `;
   resultsDiv.innerHTML = res;
 }
