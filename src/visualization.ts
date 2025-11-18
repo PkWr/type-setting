@@ -315,7 +315,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const rightPageX = singlePageWidth;
     const pageY = headingHeight; // Offset pages down to make room for headings
     const headingY = headingHeight - 5; // Position headings just above pages
-    const headingFontSize = 14;
+    // Use same font size as body text (0.85rem, approximately 13.6px at default 16px base)
+    const headingFontSize = 13.6;
     
     // Add Verso heading above left page
     const versoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
