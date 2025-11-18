@@ -249,7 +249,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
   if (facingPages) {
     // Draw two pages side by side (flush, no gap)
     // Use facing pages specific margins if available
-    const innerMargin = inputs.innerMargin !== undefined ? inputs.innerMargin : inputs.leftMargin;
+    const innerMarginLeft = inputs.innerMarginLeft !== undefined ? inputs.innerMarginLeft : inputs.leftMargin;
+    const innerMarginRight = inputs.innerMarginRight !== undefined ? inputs.innerMarginRight : inputs.leftMargin;
     const outerMarginLeft = inputs.outerMarginLeft !== undefined ? inputs.outerMarginLeft : inputs.rightMargin;
     const outerMarginRight = inputs.outerMarginRight !== undefined ? inputs.outerMarginRight : inputs.rightMargin;
     
@@ -264,8 +265,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
       0,
       singlePageWidth,
       singlePageHeight,
-      outerMarginLeft, // Left margin (outer)
-      innerMargin,     // Right margin (inner)
+      outerMarginLeft,  // Left margin (outer)
+      innerMarginLeft,  // Right margin (inner)
       inputs.topMargin,
       inputs.bottomMargin,
       scaleX,
@@ -281,8 +282,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
       0,
       singlePageWidth,
       singlePageHeight,
-      innerMargin,      // Left margin (inner)
-      outerMarginRight, // Right margin (outer)
+      innerMarginRight,  // Left margin (inner)
+      outerMarginRight,  // Right margin (outer)
       inputs.topMargin,
       inputs.bottomMargin,
       scaleX,

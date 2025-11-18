@@ -56,12 +56,13 @@ function getFormInputs(): LayoutInputs {
   
   if (facingPages) {
     // Facing pages: use inner and outer margins
-    const innerMargin = parseFloat((document.getElementById('innerMargin') as HTMLInputElement).value);
+    const innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
+    const innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
     const outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
     const outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
     
-    // For compatibility, set leftMargin = inner, rightMargin = average outer
-    leftMargin = innerMargin;
+    // For compatibility, set leftMargin = average inner, rightMargin = average outer
+    leftMargin = (innerMarginLeft + innerMarginRight) / 2;
     rightMargin = (outerMarginLeft + outerMarginRight) / 2;
   } else {
     // Single page: use left and right margins
@@ -97,7 +98,8 @@ function getFormInputs(): LayoutInputs {
   
   // Add facing pages specific margins if in facing pages mode
   if (facingPages) {
-    inputs.innerMargin = parseFloat((document.getElementById('innerMargin') as HTMLInputElement).value);
+    inputs.innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
+    inputs.innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
     inputs.outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
     inputs.outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
   }
@@ -601,9 +603,9 @@ export function initializeCalculator(): void {
   if (facingPagesCheckbox) {
     facingPagesCheckbox.addEventListener('change', () => {
       // Clear sync flags when switching modes
-      const innerMarginInput = document.getElementById('innerMargin') as HTMLInputElement;
+      const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
       const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
-      if (innerMarginInput) innerMarginInput.dataset.synced = '';
+      if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
       if (leftMarginInput) leftMarginInput.dataset.synced = '';
       
       updateMarginInputs();
@@ -612,7 +614,7 @@ export function initializeCalculator(): void {
   }
   
   // Add event listeners for facing pages margin inputs
-  const facingPagesMarginInputs = ['innerMargin', 'outerMarginLeft', 'outerMarginRight'];
+  const facingPagesMarginInputs = ['innerMarginLeft', 'innerMarginRight', 'outerMarginLeft', 'outerMarginRight'];
   facingPagesMarginInputs.forEach(id => {
     const input = document.getElementById(id) as HTMLInputElement;
     if (input) {
