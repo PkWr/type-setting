@@ -75,20 +75,59 @@ function drawPage(
 
   // Draw margins
   if (layerVisibility.margins) {
-    const marginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    marginRect.setAttribute('x', (pageX + scaledLeftMargin).toString());
-    marginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
-    marginRect.setAttribute('width', (pageWidth - scaledLeftMargin - scaledRightMargin).toString());
-    marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
     if (layerVisibility.solidFills) {
-      marginRect.setAttribute('fill', '#ff0000'); // Red fill
-      marginRect.setAttribute('stroke', 'none');
+      // Draw margin areas as solid fills (top, bottom, left, right)
+      // Top margin
+      const topMarginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      topMarginRect.setAttribute('x', pageX.toString());
+      topMarginRect.setAttribute('y', pageY.toString());
+      topMarginRect.setAttribute('width', pageWidth.toString());
+      topMarginRect.setAttribute('height', scaledTopMargin.toString());
+      topMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      topMarginRect.setAttribute('stroke', 'none');
+      svg.appendChild(topMarginRect);
+      
+      // Bottom margin
+      const bottomMarginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bottomMarginRect.setAttribute('x', pageX.toString());
+      bottomMarginRect.setAttribute('y', (pageY + pageHeight - scaledBottomMargin).toString());
+      bottomMarginRect.setAttribute('width', pageWidth.toString());
+      bottomMarginRect.setAttribute('height', scaledBottomMargin.toString());
+      bottomMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      bottomMarginRect.setAttribute('stroke', 'none');
+      svg.appendChild(bottomMarginRect);
+      
+      // Left margin
+      const leftMarginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      leftMarginRect.setAttribute('x', pageX.toString());
+      leftMarginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
+      leftMarginRect.setAttribute('width', scaledLeftMargin.toString());
+      leftMarginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
+      leftMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      leftMarginRect.setAttribute('stroke', 'none');
+      svg.appendChild(leftMarginRect);
+      
+      // Right margin
+      const rightMarginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rightMarginRect.setAttribute('x', (pageX + pageWidth - scaledRightMargin).toString());
+      rightMarginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
+      rightMarginRect.setAttribute('width', scaledRightMargin.toString());
+      rightMarginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
+      rightMarginRect.setAttribute('fill', '#ff0000'); // Red fill
+      rightMarginRect.setAttribute('stroke', 'none');
+      svg.appendChild(rightMarginRect);
     } else {
+      // Draw margin keyline (outline of text area)
+      const marginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      marginRect.setAttribute('x', (pageX + scaledLeftMargin).toString());
+      marginRect.setAttribute('y', (pageY + scaledTopMargin).toString());
+      marginRect.setAttribute('width', (pageWidth - scaledLeftMargin - scaledRightMargin).toString());
+      marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
       marginRect.setAttribute('fill', 'none');
       marginRect.setAttribute('stroke', '#000000');
       marginRect.setAttribute('stroke-width', '0.5');
+      svg.appendChild(marginRect);
     }
-    svg.appendChild(marginRect);
   }
 
   // Draw columns
