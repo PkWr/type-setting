@@ -232,6 +232,17 @@ select option {
   margin-bottom: var(--spacing-xs);
 }
 
+.text-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.text-action-separator {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+}
+
 .btn-link {
   background: none;
   border: none;

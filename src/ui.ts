@@ -514,11 +514,27 @@ export function initializeCalculator(): void {
     }
   });
 
+  // Load default text on page open
+  if (sampleTextInput) {
+    sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+    // Trigger initial visualization update with default text
+    updateVisualizationOnInputChange();
+  }
+
   // Handle load default text button
   const loadDefaultTextButton = document.getElementById('loadDefaultTextButton');
   if (loadDefaultTextButton && sampleTextInput) {
     loadDefaultTextButton.addEventListener('click', () => {
       sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+      updateVisualizationOnInputChange();
+    });
+  }
+
+  // Handle clear text button
+  const clearTextButton = document.getElementById('clearTextButton');
+  if (clearTextButton && sampleTextInput) {
+    clearTextButton.addEventListener('click', () => {
+      sampleTextInput.value = '';
       updateVisualizationOnInputChange();
     });
   }

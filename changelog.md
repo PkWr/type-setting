@@ -229,4 +229,7 @@ This file tracks all changes made to the type-setting project.
   - Fixed text box width calculation to calculate directly in visualization
   - Text box width now correctly calculated as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
   - Text box now visually spans multiple columns when selected (e.g., 2 columns = 2 columns + 1 gutter wide)
+  - Default text now loads automatically on page open
+  - Added "Clear" button next to "Load default text" button
+  - Text actions (Load default text | Clear) styled with separator
 

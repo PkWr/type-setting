@@ -129,7 +129,11 @@
         <div class="form-group">
           <div class="label-with-action">
             <label for="sampleText">Sample text</label>
-            <button type="button" id="loadDefaultTextButton" class="btn-link">Load default text</button>
+            <div class="text-actions">
+              <button type="button" id="loadDefaultTextButton" class="btn-link">Load default text</button>
+              <span class="text-action-separator">|</span>
+              <button type="button" id="clearTextButton" class="btn-link">Clear</button>
+            </div>
           </div>
           <textarea id="sampleText" rows="4" placeholder="Enter sample text to preview how it will look in your layout..."></textarea>
           <span class="helper-text">Preview how your text will appear in the calculated columns</span>
