@@ -172,6 +172,14 @@ h1 {
   font-weight: 600;
 }
 
+.unit-description {
+  margin: var(--spacing-xs) 0 var(--spacing-sm) 0;
+  color: #666666;
+  font-size: 0.85rem;
+  text-align: left;
+  line-height: 1.4;
+}
+
 .subtitle {
   margin: 0;
   color: #999999;
