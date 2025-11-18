@@ -224,4 +224,8 @@ This file tracks all changes made to the type-setting project.
   - Text appears only in selected text columns
   - Columns with text shown at 0.6 opacity, columns without text at 0.4 opacity
   - Allows independent control of text box width and text placement
+  - Removed measurements from visualization
+  - Removed measurement padding, SVG now matches visualization size exactly
+  - Fixed text box width calculation to use results.textBoxWidth directly
+  - Text box width now correctly calculated as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
 

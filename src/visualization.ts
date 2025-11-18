@@ -5,7 +5,7 @@
 
 import { LayoutInputs } from './types.js';
 import { calculateLayout } from './calculator.js';
-import { Unit, convertFromMM, formatValue } from './units.js';
+import { Unit } from './units.js';
 
 /**
  * Gets sample text from textarea
@@ -75,15 +75,14 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   // For facing pages, show two pages side by side
   const gapBetweenPages = 20;
-  const measurementPadding = 50; // Space for measurements around the page
   const visWidth = facingPages ? singlePageWidth * 2 + gapBetweenPages : singlePageWidth;
   const visHeight = singlePageHeight;
   
-  // Expanded dimensions including measurement padding
-  const svgWidth = visWidth + (measurementPadding * 2);
-  const svgHeight = visHeight + (measurementPadding * 2);
-  const pageOffsetX = measurementPadding;
-  const pageOffsetY = measurementPadding;
+  // SVG dimensions match visualization size
+  const svgWidth = visWidth;
+  const svgHeight = visHeight;
+  const pageOffsetX = 0;
+  const pageOffsetY = 0;
 
   // Calculate scaled dimensions (scale based on single page)
   const scaleX = singlePageWidth / inputs.pageWidth;
@@ -204,9 +203,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
       
       // Calculate text box position and width based on span
+      // Use the calculated textBoxWidth from results, scaled to visualization
       const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
       const spanTextBoxX = pageTextX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
-      const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * (spanCols - 1));
+      // Use results.textBoxWidth scaled to match visualization
+      const spanTextBoxWidth = results.textBoxWidth * scaleX;
       
       // Draw text box outline for span
       const spanTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -292,131 +293,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
     drawColumns(leftPageTextX, leftPageTextWidth);
     drawColumns(rightPageTextX, rightPageTextWidth);
 
-    // Add measurements for facing pages
-    const measurementOffset = 12;
-    
-    /**
-     * Adds a measurement line with label
-     */
-    const addMeasurement = (x1: number, y1: number, x2: number, y2: number, value: number, unit: Unit, offset: number = 8) => {
-      const isHorizontal = Math.abs(y2 - y1) < Math.abs(x2 - x1);
-      const lineColor = '#94a3b8';
-      const lineWidth = 1;
-      
-      // Draw measurement line
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1.toString());
-      line.setAttribute('y1', y1.toString());
-      line.setAttribute('x2', x2.toString());
-      line.setAttribute('y2', y2.toString());
-      line.setAttribute('stroke', lineColor);
-      line.setAttribute('stroke-width', lineWidth.toString());
-      svg.appendChild(line);
-      
-      // Draw tick marks
-      const tickLength = 4;
-      if (isHorizontal) {
-        // Top tick
-        const topTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        topTick.setAttribute('x1', x1.toString());
-        topTick.setAttribute('y1', (y1 - offset).toString());
-        topTick.setAttribute('x2', x1.toString());
-        topTick.setAttribute('y2', (y1 - offset + tickLength).toString());
-        topTick.setAttribute('stroke', lineColor);
-        topTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(topTick);
-        
-        // Bottom tick
-        const bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        bottomTick.setAttribute('x1', x2.toString());
-        bottomTick.setAttribute('y1', (y1 - offset).toString());
-        bottomTick.setAttribute('x2', x2.toString());
-        bottomTick.setAttribute('y2', (y1 - offset + tickLength).toString());
-        bottomTick.setAttribute('stroke', lineColor);
-        bottomTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(bottomTick);
-        
-        // Label
-        const labelX = (x1 + x2) / 2;
-        const labelY = y1 - offset - 2;
-        const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', labelX.toString());
-        label.setAttribute('y', labelY.toString());
-        label.setAttribute('font-size', '10');
-        label.setAttribute('font-family', 'sans-serif');
-        label.setAttribute('fill', '#64748b');
-        label.setAttribute('text-anchor', 'middle');
-        label.textContent = `${formatValue(value, unit, decimals)}`;
-        svg.appendChild(label);
-      } else {
-        // Left tick
-        const leftTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        leftTick.setAttribute('x1', (x1 - offset).toString());
-        leftTick.setAttribute('y1', y1.toString());
-        leftTick.setAttribute('x2', (x1 - offset + tickLength).toString());
-        leftTick.setAttribute('y2', y1.toString());
-        leftTick.setAttribute('stroke', lineColor);
-        leftTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(leftTick);
-        
-        // Right tick
-        const rightTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        rightTick.setAttribute('x1', (x1 - offset).toString());
-        rightTick.setAttribute('y1', y2.toString());
-        rightTick.setAttribute('x2', (x1 - offset + tickLength).toString());
-        rightTick.setAttribute('y2', y2.toString());
-        rightTick.setAttribute('stroke', lineColor);
-        rightTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(rightTick);
-        
-        // Label
-        const labelX = x1 - offset - 2;
-        const labelY = (y1 + y2) / 2;
-        const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', labelX.toString());
-        label.setAttribute('y', labelY.toString());
-        label.setAttribute('font-size', '10');
-        label.setAttribute('font-family', 'sans-serif');
-        label.setAttribute('fill', '#64748b');
-        label.setAttribute('text-anchor', 'end');
-        label.setAttribute('dominant-baseline', 'middle');
-        label.textContent = `${formatValue(value, unit, decimals)}`;
-        svg.appendChild(label);
-      }
-    };
-    
-    // Page width measurements (adjusted for pageOffset)
-    addMeasurement(leftPageX, pageOffsetY - measurementOffset, leftPageX + singlePageWidth, pageOffsetY - measurementOffset, 
-      convertFromMM(inputs.pageWidth, unit, typeSize), unit);
-    addMeasurement(rightPageX, pageOffsetY - measurementOffset, rightPageX + singlePageWidth, pageOffsetY - measurementOffset,
-      convertFromMM(inputs.pageWidth, unit, typeSize), unit);
-    
-    // Page height measurements
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
-      convertFromMM(inputs.pageHeight, unit, typeSize), unit);
-    
-    // Margin measurements (left page)
-    addMeasurement(leftPageX, pageOffsetY + scaledTopMargin - measurementOffset, leftPageX + leftPageOuterMargin, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.rightMargin, unit, typeSize), unit);
-    addMeasurement(leftPageX + singlePageWidth - leftPageInnerMargin, pageOffsetY + scaledTopMargin - measurementOffset, leftPageX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.leftMargin, unit, typeSize), unit);
-    
-    // Margin measurements (right page)
-    addMeasurement(rightPageX, pageOffsetY + scaledTopMargin - measurementOffset, rightPageX + rightPageInnerMargin, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.leftMargin, unit, typeSize), unit);
-    addMeasurement(rightPageX + singlePageWidth - rightPageOuterMargin, pageOffsetY + scaledTopMargin - measurementOffset, rightPageX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.rightMargin, unit, typeSize), unit);
-    
-    // Top margin
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + scaledTopMargin,
-      convertFromMM(inputs.topMargin, unit, typeSize), unit);
-    
-    // Bottom margin
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY + visHeight - scaledBottomMargin, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
-      convertFromMM(inputs.bottomMargin, unit, typeSize), unit);
-
   } else {
     // Single page mode (existing code)
     const fullTextBoxX = pageOffsetX + scaledLeftMargin;
@@ -476,9 +352,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
     
     // Calculate text box position and width based on span
+    // Use the calculated textBoxWidth from results, scaled to visualization
     const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
     const textBoxX = fullTextBoxX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
-    const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * (spanCols - 1));
+    // Use results.textBoxWidth scaled to match visualization
+    const textBoxWidth = results.textBoxWidth * scaleX;
     
     // Draw text box outline for span
     const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -558,142 +436,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
         divider.setAttribute('opacity', isInSpan ? '1' : '0.3');
         svg.appendChild(divider);
       }
-    }
-    
-    // Add measurements for single page
-    const measurementOffset = 15;
-    
-    /**
-     * Adds a measurement line with label
-     */
-    const addMeasurement = (x1: number, y1: number, x2: number, y2: number, value: number, unit: Unit, offset: number = 8) => {
-      const isHorizontal = Math.abs(y2 - y1) < Math.abs(x2 - x1);
-      const lineColor = '#94a3b8';
-      const lineWidth = 1;
-      
-      // Draw measurement line
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1.toString());
-      line.setAttribute('y1', y1.toString());
-      line.setAttribute('x2', x2.toString());
-      line.setAttribute('y2', y2.toString());
-      line.setAttribute('stroke', lineColor);
-      line.setAttribute('stroke-width', lineWidth.toString());
-      svg.appendChild(line);
-      
-      // Draw tick marks
-      const tickLength = 4;
-      if (isHorizontal) {
-        // Top tick
-        const topTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        topTick.setAttribute('x1', x1.toString());
-        topTick.setAttribute('y1', (y1 - offset).toString());
-        topTick.setAttribute('x2', x1.toString());
-        topTick.setAttribute('y2', (y1 - offset + tickLength).toString());
-        topTick.setAttribute('stroke', lineColor);
-        topTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(topTick);
-        
-        // Bottom tick
-        const bottomTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        bottomTick.setAttribute('x1', x2.toString());
-        bottomTick.setAttribute('y1', (y1 - offset).toString());
-        bottomTick.setAttribute('x2', x2.toString());
-        bottomTick.setAttribute('y2', (y1 - offset + tickLength).toString());
-        bottomTick.setAttribute('stroke', lineColor);
-        bottomTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(bottomTick);
-        
-        // Label
-        const labelX = (x1 + x2) / 2;
-        const labelY = y1 - offset - 2;
-        const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', labelX.toString());
-        label.setAttribute('y', labelY.toString());
-        label.setAttribute('font-size', '10');
-        label.setAttribute('font-family', 'sans-serif');
-        label.setAttribute('fill', '#64748b');
-        label.setAttribute('text-anchor', 'middle');
-        label.textContent = `${formatValue(value, unit, decimals)}`;
-        svg.appendChild(label);
-      } else {
-        // Left tick
-        const leftTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        leftTick.setAttribute('x1', (x1 - offset).toString());
-        leftTick.setAttribute('y1', y1.toString());
-        leftTick.setAttribute('x2', (x1 - offset + tickLength).toString());
-        leftTick.setAttribute('y2', y1.toString());
-        leftTick.setAttribute('stroke', lineColor);
-        leftTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(leftTick);
-        
-        // Right tick
-        const rightTick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        rightTick.setAttribute('x1', (x1 - offset).toString());
-        rightTick.setAttribute('y1', y2.toString());
-        rightTick.setAttribute('x2', (x1 - offset + tickLength).toString());
-        rightTick.setAttribute('y2', y2.toString());
-        rightTick.setAttribute('stroke', lineColor);
-        rightTick.setAttribute('stroke-width', lineWidth.toString());
-        svg.appendChild(rightTick);
-        
-        // Label
-        const labelX = x1 - offset - 2;
-        const labelY = (y1 + y2) / 2;
-        const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', labelX.toString());
-        label.setAttribute('y', labelY.toString());
-        label.setAttribute('font-size', '10');
-        label.setAttribute('font-family', 'sans-serif');
-        label.setAttribute('fill', '#64748b');
-        label.setAttribute('text-anchor', 'end');
-        label.setAttribute('dominant-baseline', 'middle');
-        label.textContent = `${formatValue(value, unit, decimals)}`;
-        svg.appendChild(label);
-      }
-    };
-    
-    // Page width measurement (adjusted for pageOffset)
-    addMeasurement(pageOffsetX, pageOffsetY - measurementOffset, pageOffsetX + singlePageWidth, pageOffsetY - measurementOffset,
-      convertFromMM(inputs.pageWidth, unit, typeSize), unit);
-    
-    // Page height measurement
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
-      convertFromMM(inputs.pageHeight, unit, typeSize), unit);
-    
-    // Margin measurements
-    addMeasurement(pageOffsetX, pageOffsetY + scaledTopMargin - measurementOffset, pageOffsetX + scaledLeftMargin, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.leftMargin, unit, typeSize), unit);
-    addMeasurement(pageOffsetX + singlePageWidth - scaledRightMargin, pageOffsetY + scaledTopMargin - measurementOffset, pageOffsetX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
-      convertFromMM(inputs.rightMargin, unit, typeSize), unit);
-    
-    // Top margin
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + scaledTopMargin,
-      convertFromMM(inputs.topMargin, unit, typeSize), unit);
-    
-    // Bottom margin
-    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY + visHeight - scaledBottomMargin, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
-      convertFromMM(inputs.bottomMargin, unit, typeSize), unit);
-    
-    // Text box width (span width)
-    addMeasurement(textBoxX, textBoxY + textBoxHeight + measurementOffset, textBoxX + textBoxWidth, textBoxY + textBoxHeight + measurementOffset,
-      convertFromMM(results.textBoxWidth, unit, typeSize), unit);
-    
-    // Column width (if columns visible)
-    if (layerVisibility.columns && inputs.numCols > 0) {
-      const firstColX = fullTextBoxX;
-      const firstColWidth = actualColumnWidth;
-      addMeasurement(firstColX, textBoxY + textBoxHeight + measurementOffset + 12, firstColX + firstColWidth, textBoxY + textBoxHeight + measurementOffset + 12,
-        convertFromMM(results.columnWidth, unit, typeSize), unit);
-    }
-    
-    // Gutter width (if multiple columns)
-    if (inputs.numCols > 1) {
-      const gutterX = fullTextBoxX + actualColumnWidth;
-      addMeasurement(gutterX, textBoxY + textBoxHeight + measurementOffset + 24, gutterX + inputs.gutterWidth * scaleX, textBoxY + textBoxHeight + measurementOffset + 24,
-        convertFromMM(inputs.gutterWidth, unit, typeSize), unit);
     }
   }
 
