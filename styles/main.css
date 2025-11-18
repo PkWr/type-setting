@@ -276,6 +276,14 @@ h2 {
   margin-bottom: 0;
 }
 
+.page-label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin-bottom: var(--spacing-xs);
+  display: block;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
