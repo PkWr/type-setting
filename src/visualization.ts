@@ -323,6 +323,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
   label.textContent = labelText;
   svg.appendChild(label);
 
+  // Update scale indicator
+  // Since we maintain aspect ratio, scaleX and scaleY should be the same
+  // Calculate the scale ratio (e.g., if scaleX = 0.5, that's 1/2 scale)
+  const scaleRatio = 1 / scaleX; // Invert to show "1:N" format
+  const scaleIndicator = document.getElementById('scaleIndicator');
+  if (scaleIndicator) {
+    if (scaleRatio !== 1) {
+      // Round to nearest reasonable fraction for display
+      const roundedRatio = Math.round(scaleRatio * 100) / 100;
+      scaleIndicator.textContent = `Scale: 1/${roundedRatio.toFixed(2)}`;
+    } else {
+      scaleIndicator.textContent = 'Scale: 1:1';
+    }
+  }
+
   // Clear container and add new SVG
   container.innerHTML = '';
   container.appendChild(svg);
