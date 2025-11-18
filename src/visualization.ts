@@ -6,6 +6,14 @@
 import { LayoutInputs } from './types.js';
 import { calculateLayout } from './calculator.js';
 
+/**
+ * Gets sample text from textarea
+ */
+function getSampleText(): string {
+  const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
+  return sampleTextInput?.value.trim() || '';
+}
+
 const VISUALIZATION_SIZE = 400; // Maximum size for the visualization in pixels
 const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility
 
@@ -163,6 +171,14 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
       const availableWidth = pageTextWidth - totalGutters;
       const actualColumnWidth = availableWidth / inputs.numCols;
+      const sampleText = getSampleText();
+      const words = sampleText ? sampleText.split(/\s+/) : [];
+      const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
+      
+      // Calculate font size in SVG units (scaled)
+      const fontSizeSVG = (inputs.typeSize * scaleY) * 0.75; // Scale font size to fit visualization
+      const lineHeight = fontSizeSVG * 1.5;
+      const padding = fontSizeSVG * 0.5;
 
       for (let i = 0; i < inputs.numCols; i++) {
         const colX = pageTextX + (i * (actualColumnWidth + scaledGutterWidth));
@@ -177,6 +193,35 @@ export function updateVisualization(inputs: LayoutInputs): void {
         colRect.setAttribute('stroke-width', '1');
         colRect.setAttribute('opacity', '0.6');
         svg.appendChild(colRect);
+
+        // Add text to column if sample text exists
+        if (words.length > 0) {
+          const startIdx = i * wordsPerColumn;
+          const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
+          const columnWords = words.slice(startIdx, endIdx);
+          
+          // Create text element with wrapping
+          const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+          textGroup.setAttribute('x', (colX + padding).toString());
+          textGroup.setAttribute('y', (scaledTopMargin + padding).toString());
+          textGroup.setAttribute('width', (actualColumnWidth - padding * 2).toString());
+          textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+          
+          const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+          textDiv.style.fontSize = `${fontSizeSVG}px`;
+          textDiv.style.lineHeight = `${lineHeight}px`;
+          textDiv.style.fontFamily = 'serif';
+          textDiv.style.color = '#1e293b';
+          textDiv.style.width = '100%';
+          textDiv.style.height = '100%';
+          textDiv.style.overflow = 'hidden';
+          textDiv.style.wordWrap = 'break-word';
+          textDiv.style.hyphens = 'auto';
+          textDiv.textContent = columnWords.join(' ');
+          
+          textGroup.appendChild(textDiv);
+          svg.appendChild(textGroup);
+        }
 
         if (i < inputs.numCols - 1) {
           const dividerX = colX + actualColumnWidth;
@@ -244,6 +289,14 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
     const availableWidth = textBoxWidth - totalGutters;
     const actualColumnWidth = availableWidth / inputs.numCols;
+    const sampleText = getSampleText();
+    const words = sampleText ? sampleText.split(/\s+/) : [];
+    const wordsPerColumn = words.length > 0 ? Math.ceil(words.length / inputs.numCols) : 0;
+    
+    // Calculate font size in SVG units (scaled)
+    const fontSizeSVG = (inputs.typeSize * scaleY) * 0.75;
+    const lineHeight = fontSizeSVG * 1.5;
+    const padding = fontSizeSVG * 0.5;
 
     for (let i = 0; i < inputs.numCols; i++) {
       const colX = textBoxX + (i * (actualColumnWidth + scaledGutterWidth));
@@ -258,6 +311,35 @@ export function updateVisualization(inputs: LayoutInputs): void {
       colRect.setAttribute('stroke-width', '1');
       colRect.setAttribute('opacity', '0.6');
       svg.appendChild(colRect);
+
+      // Add text to column if sample text exists
+      if (words.length > 0) {
+        const startIdx = i * wordsPerColumn;
+        const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
+        const columnWords = words.slice(startIdx, endIdx);
+        
+        // Create text element with wrapping
+        const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        textGroup.setAttribute('x', (colX + padding).toString());
+        textGroup.setAttribute('y', (textBoxY + padding).toString());
+        textGroup.setAttribute('width', (actualColumnWidth - padding * 2).toString());
+        textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
+        
+        const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        textDiv.style.fontSize = `${fontSizeSVG}px`;
+        textDiv.style.lineHeight = `${lineHeight}px`;
+        textDiv.style.fontFamily = 'serif';
+        textDiv.style.color = '#1e293b';
+        textDiv.style.width = '100%';
+        textDiv.style.height = '100%';
+        textDiv.style.overflow = 'hidden';
+        textDiv.style.wordWrap = 'break-word';
+        textDiv.style.hyphens = 'auto';
+        textDiv.textContent = columnWords.join(' ');
+        
+        textGroup.appendChild(textDiv);
+        svg.appendChild(textGroup);
+      }
 
       if (i < inputs.numCols - 1) {
         const dividerX = colX + actualColumnWidth;
@@ -287,6 +369,48 @@ export function updateVisualization(inputs: LayoutInputs): void {
     label.textContent = text;
     svg.appendChild(label);
   };
+
+  // Calculate and display scale indicator
+  const sampleText = getSampleText();
+  const scaleIndicator = document.getElementById('scaleIndicator');
+  
+  if (scaleIndicator) {
+    // Calculate scale based on visualization size vs actual page size
+    // Using approximate conversion: 1mm ≈ 3.78px at 96dpi
+    const actualWidthPX = inputs.pageWidth * 3.78;
+    const scaleFactor = visWidth / actualWidthPX;
+    
+    if (scaleFactor < 1 && sampleText) {
+      // Find closest simple fraction
+      const fractions = [
+        { num: 1, den: 2, val: 0.5 },
+        { num: 1, den: 3, val: 0.333 },
+        { num: 1, den: 4, val: 0.25 },
+        { num: 1, den: 5, val: 0.2 },
+        { num: 2, den: 3, val: 0.667 },
+        { num: 3, den: 4, val: 0.75 },
+      ];
+      
+      let closest = fractions[0];
+      let minDiff = Math.abs(scaleFactor - closest.val);
+      
+      for (const frac of fractions) {
+        const diff = Math.abs(scaleFactor - frac.val);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = frac;
+        }
+      }
+      
+      if (minDiff < 0.15) {
+        scaleIndicator.textContent = `Scale: 1/${Math.round(1 / closest.val)}`;
+      } else {
+        scaleIndicator.textContent = `Scale: ${scaleFactor.toFixed(2)}`;
+      }
+    } else {
+      scaleIndicator.textContent = '';
+    }
+  }
 
   // Page dimensions label
   const labelText = facingPages 

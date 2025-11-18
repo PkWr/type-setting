@@ -170,4 +170,10 @@ This file tracks all changes made to the type-setting project.
   - Scale indicator shows scale ratio (e.g., "Scale: 1/2") when preview is scaled down
   - Preview maintains accurate proportions while fitting within container
   - Scale calculated based on actual column widths and container size
+  - Integrated text preview into page layout visualization SVG
+  - Sample text now appears directly within column rectangles in visualization
+  - Removed separate text preview section - text now renders in page layout preview
+  - Text uses SVG foreignObject for proper wrapping and formatting
+  - Scale indicator moved to page layout preview header
+  - Text updates automatically when sample text changes
 
