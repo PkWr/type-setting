@@ -1382,42 +1382,55 @@ function addLetterpressDecorations(): void {
   ];
   
   decorations.forEach((decoration, index) => {
-    const img = document.createElement('img');
-    img.src = decoration.src;
-    img.alt = decoration.alt;
-    img.className = 'letterpress-decoration';
-    img.id = `decoration-${decoration.name}`;
-    
-    // Random position within container bounds
-    const containerRect = container.getBoundingClientRect();
-    const maxX = containerRect.width - 250;
-    const maxY = containerRect.height - 250;
-    const randomX = Math.random() * Math.max(0, maxX);
-    const randomY = Math.random() * Math.max(0, maxY);
-    
-    img.style.left = `${randomX}px`;
-    img.style.top = `${randomY}px`;
-    
-    // Random rotation between -15 and 15 degrees
-    const rotation = (Math.random() * 30) - 15;
-    img.style.transform = `rotate(${rotation}deg)`;
-    
-    container.appendChild(img);
-    
-    // Random display duration between 2-4 seconds
-    const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
+    // Stagger appearance: each decoration appears 1 second after the previous one
+    const appearanceDelay = index * 1000; // 0ms, 1000ms, 2000ms
     
     setTimeout(() => {
-      if (img.parentNode && img.parentNode === container) {
-        img.style.transition = 'opacity 0.3s ease-out';
-        img.style.opacity = '0';
-        setTimeout(() => {
-          if (img.parentNode && img.parentNode === container) {
-            img.remove();
-          }
-        }, 300);
-      }
-    }, displayDuration);
+      const img = document.createElement('img');
+      img.src = decoration.src;
+      img.alt = decoration.alt;
+      img.className = 'letterpress-decoration';
+      img.id = `decoration-${decoration.name}`;
+      
+      // Random position within container bounds
+      const containerRect = container.getBoundingClientRect();
+      const maxX = containerRect.width - 250;
+      const maxY = containerRect.height - 250;
+      const randomX = Math.random() * Math.max(0, maxX);
+      const randomY = Math.random() * Math.max(0, maxY);
+      
+      img.style.left = `${randomX}px`;
+      img.style.top = `${randomY}px`;
+      
+      // Random rotation between -15 and 15 degrees
+      const rotation = (Math.random() * 30) - 15;
+      img.style.transform = `rotate(${rotation}deg)`;
+      
+      // Start with opacity 0 and fade in
+      img.style.opacity = '0';
+      container.appendChild(img);
+      
+      // Fade in after a brief moment
+      setTimeout(() => {
+        img.style.transition = 'opacity 0.3s ease-in';
+        img.style.opacity = '1';
+      }, 50);
+      
+      // Random display duration between 2-4 seconds after appearance
+      const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
+      
+      setTimeout(() => {
+        if (img.parentNode && img.parentNode === container) {
+          img.style.transition = 'opacity 0.3s ease-out';
+          img.style.opacity = '0';
+          setTimeout(() => {
+            if (img.parentNode && img.parentNode === container) {
+              img.remove();
+            }
+          }, 300);
+        }
+      }, displayDuration);
+    }, appearanceDelay);
   });
   
   decorationsInitialized = true;
