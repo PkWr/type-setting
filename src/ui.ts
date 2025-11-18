@@ -692,7 +692,37 @@ function updateMarginLabels(): void {
   Object.keys(labelMap).forEach(labelId => {
     const label = document.getElementById(labelId);
     if (label) {
-      label.textContent = `${labelMap[labelId]} (${unitLabel})`;
+      if (labelId === 'gutterWidthLabel') {
+        // For gutter width, show conversion value in parentheses
+        try {
+          const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+          const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
+          const gutterValue = gutterInput ? parseFloat(gutterInput.value) : (marginUnit === 'em' ? 1.0 : 0);
+          
+          if (!isNaN(typeSize) && !isNaN(gutterValue) && gutterValue > 0) {
+            let conversionValue: number;
+            let conversionUnit: string;
+            
+            if (marginUnit === 'em') {
+              // Show mm equivalent
+              conversionValue = convertToMM(gutterValue, 'em', typeSize);
+              conversionUnit = 'mm';
+              label.textContent = `Gutter width (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+            } else {
+              // Show em equivalent
+              conversionValue = convertFromMM(gutterValue, 'em', typeSize);
+              conversionUnit = 'em';
+              label.textContent = `Gutter width (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+            }
+          } else {
+            label.textContent = `Gutter width (${unitLabel})`;
+          }
+        } catch (e) {
+          label.textContent = `Gutter width (${unitLabel})`;
+        }
+      } else {
+        label.textContent = `${labelMap[labelId]} (${unitLabel})`;
+      }
     }
   });
 }
@@ -944,6 +974,14 @@ export function initializeCalculator(): void {
       updateMarginLabels();
       previousUnit = newUnit;
       updateVisualizationOnInputChange();
+    });
+  }
+  
+  // Handle gutter width input changes to update label
+  const gutterWidthInput = document.getElementById('gutterWidth') as HTMLInputElement;
+  if (gutterWidthInput) {
+    gutterWidthInput.addEventListener('input', () => {
+      updateMarginLabels();
     });
   }
 
