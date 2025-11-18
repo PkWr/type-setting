@@ -279,6 +279,8 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
+  width: 100%;
+  clear: both;
 }
 
 /* Force 2 columns for width/height row */
