@@ -75,7 +75,7 @@ header {
 h1 {
   margin: 0;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-family);
   color: #ffffff;
 }
@@ -198,7 +198,7 @@ h2 {
 .visualization-section h2 {
   margin: 0;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 400;
   font-family: var(--font-family);
   color: #ffffff;
 }
