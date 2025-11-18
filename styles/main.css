@@ -599,7 +599,7 @@ button {
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-md);
   border-top: 2px solid #333333;
-  background-color: #ffffff;
+  background-color: transparent;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   padding: var(--spacing-md);
@@ -607,14 +607,14 @@ button {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 200px);
-  color: #000000;
+  color: #ffffff;
 }
 
 .visualization-container {
   padding: var(--spacing-md);
-  background-color: #ffffff;
+  background-color: transparent;
   border-radius: var(--border-radius-sm);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #666666;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -165,13 +165,13 @@ function drawPage(
         textGroup.setAttribute('width', spanWidth.toString());
         textGroup.setAttribute('height', textBoxHeight.toString());
         
-        // Add white background
+        // Add transparent background (no background needed)
         const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         textBgRect.setAttribute('x', '0');
         textBgRect.setAttribute('y', '0');
         textBgRect.setAttribute('width', spanWidth.toString());
         textBgRect.setAttribute('height', textBoxHeight.toString());
-        textBgRect.setAttribute('fill', '#ffffff');
+        textBgRect.setAttribute('fill', 'transparent');
         textGroup.appendChild(textBgRect);
         
         // Create text div
@@ -181,7 +181,7 @@ function drawPage(
         // Use selected font family or default to serif
         const fontFamily = inputs.fontFamily || 'serif';
         textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
-        textDiv.style.color = '#000000';
+        textDiv.style.color = '#ffffff';
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
         textDiv.style.padding = `${padding}px`;
