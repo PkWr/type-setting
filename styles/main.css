@@ -971,9 +971,3 @@ button {
   font-size: 0.9rem;
   line-height: 1.6;
 }
-
-.modal-em-description {
-  margin: var(--spacing-lg) 0 0 0;
-  color: #999999;
-  font-size: 0.85rem;
-}
