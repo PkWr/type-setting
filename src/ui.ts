@@ -309,10 +309,6 @@ function updateSpecification(): void {
     const specContent = document.getElementById('specificationContent');
     if (!specContent) return;
     
-    // Get gutter width in ems (from input)
-    const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
-    const gutterEm = gutterInput ? parseFloat(gutterInput.value) : 1.0;
-    
     // Get column span info
     const columnSpan = getColumnSpan();
     const textColumns = getTextColumns();
