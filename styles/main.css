@@ -317,10 +317,36 @@ button {
   margin-bottom: var(--spacing-lg);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .scale-indicator {
   font-size: 0.9rem;
   color: var(--color-text-light);
   font-weight: 500;
+}
+
+.btn-export {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-export:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-export:active {
+  transform: translateY(1px);
 }
 
 .layer-controls {

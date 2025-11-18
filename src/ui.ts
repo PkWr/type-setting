@@ -481,6 +481,114 @@ function convertInputsToNewUnit(oldUnit: Unit, newUnit: Unit): void {
 /**
  * Initializes the calculator UI
  */
+/**
+ * Exports the current visualization as a standalone HTML file
+ */
+function exportVisualizationAsHTML(): void {
+  const container = document.getElementById('visualizationContainer');
+  if (!container) {
+    alert('Visualization container not found');
+    return;
+  }
+
+  const svg = container.querySelector('svg');
+  if (!svg) {
+    alert('No visualization to export. Please generate a layout first.');
+    return;
+  }
+
+  // Get current inputs for metadata
+  const inputs = getFormInputs();
+  const unit = getCurrentUnit();
+  
+  // Clone the SVG to avoid modifying the original
+  const svgClone = svg.cloneNode(true) as SVGElement;
+  
+  // Create standalone HTML
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typography Layout Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 2rem;
+      background-color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .preview-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      max-width: 100%;
+    }
+    .preview-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .preview-header h1 {
+      font-size: 1.5rem;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+    .preview-meta {
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .preview-meta strong {
+      color: #1e293b;
+    }
+    svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <div class="preview-header">
+      <h1>Typography Layout Preview</h1>
+      <div class="preview-meta">
+        <p><strong>Page Size:</strong> ${inputs.pageWidth.toFixed(2)} × ${inputs.pageHeight.toFixed(2)} mm</p>
+        <p><strong>Type Size:</strong> ${inputs.typeSize} pt</p>
+        <p><strong>Columns:</strong> ${inputs.numCols}</p>
+        <p><strong>Gutter Width:</strong> ${formatValue(inputs.gutterWidth, unit, inputs.typeSize)} ${unit}</p>
+        <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, unit, inputs.typeSize)} ${unit}, Bottom: ${formatValue(inputs.bottomMargin, unit, inputs.typeSize)} ${unit}, Left: ${formatValue(inputs.leftMargin, unit, inputs.typeSize)} ${unit}, Right: ${formatValue(inputs.rightMargin, unit, inputs.typeSize)} ${unit}</p>
+        ${inputs.columnSpanStart && inputs.columnSpanEnd ? `<p><strong>Column Span:</strong> Columns ${inputs.columnSpanStart} to ${inputs.columnSpanEnd}</p>` : ''}
+        ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text Columns:</strong> ${inputs.textColumns.join(', ')}</p>` : ''}
+      </div>
+    </div>
+    ${svgClone.outerHTML}
+  </div>
+</body>
+</html>`;
+
+  // Create blob and download
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `typography-layout-preview-${Date.now()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export function initializeCalculator(): void {
   // Initialize unit system
   currentUnit = getCurrentUnit();
@@ -582,6 +690,12 @@ export function initializeCalculator(): void {
       suggestGutter();
       updateVisualizationOnInputChange();
     });
+  }
+
+  // Export as HTML button
+  const exportHtmlButton = document.getElementById('exportHtmlButton');
+  if (exportHtmlButton) {
+    exportHtmlButton.addEventListener('click', exportVisualizationAsHTML);
   }
 
   // Handle paper size selection
