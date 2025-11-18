@@ -571,7 +571,6 @@ button {
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--font-family);
-  color: var(--color-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-light);
