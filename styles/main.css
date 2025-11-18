@@ -669,19 +669,18 @@ button {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
+    overflow-y: auto;
+    max-height: calc(100vh - var(--spacing-lg) * 2);
   }
 
   .visualization-section {
-    flex: 1;
+    flex: 0 0 auto;
     margin-top: 0;
     padding-top: var(--spacing-md);
     border-top: none;
-    position: sticky;
-    top: var(--spacing-lg);
-    max-height: calc(100vh - var(--spacing-lg) * 2);
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
   
   .specification-section {
