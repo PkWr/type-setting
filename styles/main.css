@@ -13,6 +13,7 @@
   --color-bg: #ffffff;
   --color-bg-light: #f8fafc;
   --color-success: #10b981;
+  --font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -27,11 +28,11 @@
 
 * {
   box-sizing: border-box;
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-family);
 }
 
 body {
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-family);
   margin: 0;
   padding: var(--spacing-lg);
   background-color: var(--color-bg-light);
@@ -68,7 +69,7 @@ h1 {
   margin: 0 0 var(--spacing-sm) 0;
   font-size: 2rem;
   font-weight: 700;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family);
   color: var(--color-text);
 }
 
@@ -82,7 +83,7 @@ h2 {
   margin: 0 0 var(--spacing-lg) 0;
   font-size: 1.25rem;
   font-weight: 600;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family);
   color: var(--color-text);
 }
 
@@ -118,7 +119,7 @@ label {
   margin-bottom: var(--spacing-xs);
   font-weight: 500;
   font-size: 0.9rem;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family);
   color: var(--color-text);
 }
 
@@ -130,7 +131,7 @@ textarea {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
   font-size: 1rem;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family);
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: var(--color-bg);
 }
@@ -269,7 +270,7 @@ button {
   border-radius: var(--border-radius-sm);
   font-size: 0.95rem;
   font-weight: 500;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
