@@ -166,4 +166,8 @@ This file tracks all changes made to the type-setting project.
   - Added "Load default text" button to populate sample text with Bringhurst excerpt
   - Created defaultText.ts module with excerpt from "The Elements of Typographic Style"
   - Default text provides comprehensive example of typographic content
+  - Added automatic scaling to fit preview container
+  - Scale indicator shows scale ratio (e.g., "Scale: 1/2") when preview is scaled down
+  - Preview maintains accurate proportions while fitting within container
+  - Scale calculated based on actual column widths and container size
 

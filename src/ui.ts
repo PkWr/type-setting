@@ -130,6 +130,7 @@ function updateSampleTextPreview(): void {
   try {
     const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
     const previewDiv = document.getElementById('sampleTextPreview');
+    const scaleIndicator = document.getElementById('scaleIndicator');
     
     if (!previewDiv || !sampleTextInput) return;
     
@@ -137,6 +138,9 @@ function updateSampleTextPreview(): void {
     
     if (!sampleText) {
       previewDiv.innerHTML = '';
+      previewDiv.style.transform = '';
+      previewDiv.style.transformOrigin = '';
+      if (scaleIndicator) scaleIndicator.textContent = '';
       return;
     }
     
@@ -152,10 +156,70 @@ function updateSampleTextPreview(): void {
     // Set font size based on type size (convert pt to px: 1pt ≈ 1.33px)
     const fontSizePX = typeSize * 1.33;
     
+    // Calculate total width needed (columns + gutters)
+    const gutterWidthMM = inputs.gutterWidth;
+    const gutterWidthPX = gutterWidthMM * 3.78;
+    const totalGuttersPX = (inputs.numCols - 1) * gutterWidthPX;
+    const totalWidthNeeded = (columnWidthPX * inputs.numCols) + totalGuttersPX;
+    
+    // Get container width (accounting for padding)
+    const containerPadding = 32; // padding left + right in px
+    const containerWidth = previewDiv.parentElement?.clientWidth || previewDiv.clientWidth;
+    const availableWidth = containerWidth - containerPadding;
+    
+    // Calculate scale to fit
+    let scale = 1;
+    if (totalWidthNeeded > availableWidth) {
+      scale = availableWidth / totalWidthNeeded;
+    }
+    
+    // Round scale to nearest reasonable fraction for display
+    const scaleForDisplay = Math.round(scale * 100) / 100;
+    let scaleText = '';
+    if (scaleForDisplay < 1) {
+      // Find closest simple fraction
+      const fractions = [
+        { num: 1, den: 2, val: 0.5 },
+        { num: 1, den: 3, val: 0.333 },
+        { num: 1, den: 4, val: 0.25 },
+        { num: 1, den: 5, val: 0.2 },
+        { num: 2, den: 3, val: 0.667 },
+        { num: 3, den: 4, val: 0.75 },
+      ];
+      
+      let closest = fractions[0];
+      let minDiff = Math.abs(scaleForDisplay - closest.val);
+      
+      for (const frac of fractions) {
+        const diff = Math.abs(scaleForDisplay - frac.val);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = frac;
+        }
+      }
+      
+      if (minDiff < 0.1) {
+        scaleText = `Scale: 1/${Math.round(1 / closest.val)}`;
+      } else {
+        scaleText = `Scale: ${scaleForDisplay.toFixed(2)}`;
+      }
+    } else {
+      scaleText = '';
+    }
+    
+    if (scaleIndicator) {
+      scaleIndicator.textContent = scaleText;
+    }
+    
     // Create columns
     previewDiv.innerHTML = '';
-    previewDiv.style.gridTemplateColumns = `repeat(${inputs.numCols}, 1fr)`;
+    previewDiv.style.gridTemplateColumns = `repeat(${inputs.numCols}, ${columnWidthPX}px)`;
+    previewDiv.style.gap = `${gutterWidthPX}px`;
     previewDiv.style.fontSize = `${fontSizePX}px`;
+    previewDiv.style.transform = scale < 1 ? `scale(${scale})` : '';
+    previewDiv.style.transformOrigin = 'top left';
+    previewDiv.style.width = scale < 1 ? `${totalWidthNeeded}px` : '100%';
+    previewDiv.style.justifyContent = 'start';
     
     // Split text into words
     const words = sampleText.split(/\s+/);
@@ -166,7 +230,8 @@ function updateSampleTextPreview(): void {
       const columnDiv = document.createElement('div');
       columnDiv.className = 'sample-text-column';
       columnDiv.style.width = `${columnWidthPX}px`;
-      columnDiv.style.maxWidth = '100%';
+      columnDiv.style.minWidth = `${columnWidthPX}px`;
+      columnDiv.style.maxWidth = `${columnWidthPX}px`;
       
       const startIdx = col * wordsPerColumn;
       const endIdx = Math.min(startIdx + wordsPerColumn, words.length);
