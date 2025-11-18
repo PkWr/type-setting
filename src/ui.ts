@@ -146,7 +146,9 @@ function updateWordsPerLine(): void {
   try {
     const inputs = getFormInputs();
     const results = calculateLayout(inputs);
-    const wordsPerLine = calculateWordsPerLine(results.columnWidth, inputs.typeSize);
+    // Use textBoxWidth (which accounts for column span) instead of columnWidth
+    // This gives accurate words per line for the actual text box width
+    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
     
     const wordsPerLineElement = document.getElementById('wordsPerLine');
     if (wordsPerLineElement) {
