@@ -124,22 +124,18 @@ export function updateVisualization(inputs: LayoutInputs): void {
   pageRect.setAttribute('stroke-width', '2');
   svg.appendChild(pageRect);
 
-  // Margins area (only if margins layer is visible)
+  // Margins area (only if margins layer is visible) - using keylines instead of fills
   if (layerVisibility.margins) {
-    const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    marginPath.setAttribute('d', `
-      M ${pageOffsetX},${pageOffsetY} 
-      L ${pageOffsetX + singlePageWidth},${pageOffsetY} 
-      L ${pageOffsetX + singlePageWidth},${pageOffsetY + visHeight} 
-      L ${pageOffsetX},${pageOffsetY + visHeight} Z
-      M ${pageOffsetX + scaledLeftMargin},${pageOffsetY + scaledTopMargin}
-      L ${pageOffsetX + singlePageWidth - scaledRightMargin},${pageOffsetY + scaledTopMargin}
-      L ${pageOffsetX + singlePageWidth - scaledRightMargin},${pageOffsetY + visHeight - scaledBottomMargin}
-      L ${pageOffsetX + scaledLeftMargin},${pageOffsetY + visHeight - scaledBottomMargin} Z
-    `);
-    marginPath.setAttribute('fill', '#f1f5f9');
-    marginPath.setAttribute('fill-rule', 'evenodd');
-    svg.appendChild(marginPath);
+    // Draw margin keylines (rectangles with strokes, no fill)
+    const marginRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    marginRect.setAttribute('x', (pageOffsetX + scaledLeftMargin).toString());
+    marginRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
+    marginRect.setAttribute('width', (singlePageWidth - scaledLeftMargin - scaledRightMargin).toString());
+    marginRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
+    marginRect.setAttribute('fill', 'none');
+    marginRect.setAttribute('stroke', '#000000');
+    marginRect.setAttribute('stroke-width', '1');
+    svg.appendChild(marginRect);
   }
 
   // Page dimensions label
