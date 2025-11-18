@@ -869,7 +869,7 @@ function updateMarginInputs(): void {
   if (facingPages) {
     // Show facing pages inputs, hide single page inputs
     if (singlePageMargins) singlePageMargins.style.display = 'none';
-    if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
+    if (facingPagesMargins) facingPagesMargins.style.display = 'block';
     
     // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
     if (leftMarginInput && innerMarginLeftInput && !innerMarginLeftInput.dataset.synced) {
