@@ -51,6 +51,16 @@ function isFacingPages(): boolean {
 export function updateVisualization(inputs: LayoutInputs): void {
   const container = document.getElementById('visualizationContainer');
   if (!container) return;
+  
+  // Validate inputs to prevent NaN calculations
+  if (!inputs.numCols || inputs.numCols <= 0 || isNaN(inputs.numCols)) {
+    console.error('Invalid numCols:', inputs.numCols);
+    return;
+  }
+  if (isNaN(inputs.gutterWidth) || inputs.gutterWidth < 0) {
+    console.error('Invalid gutterWidth:', inputs.gutterWidth);
+    return;
+  }
 
   const facingPages = isFacingPages();
   const results = calculateLayout(inputs);
@@ -181,7 +191,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const scaledGutterWidth = inputs.gutterWidth * scaleX;
       const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
       const availableWidth = pageTextWidth - totalGutters;
-      const actualColumnWidth = availableWidth / inputs.numCols;
+      const actualColumnWidth = inputs.numCols > 0 ? availableWidth / inputs.numCols : 0;
       const sampleText = getSampleText();
       const words = sampleText ? sampleText.split(/\s+/) : [];
       
@@ -205,13 +215,19 @@ export function updateVisualization(inputs: LayoutInputs): void {
       const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
       
       // Calculate text box position and width based on span
-      const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
+      const spanStartIndex = Math.max(0, columnSpanStart - 1); // Convert to 0-indexed, ensure non-negative
       const spanTextBoxX = pageTextX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
       // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
       // This ensures the text box spans the exact width of selected columns + gutters
-      const spanGutters = spanCols - 1;
+      const spanGutters = Math.max(0, spanCols - 1);
       // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
       const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
+      
+      // Validate values to prevent NaN
+      if (isNaN(spanTextBoxX) || isNaN(spanTextBoxWidth) || isNaN(actualColumnWidth) || isNaN(scaledGutterWidth) || actualColumnWidth <= 0) {
+        console.error('Invalid values in facing pages text box calculation:', { spanTextBoxX, spanTextBoxWidth, actualColumnWidth, scaledGutterWidth, columnSpanStart, columnSpanEnd, spanCols, spanGutters, inputs });
+        return; // Skip rendering this page if values are invalid
+      }
       
       // Draw text box outline for span
       const spanTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -358,7 +374,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const scaledGutterWidth = inputs.gutterWidth * scaleX;
     const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
     const availableWidth = fullTextBoxWidth - totalGutters;
-    const actualColumnWidth = availableWidth / inputs.numCols;
+    const actualColumnWidth = inputs.numCols > 0 ? availableWidth / inputs.numCols : 0;
     const sampleText = getSampleText();
     const words = sampleText ? sampleText.split(/\s+/) : [];
     
@@ -382,13 +398,20 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const wordsPerTextColumn = words.length > 0 ? Math.ceil(words.length / textColsCount) : 0;
     
     // Calculate text box position and width based on span
-    const spanStartIndex = columnSpanStart - 1; // Convert to 0-indexed
+    const spanStartIndex = Math.max(0, columnSpanStart - 1); // Convert to 0-indexed, ensure non-negative
     const textBoxX = fullTextBoxX + (spanStartIndex * (actualColumnWidth + scaledGutterWidth));
     // Calculate width as: (columnWidth * spanCols) + (gutterWidth * spanGutters)
     // This ensures the text box spans the exact width of selected columns + gutters
-    const spanGutters = spanCols - 1;
+    const spanGutters = Math.max(0, spanCols - 1);
     // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
     const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
+    
+    // Validate values to prevent NaN
+    if (isNaN(textBoxX) || isNaN(textBoxWidth) || isNaN(actualColumnWidth) || isNaN(scaledGutterWidth) || actualColumnWidth <= 0) {
+      console.error('Invalid values in text box calculation:', { textBoxX, textBoxWidth, actualColumnWidth, scaledGutterWidth, columnSpanStart, columnSpanEnd, spanCols, spanGutters, inputs });
+      // Don't return - just skip drawing the text box and columns
+      return;
+    }
     
     // Draw text box outline for span
     const textBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');

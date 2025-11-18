@@ -237,4 +237,8 @@ This file tracks all changes made to the type-setting project.
   - Text appears in columns controls WHERE text is visible within that text box
   - Text now flows across full text box width but is clipped to only show in selected columns
   - Uses SVG clipping paths to mask text visibility based on selected columns
+  - Fixed NaN errors in visualization by adding input validation
+  - Added checks for invalid numCols and gutterWidth values
+  - Added protection against division by zero for column width calculation
+  - Added validation before drawing text boxes to prevent NaN in SVG attributes
 
