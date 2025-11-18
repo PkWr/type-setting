@@ -23,13 +23,8 @@ function getLayerVisibility() {
   return { margins: showMargins, columns: showColumns, text: showText };
 }
 
-/**
- * Gets the currently selected unit
- */
-function getCurrentUnit() {
-  const unitSelect = document.getElementById('unitSelect') as HTMLSelectElement;
-  return unitSelect?.value || 'mm';
-}
+// Page dimensions and margins are always in mm, gutter is always in em
+const PAGE_UNIT = 'mm';
 
 const VISUALIZATION_SIZE = 400; // Maximum size for the visualization in pixels
 const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility

@@ -10,16 +10,9 @@ import { updateVisualization } from './visualization.js';
 import { Unit, UNITS, convertFromMM, convertToMM, formatValue } from './units.js';
 import { DEFAULT_SAMPLE_TEXT } from './defaultText.js';
 
-// Current unit preference (stored in mm internally, displayed in selected unit)
-let currentUnit: Unit = 'mm';
-
-/**
- * Gets the currently selected unit
- */
-function getCurrentUnit(): Unit {
-  const unitSelect = document.getElementById('unitSelect') as HTMLSelectElement;
-  return (unitSelect?.value as Unit) || 'mm';
-}
+// Page dimensions and margins are always in mm, gutter is always in em
+const PAGE_UNIT: Unit = 'mm';
+const GUTTER_UNIT: Unit = 'em';
 
 /**
  * Gets all input values from the form, converting from selected unit to mm
@@ -48,19 +41,18 @@ function getTextColumns(): number[] {
 }
 
 function getFormInputs(): LayoutInputs {
-  const unit = getCurrentUnit();
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
 
-  // Get values in selected unit and convert to mm
+  // Page dimensions and margins are always in mm (no conversion needed)
   const pageWidth = parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value);
   const pageHeight = parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value);
   const leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
   const rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
   const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
   const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
-  let gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
   
-  // If gutter width is not set, auto-suggest it (always in ems)
+  // Gutter is always in ems - convert to mm for calculations
+  let gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
   if (isNaN(gutterWidth) || gutterWidth <= 0) {
     gutterWidth = 1.0; // Default to 1em
     const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
@@ -74,15 +66,15 @@ function getFormInputs(): LayoutInputs {
   const textColumns = getTextColumns();
   
   const inputs: LayoutInputs = {
-    pageWidth: convertToMM(pageWidth, unit, typeSize),
-    pageHeight: convertToMM(pageHeight, unit, typeSize),
-    leftMargin: convertToMM(leftMargin, unit, typeSize),
-    rightMargin: convertToMM(rightMargin, unit, typeSize),
-    topMargin: convertToMM(topMargin, unit, typeSize),
-    bottomMargin: convertToMM(bottomMargin, unit, typeSize),
+    pageWidth, // Already in mm
+    pageHeight, // Already in mm
+    leftMargin, // Already in mm
+    rightMargin, // Already in mm
+    topMargin, // Already in mm
+    bottomMargin, // Already in mm
     typeSize, // Type size is always in points
     numCols,
-    gutterWidth: convertToMM(gutterWidth, 'em', typeSize), // Gutter is always in ems
+    gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
   };
   
   if (columnSpan) {
@@ -182,24 +174,20 @@ function displayResults(results: LayoutResults): void {
   const resultsDiv = document.getElementById('resultsContent');
   if (!resultsDiv) return;
 
-  const unit = getCurrentUnit();
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
 
-  // Convert results from mm to selected unit
-  const textBoxWidth = convertFromMM(results.textBoxWidth, unit, typeSize);
-  const columnWidth = convertFromMM(results.columnWidth, unit, typeSize);
-  // Gutter is always displayed in ems
-  const gutterWidth = convertFromMM(results.gutterWidth, 'em', typeSize);
-  const optimalColumnWidth = convertFromMM(results.optimalColumnWidth, unit, typeSize);
-
-  const decimals = unit === 'em' ? 3 : unit === 'mm' ? 1 : 2;
+  // Page dimensions and margins are displayed in mm, gutter in em
+  const textBoxWidth = results.textBoxWidth; // Already in mm
+  const columnWidth = results.columnWidth; // Already in mm
+  const gutterWidth = convertFromMM(results.gutterWidth, GUTTER_UNIT, typeSize); // Convert to em
+  const optimalColumnWidth = results.optimalColumnWidth; // Already in mm
 
   const res = `
     <ul>
-      <li><b>Text box width:</b> ${formatValue(textBoxWidth, unit, decimals)}</li>
-      <li><b>Column width:</b> ${formatValue(columnWidth, unit, decimals)} each</li>
-      <li><b>Gutter width:</b> ${formatValue(gutterWidth, 'em', 3)}</li>
-      <li><b>Optimal column width (Bringhurst):</b> ${formatValue(optimalColumnWidth, unit, decimals)}</li>
+      <li><b>Text box width:</b> ${formatValue(textBoxWidth, PAGE_UNIT, 1)}</li>
+      <li><b>Column width:</b> ${formatValue(columnWidth, PAGE_UNIT, 1)} each</li>
+      <li><b>Gutter width:</b> ${formatValue(gutterWidth, GUTTER_UNIT, 3)}</li>
+      <li><b>Optimal column width (Bringhurst):</b> ${formatValue(optimalColumnWidth, PAGE_UNIT, 1)}</li>
     </ul>
     <p>Tip: Auto-set the gutter to font size (1em) for optimal spacing, or adjust manually.</p>
   `;
@@ -373,13 +361,11 @@ function applyPaperSize(paperSizeName: string): void {
   const size = getPaperSize(paperSizeName);
   if (!size) return;
 
-  const unit = getCurrentUnit();
-  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
   const orientation = getOrientation();
   
-  // Convert from mm to selected unit
-  let width = convertFromMM(size.width, unit, typeSize);
-  let height = convertFromMM(size.height, unit, typeSize);
+  // Page dimensions are always in mm (no conversion needed)
+  let width = size.width;
+  let height = size.height;
 
   // Swap if landscape orientation
   if (orientation === 'landscape') {
@@ -389,9 +375,9 @@ function applyPaperSize(paperSizeName: string): void {
   const widthInput = document.getElementById('pageWidth') as HTMLInputElement;
   const heightInput = document.getElementById('pageHeight') as HTMLInputElement;
 
-  const decimals = unit === 'em' ? 3 : 2;
-  if (widthInput) widthInput.value = width.toFixed(decimals);
-  if (heightInput) heightInput.value = height.toFixed(decimals);
+  // Page dimensions are always in mm (1 decimal place)
+  if (widthInput) widthInput.value = width.toFixed(1);
+  if (heightInput) heightInput.value = height.toFixed(1);
   
   updateVisualizationOnInputChange();
 }
@@ -422,21 +408,20 @@ function isFacingPages(): boolean {
 }
 
 /**
- * Updates all input labels to show the current unit and facing pages mode
+ * Updates all input labels to show units and facing pages mode
+ * Page dimensions and margins are always in mm, gutter is always in em
  */
 function updateInputLabels(): void {
-  const unit = getCurrentUnit();
-  const unitAbbr = UNITS[unit].abbreviation;
   const facingPages = isFacingPages();
 
   const labels: Record<string, string> = {
-    pageWidth: `Page width (${unitAbbr})`,
-    pageHeight: `Page height (${unitAbbr})`,
-    leftMargin: facingPages ? `Inner (${unitAbbr})` : `Left (${unitAbbr})`,
-    rightMargin: facingPages ? `Outer (${unitAbbr})` : `Right (${unitAbbr})`,
-    topMargin: `Top (${unitAbbr})`,
-    bottomMargin: `Bottom (${unitAbbr})`,
-    gutterWidth: `Gutter width (em)`, // Gutter is always in ems
+    pageWidth: `Page width (mm)`,
+    pageHeight: `Page height (mm)`,
+    leftMargin: facingPages ? `Inner (mm)` : `Left (mm)`,
+    rightMargin: facingPages ? `Outer (mm)` : `Right (mm)`,
+    topMargin: `Top (mm)`,
+    bottomMargin: `Bottom (mm)`,
+    gutterWidth: `Gutter width (em)`,
   };
 
   Object.entries(labels).forEach(([id, text]) => {
@@ -447,39 +432,7 @@ function updateInputLabels(): void {
   });
 }
 
-/**
- * Updates unit description helper text
- */
-function updateUnitDescription(): void {
-  const unit = getCurrentUnit();
-  const description = UNITS[unit].description;
-  const descSpan = document.getElementById('unitDescription');
-  if (descSpan) {
-    descSpan.textContent = description;
-  }
-}
 
-/**
- * Converts all input values when unit changes
- */
-function convertInputsToNewUnit(oldUnit: Unit, newUnit: Unit): void {
-  const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
-  
-  // Gutter is always in ems, so exclude it from unit conversion
-  const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin'];
-  
-  inputIds.forEach(id => {
-    const input = document.getElementById(id) as HTMLInputElement;
-    if (input && input.value) {
-      const value = parseFloat(input.value);
-      // Convert: old unit -> mm -> new unit
-      const valueMM = convertToMM(value, oldUnit, typeSize);
-      const newValue = convertFromMM(valueMM, newUnit, typeSize);
-      const decimals = newUnit === 'em' ? 3 : 2;
-      input.value = newValue.toFixed(decimals);
-    }
-  });
-}
 
 /**
  * Initializes the calculator UI
@@ -502,7 +455,6 @@ function exportVisualizationAsHTML(): void {
 
   // Get current inputs for metadata
   const inputs = getFormInputs();
-  const unit = getCurrentUnit();
   
   // Clone the SVG to avoid modifying the original
   const svgClone = svg.cloneNode(true) as SVGElement;
@@ -569,8 +521,8 @@ function exportVisualizationAsHTML(): void {
         <p><strong>Page Size:</strong> ${inputs.pageWidth.toFixed(2)} × ${inputs.pageHeight.toFixed(2)} mm</p>
         <p><strong>Type Size:</strong> ${inputs.typeSize} pt</p>
         <p><strong>Columns:</strong> ${inputs.numCols}</p>
-        <p><strong>Gutter Width:</strong> ${formatValue(convertFromMM(inputs.gutterWidth, 'em', inputs.typeSize), 'em', 3)}</p>
-        <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, unit, inputs.typeSize)} ${unit}, Bottom: ${formatValue(inputs.bottomMargin, unit, inputs.typeSize)} ${unit}, Left: ${formatValue(inputs.leftMargin, unit, inputs.typeSize)} ${unit}, Right: ${formatValue(inputs.rightMargin, unit, inputs.typeSize)} ${unit}</p>
+        <p><strong>Gutter Width:</strong> ${formatValue(convertFromMM(inputs.gutterWidth, GUTTER_UNIT, inputs.typeSize), GUTTER_UNIT, 3)}</p>
+        <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Bottom: ${formatValue(inputs.bottomMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Left: ${formatValue(inputs.leftMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Right: ${formatValue(inputs.rightMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}</p>
         ${inputs.columnSpanStart && inputs.columnSpanEnd ? `<p><strong>Column Span:</strong> Columns ${inputs.columnSpanStart} to ${inputs.columnSpanEnd}</p>` : ''}
         ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text Columns:</strong> ${inputs.textColumns.join(', ')}</p>` : ''}
       </div>
@@ -593,24 +545,8 @@ function exportVisualizationAsHTML(): void {
 }
 
 export function initializeCalculator(): void {
-  // Initialize unit system
-  currentUnit = getCurrentUnit();
+  // Initialize labels (page dimensions and margins in mm, gutter in em)
   updateInputLabels();
-  updateUnitDescription();
-
-  // Handle unit selection change
-  const unitSelect = document.getElementById('unitSelect') as HTMLSelectElement;
-  if (unitSelect) {
-    unitSelect.addEventListener('change', () => {
-      const newUnit = getCurrentUnit();
-      convertInputsToNewUnit(currentUnit, newUnit);
-      currentUnit = newUnit;
-      updateInputLabels();
-      updateUnitDescription();
-      suggestGutter(); // Recalculate gutter in new unit
-      updateVisualizationOnInputChange();
-    });
-  }
 
   // Handle facing pages checkbox
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
