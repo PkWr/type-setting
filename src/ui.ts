@@ -715,7 +715,16 @@ function updateMarginLabels(): void {
         if (labelId === 'gutterWidthLabel') {
           // For gutter width, show conversion value in parentheses
           const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
-          const gutterValue = gutterInput ? parseFloat(gutterInput.value) : (marginUnit === 'em' ? 1.0 : 0);
+          let gutterValue = gutterInput ? parseFloat(gutterInput.value) : NaN;
+          
+          // If gutter value is empty or invalid, use default (1em or equivalent)
+          if (isNaN(gutterValue) || gutterValue <= 0) {
+            if (marginUnit === 'em') {
+              gutterValue = 1.0; // Default to 1em
+            } else {
+              gutterValue = convertToMM(1.0, 'em', typeSize); // Default to 1em equivalent in mm
+            }
+          }
           
           if (!isNaN(typeSize) && !isNaN(gutterValue) && gutterValue > 0) {
             let conversionValue: number;
