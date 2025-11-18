@@ -243,11 +243,25 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Create SVG
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
-  // Use 'meet' to scale to fit longest edge - SVG will scale to fit container
-  // while maintaining aspect ratio, fitting by whichever dimension is smaller
+  
+  // Determine which edge of the SVG is longer
+  const svgAspectRatio = svgWidth / svgHeight;
+  const isLandscape = svgAspectRatio > 1;
+  
+  // Use 'meet' to scale to fit, but we'll set width/height based on longest edge
+  // If landscape (width is longer), fit by width; if portrait (height is longer), fit by height
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
+  
+  if (isLandscape) {
+    // Width is longer - fit by width
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', 'auto');
+  } else {
+    // Height is longer - fit by height
+    svg.setAttribute('width', 'auto');
+    svg.setAttribute('height', '100%');
+  }
+  
   svg.classList.add('page-visualization');
 
   if (facingPages) {

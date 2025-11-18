@@ -518,9 +518,8 @@ button {
 }
 
 .page-visualization {
-  width: 100%;
-  height: 100%;
   display: block;
+  /* Width and height are set dynamically based on longest edge */
 }
 
 .page-visualization .page-dimensions {
