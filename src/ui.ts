@@ -1681,5 +1681,51 @@ export function initializeCalculator(): void {
       }, 100);
     });
   }
+  
+  // Initialize term modal (Verso/Recto)
+  const termModal = document.getElementById('termModal') as HTMLElement;
+  const termModalClose = document.getElementById('termModalClose') as HTMLElement;
+  const termModalTitle = document.getElementById('termModalTitle') as HTMLElement;
+  const termModalContent = document.getElementById('termModalContent') as HTMLElement;
+  
+  const termDescriptions: Record<string, { title: string; content: string }> = {
+    verso: {
+      title: 'Verso',
+      content: '<p class="modal-section-text">Verso refers to the left-hand page of an open book, typically an even-numbered page. In bookbinding terminology, verso means "the back of the leaf" and is the side that appears on the left when a book is open.</p><p class="modal-section-text">In facing pages layouts, the verso page has its outer margin on the left edge and its inner margin (binding edge) on the right.</p>'
+    },
+    recto: {
+      title: 'Recto',
+      content: '<p class="modal-section-text">Recto refers to the right-hand page of an open book, typically an odd-numbered page. In bookbinding terminology, recto means "the front of the leaf" and is the side that appears on the right when a book is open.</p><p class="modal-section-text">In facing pages layouts, the recto page has its inner margin (binding edge) on the left and its outer margin on the right edge.</p>'
+    }
+  };
+  
+  // Add click handlers to page links
+  const pageLinks = document.querySelectorAll('.page-link');
+  pageLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const term = (link as HTMLElement).dataset.term;
+      if (term && termDescriptions[term] && termModal && termModalTitle && termModalContent) {
+        termModalTitle.textContent = termDescriptions[term].title;
+        termModalContent.innerHTML = termDescriptions[term].content;
+        termModal.classList.add('show');
+      }
+    });
+  });
+  
+  if (termModalClose) {
+    termModalClose.addEventListener('click', () => {
+      if (termModal) termModal.classList.remove('show');
+    });
+  }
+  
+  // Close term modal when clicking outside
+  if (termModal) {
+    termModal.addEventListener('click', (e) => {
+      if (e.target === termModal) {
+        termModal.classList.remove('show');
+      }
+    });
+  }
 }
 
