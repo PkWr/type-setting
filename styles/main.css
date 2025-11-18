@@ -966,8 +966,26 @@ button {
 }
 
 .modal-section-text {
-  margin: 0;
+  margin: 0 0 var(--spacing-sm) 0;
   color: #cccccc;
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+.modal-section-links {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.modal-section-links a {
+  color: #999999;
+  text-decoration: none;
+  border-bottom: 1px solid #333333;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.modal-section-links a:hover {
+  color: #ffffff;
+  border-bottom-color: #666666;
 }
