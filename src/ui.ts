@@ -728,12 +728,16 @@ function updateMarginLabels(): void {
             label.textContent = `Gutter width (${unitLabel})`;
           }
         } else {
-          // For margin labels, show conversion value in parentheses
+          // For margin labels, show only the unit in label
+          label.textContent = `${labelMap[labelId]} (${unitLabel})`;
+          
+          // Show conversion value in helper text below input
           const inputId = labelId.replace('Label', '');
           const input = document.getElementById(inputId) as HTMLInputElement;
+          const conversionElement = document.getElementById(`${inputId}Conversion`) as HTMLElement;
           const marginValue = input ? parseFloat(input.value) : 0;
           
-          if (!isNaN(typeSize) && !isNaN(marginValue) && marginValue > 0) {
+          if (conversionElement && !isNaN(typeSize) && !isNaN(marginValue) && marginValue > 0) {
             let conversionValue: number;
             let conversionUnit: string;
             
@@ -741,15 +745,15 @@ function updateMarginLabels(): void {
               // Show mm equivalent
               conversionValue = convertToMM(marginValue, 'em', typeSize);
               conversionUnit = 'mm';
-              label.textContent = `${labelMap[labelId]} (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+              conversionElement.textContent = `${conversionValue.toFixed(1)} ${conversionUnit}`;
             } else {
               // Show em equivalent
               conversionValue = convertFromMM(marginValue, 'em', typeSize);
               conversionUnit = 'em';
-              label.textContent = `${labelMap[labelId]} (${unitLabel}, ${conversionValue.toFixed(1)} ${conversionUnit})`;
+              conversionElement.textContent = `${conversionValue.toFixed(1)} ${conversionUnit}`;
             }
-          } else {
-            label.textContent = `${labelMap[labelId]} (${unitLabel})`;
+          } else if (conversionElement) {
+            conversionElement.textContent = '';
           }
         }
       }
