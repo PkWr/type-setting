@@ -506,7 +506,6 @@ button {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 200px);
-  flex: 0 0 auto;
 }
 
 .visualization-container {
@@ -676,6 +675,12 @@ button {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    align-self: flex-start;
+  }
+  
+  .specification-section {
+    flex: 0 0 auto;
+    margin-top: var(--spacing-lg);
   }
 
   .visualization-container {
