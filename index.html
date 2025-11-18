@@ -73,7 +73,8 @@
             <input type="number" id="bottomMargin" value="20" required>
           </div>
         </div>
-        <div class="form-row">
+        <!-- Single page margins -->
+        <div id="singlePageMargins" class="form-row">
           <div class="form-group">
             <label for="leftMargin">Left</label>
             <input type="number" id="leftMargin" value="20" required>
@@ -81,6 +82,26 @@
           <div class="form-group">
             <label for="rightMargin">Right</label>
             <input type="number" id="rightMargin" value="20" required>
+          </div>
+        </div>
+        <!-- Facing pages margins -->
+        <div id="facingPagesMargins" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label for="innerMargin">Inner (mm)</label>
+            <input type="number" id="innerMargin" value="20" required>
+            <span class="helper-text">Shared binding edge</span>
+          </div>
+        </div>
+        <div id="facingPagesMarginsOuter" class="form-row" style="display: none;">
+          <div class="form-group">
+            <label for="outerMarginLeft">Outer left (mm)</label>
+            <input type="number" id="outerMarginLeft" value="20" required>
+            <span class="helper-text">Left page left side</span>
+          </div>
+          <div class="form-group">
+            <label for="outerMarginRight">Outer right (mm)</label>
+            <input type="number" id="outerMarginRight" value="20" required>
+            <span class="helper-text">Right page right side</span>
           </div>
         </div>
       </section>

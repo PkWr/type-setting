@@ -248,12 +248,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   if (facingPages) {
     // Draw two pages side by side (flush, no gap)
-    // Left page: outer margin = rightMargin (left side), inner margin = leftMargin (right side)
-    // Right page: inner margin = leftMargin (left side), outer margin = rightMargin (right side)
+    // Use facing pages specific margins if available
+    const innerMargin = inputs.innerMargin !== undefined ? inputs.innerMargin : inputs.leftMargin;
+    const outerMarginLeft = inputs.outerMarginLeft !== undefined ? inputs.outerMarginLeft : inputs.rightMargin;
+    const outerMarginRight = inputs.outerMarginRight !== undefined ? inputs.outerMarginRight : inputs.rightMargin;
+    
     const leftPageX = 0;
     const rightPageX = singlePageWidth;
     
-    // Left page
+    // Left page: outer margin on left, inner margin on right
     drawPage(
       svg,
       inputs,
@@ -261,8 +264,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
       0,
       singlePageWidth,
       singlePageHeight,
-      inputs.rightMargin, // Left margin (outer)
-      inputs.leftMargin,  // Right margin (inner)
+      outerMarginLeft, // Left margin (outer)
+      innerMargin,     // Right margin (inner)
       inputs.topMargin,
       inputs.bottomMargin,
       scaleX,
@@ -270,7 +273,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       layerVisibility
     );
     
-    // Right page
+    // Right page: inner margin on left, outer margin on right
     drawPage(
       svg,
       inputs,
@@ -278,8 +281,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
       0,
       singlePageWidth,
       singlePageHeight,
-      inputs.leftMargin,  // Left margin (inner)
-      inputs.rightMargin, // Right margin (outer)
+      innerMargin,      // Left margin (inner)
+      outerMarginRight, // Right margin (outer)
       inputs.topMargin,
       inputs.bottomMargin,
       scaleX,

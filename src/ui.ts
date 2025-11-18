@@ -42,14 +42,32 @@ function getTextColumns(): number[] {
 
 function getFormInputs(): LayoutInputs {
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  const facingPages = isFacingPages();
 
   // Page dimensions and margins are always in mm (no conversion needed)
   const pageWidth = parseFloat((document.getElementById('pageWidth') as HTMLInputElement).value);
   const pageHeight = parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value);
-  const leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
-  const rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
   const topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
   const bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
+  
+  // Get margins based on facing pages mode
+  let leftMargin: number;
+  let rightMargin: number;
+  
+  if (facingPages) {
+    // Facing pages: use inner and outer margins
+    const innerMargin = parseFloat((document.getElementById('innerMargin') as HTMLInputElement).value);
+    const outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
+    const outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+    
+    // For compatibility, set leftMargin = inner, rightMargin = average outer
+    leftMargin = innerMargin;
+    rightMargin = (outerMarginLeft + outerMarginRight) / 2;
+  } else {
+    // Single page: use left and right margins
+    leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
+    rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
+  }
   
   // Gutter is always in ems - convert to mm for calculations
   let gutterWidth = parseFloat((document.getElementById('gutterWidth') as HTMLInputElement).value);
@@ -76,6 +94,13 @@ function getFormInputs(): LayoutInputs {
     numCols,
     gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
   };
+  
+  // Add facing pages specific margins if in facing pages mode
+  if (facingPages) {
+    inputs.innerMargin = parseFloat((document.getElementById('innerMargin') as HTMLInputElement).value);
+    inputs.outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
+    inputs.outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
+  }
   
   if (columnSpan) {
     inputs.columnSpanStart = columnSpan.start;
@@ -408,28 +433,51 @@ function isFacingPages(): boolean {
 }
 
 /**
- * Updates all input labels to show units and facing pages mode
- * Page dimensions and margins are always in mm, gutter is always in em
+ * Updates margin inputs visibility and syncs values when switching modes
  */
-function updateInputLabels(): void {
+function updateMarginInputs(): void {
   const facingPages = isFacingPages();
-
-  const labels: Record<string, string> = {
-    pageWidth: `Page width (mm)`,
-    pageHeight: `Page height (mm)`,
-    leftMargin: facingPages ? `Inner (mm)` : `Left (mm)`,
-    rightMargin: facingPages ? `Outer (mm)` : `Right (mm)`,
-    topMargin: `Top (mm)`,
-    bottomMargin: `Bottom (mm)`,
-    gutterWidth: `Gutter width (em)`,
-  };
-
-  Object.entries(labels).forEach(([id, text]) => {
-    const label = document.querySelector(`label[for="${id}"]`);
-    if (label) {
-      label.textContent = text;
+  const singlePageMargins = document.getElementById('singlePageMargins') as HTMLElement;
+  const facingPagesMargins = document.getElementById('facingPagesMargins') as HTMLElement;
+  const facingPagesMarginsOuter = document.getElementById('facingPagesMarginsOuter') as HTMLElement;
+  
+  const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+  const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+  const innerMarginInput = document.getElementById('innerMargin') as HTMLInputElement;
+  const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+  const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+  
+  if (facingPages) {
+    // Show facing pages inputs, hide single page inputs
+    if (singlePageMargins) singlePageMargins.style.display = 'none';
+    if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
+    if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'grid';
+    
+    // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
+    if (leftMarginInput && innerMarginInput && !innerMarginInput.dataset.synced) {
+      innerMarginInput.value = leftMarginInput.value;
+      outerMarginLeftInput.value = rightMarginInput.value;
+      outerMarginRightInput.value = rightMarginInput.value;
+      innerMarginInput.dataset.synced = 'true';
+      // Clear the other sync flag
+      if (leftMarginInput.dataset.synced) leftMarginInput.dataset.synced = '';
     }
-  });
+  } else {
+    // Show single page inputs, hide facing pages inputs
+    if (singlePageMargins) singlePageMargins.style.display = 'grid';
+    if (facingPagesMargins) facingPagesMargins.style.display = 'none';
+    if (facingPagesMarginsOuter) facingPagesMarginsOuter.style.display = 'none';
+    
+    // Sync values: mirror inner to leftMargin, average outer to rightMargin (only if not already synced)
+    if (innerMarginInput && leftMarginInput && !leftMarginInput.dataset.synced) {
+      leftMarginInput.value = innerMarginInput.value;
+      const avgOuter = ((parseFloat(outerMarginLeftInput.value) + parseFloat(outerMarginRightInput.value)) / 2).toFixed(1);
+      rightMarginInput.value = avgOuter;
+      leftMarginInput.dataset.synced = 'true';
+      // Clear the other sync flag
+      if (innerMarginInput.dataset.synced) innerMarginInput.dataset.synced = '';
+    }
+  }
 }
 
 
@@ -545,17 +593,33 @@ function exportVisualizationAsHTML(): void {
 }
 
 export function initializeCalculator(): void {
-  // Initialize labels (page dimensions and margins in mm, gutter in em)
-  updateInputLabels();
+  // Initialize margin inputs visibility
+  updateMarginInputs();
 
   // Handle facing pages checkbox
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
   if (facingPagesCheckbox) {
     facingPagesCheckbox.addEventListener('change', () => {
-      updateInputLabels();
+      // Clear sync flags when switching modes
+      const innerMarginInput = document.getElementById('innerMargin') as HTMLInputElement;
+      const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+      if (innerMarginInput) innerMarginInput.dataset.synced = '';
+      if (leftMarginInput) leftMarginInput.dataset.synced = '';
+      
+      updateMarginInputs();
       updateVisualizationOnInputChange();
     });
   }
+  
+  // Add event listeners for facing pages margin inputs
+  const facingPagesMarginInputs = ['innerMargin', 'outerMarginLeft', 'outerMarginRight'];
+  facingPagesMarginInputs.forEach(id => {
+    const input = document.getElementById(id) as HTMLInputElement;
+    if (input) {
+      input.addEventListener('input', updateVisualizationOnInputChange);
+      input.addEventListener('change', updateVisualizationOnInputChange);
+    }
+  });
 
   // Handle sample text input - update visualization when text changes
   const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
