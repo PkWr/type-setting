@@ -166,6 +166,49 @@ export function updateVisualization(inputs: LayoutInputs): void {
     }
   }
 
+  // STAGE 3: Add text rendering (simple, full width, no clipping)
+  if (layerVisibility.text) {
+    const sampleText = getSampleText();
+    if (sampleText && sampleText.trim().length > 0) {
+      const textBoxX = pageOffsetX + scaledLeftMargin;
+      const textBoxY = pageOffsetY + scaledTopMargin;
+      const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
+      const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
+      
+      // Calculate font size in SVG units (scaled)
+      // Convert typeSize from points to mm (1pt = 0.3528mm), then scale by scaleY
+      const typeSizeMM = inputs.typeSize * 0.3528;
+      const fontSizeSVG = typeSizeMM * scaleY;
+      const lineHeight = fontSizeSVG * 1.5;
+      const padding = fontSizeSVG * 0.5;
+      
+      // Create foreignObject for HTML text rendering
+      const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+      textGroup.setAttribute('x', textBoxX.toString());
+      textGroup.setAttribute('y', textBoxY.toString());
+      textGroup.setAttribute('width', textBoxWidth.toString());
+      textGroup.setAttribute('height', textBoxHeight.toString());
+      
+      // Create div for text content
+      const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+      textDiv.style.fontSize = `${fontSizeSVG}px`;
+      textDiv.style.lineHeight = `${lineHeight}px`;
+      textDiv.style.fontFamily = 'serif';
+      textDiv.style.color = '#000000';
+      textDiv.style.width = '100%';
+      textDiv.style.height = '100%';
+      textDiv.style.padding = `${padding}px`;
+      textDiv.style.boxSizing = 'border-box';
+      textDiv.style.overflow = 'hidden';
+      textDiv.style.wordWrap = 'break-word';
+      textDiv.style.hyphens = 'auto';
+      textDiv.textContent = sampleText;
+      
+      textGroup.appendChild(textDiv);
+      svg.appendChild(textGroup);
+    }
+  }
+
   // Page dimensions label
   const labelText = `${inputs.pageWidth} × ${inputs.pageHeight} mm`;
   const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
