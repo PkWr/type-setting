@@ -208,4 +208,9 @@ This file tracks all changes made to the type-setting project.
   - When paper size is selected, orientation is applied automatically
   - When custom dimensions are used, orientation swaps width and height
   - Positioned under paper size selector in Page Dimensions section
+  - Fixed measurement lines to fit within preview
+  - Expanded SVG viewBox to include padding for measurements
+  - All measurements now properly positioned within visible area
+  - 50px padding added around page for measurement space
+  - Measurements adjusted for both single page and facing pages layouts
 

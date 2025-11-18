@@ -75,8 +75,15 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   // For facing pages, show two pages side by side
   const gapBetweenPages = 20;
+  const measurementPadding = 50; // Space for measurements around the page
   const visWidth = facingPages ? singlePageWidth * 2 + gapBetweenPages : singlePageWidth;
   const visHeight = singlePageHeight;
+  
+  // Expanded dimensions including measurement padding
+  const svgWidth = visWidth + (measurementPadding * 2);
+  const svgHeight = visHeight + (measurementPadding * 2);
+  const pageOffsetX = measurementPadding;
+  const pageOffsetY = measurementPadding;
 
   // Calculate scaled dimensions (scale based on single page)
   const scaleX = singlePageWidth / inputs.pageWidth;
@@ -97,7 +104,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   // Create SVG
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', `0 0 ${visWidth} ${visHeight}`);
+  svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -106,19 +113,19 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Draw pages
   if (facingPages) {
     // Left page (even/left page)
-    const leftPageX = 0;
+    const leftPageX = pageOffsetX;
     const leftPageTextX = leftPageX + leftPageOuterMargin;
     const leftPageTextWidth = singlePageWidth - leftPageOuterMargin - leftPageInnerMargin;
     
     // Right page (odd/right page)
-    const rightPageX = singlePageWidth + gapBetweenPages;
+    const rightPageX = pageOffsetX + singlePageWidth + gapBetweenPages;
     const rightPageTextX = rightPageX + rightPageInnerMargin;
     const rightPageTextWidth = singlePageWidth - rightPageInnerMargin - rightPageOuterMargin;
 
     // Draw left page
     const leftPageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     leftPageRect.setAttribute('x', leftPageX.toString());
-    leftPageRect.setAttribute('y', '0');
+    leftPageRect.setAttribute('y', pageOffsetY.toString());
     leftPageRect.setAttribute('width', singlePageWidth.toString());
     leftPageRect.setAttribute('height', visHeight.toString());
     leftPageRect.setAttribute('fill', '#ffffff');
@@ -129,7 +136,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     // Draw right page
     const rightPageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rightPageRect.setAttribute('x', rightPageX.toString());
-    rightPageRect.setAttribute('y', '0');
+    rightPageRect.setAttribute('y', pageOffsetY.toString());
     rightPageRect.setAttribute('width', singlePageWidth.toString());
     rightPageRect.setAttribute('height', visHeight.toString());
     rightPageRect.setAttribute('fill', '#ffffff');
@@ -141,11 +148,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     if (layerVisibility.margins) {
       const leftMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       leftMarginPath.setAttribute('d', `
-        M ${leftPageX},0 L ${leftPageX + singlePageWidth},0 L ${leftPageX + singlePageWidth},${visHeight} L ${leftPageX},${visHeight} Z
-        M ${leftPageX + leftPageOuterMargin},${scaledTopMargin}
-        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${scaledTopMargin}
-        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${visHeight - scaledBottomMargin}
-        L ${leftPageX + leftPageOuterMargin},${visHeight - scaledBottomMargin} Z
+        M ${leftPageX},${pageOffsetY} L ${leftPageX + singlePageWidth},${pageOffsetY} L ${leftPageX + singlePageWidth},${pageOffsetY + visHeight} L ${leftPageX},${pageOffsetY + visHeight} Z
+        M ${leftPageX + leftPageOuterMargin},${pageOffsetY + scaledTopMargin}
+        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${pageOffsetY + scaledTopMargin}
+        L ${leftPageX + singlePageWidth - leftPageInnerMargin},${pageOffsetY + visHeight - scaledBottomMargin}
+        L ${leftPageX + leftPageOuterMargin},${pageOffsetY + visHeight - scaledBottomMargin} Z
       `);
       leftMarginPath.setAttribute('fill', '#f1f5f9');
       leftMarginPath.setAttribute('fill-rule', 'evenodd');
@@ -156,11 +163,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     if (layerVisibility.margins) {
       const rightMarginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       rightMarginPath.setAttribute('d', `
-        M ${rightPageX},0 L ${rightPageX + singlePageWidth},0 L ${rightPageX + singlePageWidth},${visHeight} L ${rightPageX},${visHeight} Z
-        M ${rightPageX + rightPageInnerMargin},${scaledTopMargin}
-        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${scaledTopMargin}
-        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${visHeight - scaledBottomMargin}
-        L ${rightPageX + rightPageInnerMargin},${visHeight - scaledBottomMargin} Z
+        M ${rightPageX},${pageOffsetY} L ${rightPageX + singlePageWidth},${pageOffsetY} L ${rightPageX + singlePageWidth},${pageOffsetY + visHeight} L ${rightPageX},${pageOffsetY + visHeight} Z
+        M ${rightPageX + rightPageInnerMargin},${pageOffsetY + scaledTopMargin}
+        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${pageOffsetY + scaledTopMargin}
+        L ${rightPageX + singlePageWidth - rightPageOuterMargin},${pageOffsetY + visHeight - scaledBottomMargin}
+        L ${rightPageX + rightPageInnerMargin},${pageOffsetY + visHeight - scaledBottomMargin} Z
       `);
       rightMarginPath.setAttribute('fill', '#f1f5f9');
       rightMarginPath.setAttribute('fill-rule', 'evenodd');
@@ -170,7 +177,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     // Text box outlines
     const leftTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     leftTextBoxRect.setAttribute('x', leftPageTextX.toString());
-    leftTextBoxRect.setAttribute('y', scaledTopMargin.toString());
+    leftTextBoxRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
     leftTextBoxRect.setAttribute('width', leftPageTextWidth.toString());
     leftTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
     leftTextBoxRect.setAttribute('fill', 'none');
@@ -181,7 +188,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
     const rightTextBoxRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rightTextBoxRect.setAttribute('x', rightPageTextX.toString());
-    rightTextBoxRect.setAttribute('y', scaledTopMargin.toString());
+    rightTextBoxRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
     rightTextBoxRect.setAttribute('width', rightPageTextWidth.toString());
     rightTextBoxRect.setAttribute('height', (visHeight - scaledTopMargin - scaledBottomMargin).toString());
     rightTextBoxRect.setAttribute('fill', 'none');
@@ -222,7 +229,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
         if (layerVisibility.columns) {
           const colRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           colRect.setAttribute('x', colX.toString());
-          colRect.setAttribute('y', scaledTopMargin.toString());
+          colRect.setAttribute('y', (pageOffsetY + scaledTopMargin).toString());
           colRect.setAttribute('width', actualColumnWidth.toString());
           colRect.setAttribute('height', textBoxHeight.toString());
           colRect.setAttribute('fill', '#e0e7ff');
@@ -242,7 +249,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
           // Create text element with wrapping
           const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
           textGroup.setAttribute('x', (colX + padding).toString());
-          textGroup.setAttribute('y', (scaledTopMargin + padding).toString());
+          textGroup.setAttribute('y', (pageOffsetY + scaledTopMargin + padding).toString());
           textGroup.setAttribute('width', (actualColumnWidth - padding * 2).toString());
           textGroup.setAttribute('height', (textBoxHeight - padding * 2).toString());
           
@@ -266,9 +273,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
           const dividerX = colX + actualColumnWidth;
           const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           divider.setAttribute('x1', dividerX.toString());
-          divider.setAttribute('y1', scaledTopMargin.toString());
+          divider.setAttribute('y1', (pageOffsetY + scaledTopMargin).toString());
           divider.setAttribute('x2', dividerX.toString());
-          divider.setAttribute('y2', (scaledTopMargin + textBoxHeight).toString());
+          divider.setAttribute('y2', (pageOffsetY + scaledTopMargin + textBoxHeight).toString());
           divider.setAttribute('stroke', '#2563eb');
           divider.setAttribute('stroke-width', '2');
           divider.setAttribute('stroke-dasharray', '3,3');
@@ -281,7 +288,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
     drawColumns(rightPageTextX, rightPageTextWidth);
 
     // Add measurements for facing pages
-    const measurementOffset = 15;
+    const measurementOffset = 12;
     
     /**
      * Adds a measurement line with label
@@ -375,47 +382,47 @@ export function updateVisualization(inputs: LayoutInputs): void {
       }
     };
     
-    // Page width measurements
-    addMeasurement(0, -measurementOffset, singlePageWidth, -measurementOffset, 
+    // Page width measurements (adjusted for pageOffset)
+    addMeasurement(leftPageX, pageOffsetY - measurementOffset, leftPageX + singlePageWidth, pageOffsetY - measurementOffset, 
       convertFromMM(inputs.pageWidth, unit, typeSize), unit);
-    addMeasurement(rightPageX, -measurementOffset, rightPageX + singlePageWidth, -measurementOffset,
+    addMeasurement(rightPageX, pageOffsetY - measurementOffset, rightPageX + singlePageWidth, pageOffsetY - measurementOffset,
       convertFromMM(inputs.pageWidth, unit, typeSize), unit);
     
     // Page height measurements
-    addMeasurement(-measurementOffset, 0, -measurementOffset, visHeight,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
       convertFromMM(inputs.pageHeight, unit, typeSize), unit);
     
     // Margin measurements (left page)
-    addMeasurement(0, scaledTopMargin - measurementOffset, leftPageOuterMargin, scaledTopMargin - measurementOffset,
+    addMeasurement(leftPageX, pageOffsetY + scaledTopMargin - measurementOffset, leftPageX + leftPageOuterMargin, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.rightMargin, unit, typeSize), unit);
-    addMeasurement(singlePageWidth - leftPageInnerMargin, scaledTopMargin - measurementOffset, singlePageWidth, scaledTopMargin - measurementOffset,
+    addMeasurement(leftPageX + singlePageWidth - leftPageInnerMargin, pageOffsetY + scaledTopMargin - measurementOffset, leftPageX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.leftMargin, unit, typeSize), unit);
     
     // Margin measurements (right page)
-    addMeasurement(rightPageX, scaledTopMargin - measurementOffset, rightPageX + rightPageInnerMargin, scaledTopMargin - measurementOffset,
+    addMeasurement(rightPageX, pageOffsetY + scaledTopMargin - measurementOffset, rightPageX + rightPageInnerMargin, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.leftMargin, unit, typeSize), unit);
-    addMeasurement(rightPageX + singlePageWidth - rightPageOuterMargin, scaledTopMargin - measurementOffset, rightPageX + singlePageWidth, scaledTopMargin - measurementOffset,
+    addMeasurement(rightPageX + singlePageWidth - rightPageOuterMargin, pageOffsetY + scaledTopMargin - measurementOffset, rightPageX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.rightMargin, unit, typeSize), unit);
     
     // Top margin
-    addMeasurement(-measurementOffset, 0, -measurementOffset, scaledTopMargin,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + scaledTopMargin,
       convertFromMM(inputs.topMargin, unit, typeSize), unit);
     
     // Bottom margin
-    addMeasurement(-measurementOffset, visHeight - scaledBottomMargin, -measurementOffset, visHeight,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY + visHeight - scaledBottomMargin, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
       convertFromMM(inputs.bottomMargin, unit, typeSize), unit);
 
   } else {
     // Single page mode (existing code)
-    const textBoxX = scaledLeftMargin;
-    const textBoxY = scaledTopMargin;
+    const textBoxX = pageOffsetX + scaledLeftMargin;
+    const textBoxY = pageOffsetY + scaledTopMargin;
     const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
     const textBoxHeight = visHeight - scaledTopMargin - scaledBottomMargin;
 
     // Page background
     const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    pageRect.setAttribute('x', '0');
-    pageRect.setAttribute('y', '0');
+    pageRect.setAttribute('x', pageOffsetX.toString());
+    pageRect.setAttribute('y', pageOffsetY.toString());
     pageRect.setAttribute('width', singlePageWidth.toString());
     pageRect.setAttribute('height', visHeight.toString());
     pageRect.setAttribute('fill', '#ffffff');
@@ -427,11 +434,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
     if (layerVisibility.margins) {
       const marginPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       marginPath.setAttribute('d', `
-        M 0,0 L ${singlePageWidth},0 L ${singlePageWidth},${visHeight} L 0,${visHeight} Z
-        M ${scaledLeftMargin},${scaledTopMargin}
-        L ${singlePageWidth - scaledRightMargin},${scaledTopMargin}
-        L ${singlePageWidth - scaledRightMargin},${visHeight - scaledBottomMargin}
-        L ${scaledLeftMargin},${visHeight - scaledBottomMargin} Z
+        M ${pageOffsetX},${pageOffsetY} L ${pageOffsetX + singlePageWidth},${pageOffsetY} L ${pageOffsetX + singlePageWidth},${pageOffsetY + visHeight} L ${pageOffsetX},${pageOffsetY + visHeight} Z
+        M ${pageOffsetX + scaledLeftMargin},${pageOffsetY + scaledTopMargin}
+        L ${pageOffsetX + singlePageWidth - scaledRightMargin},${pageOffsetY + scaledTopMargin}
+        L ${pageOffsetX + singlePageWidth - scaledRightMargin},${pageOffsetY + visHeight - scaledBottomMargin}
+        L ${pageOffsetX + scaledLeftMargin},${pageOffsetY + visHeight - scaledBottomMargin} Z
       `);
       marginPath.setAttribute('fill', '#f1f5f9');
       marginPath.setAttribute('fill-rule', 'evenodd');
@@ -629,26 +636,26 @@ export function updateVisualization(inputs: LayoutInputs): void {
       }
     };
     
-    // Page width measurement
-    addMeasurement(0, -measurementOffset, singlePageWidth, -measurementOffset,
+    // Page width measurement (adjusted for pageOffset)
+    addMeasurement(pageOffsetX, pageOffsetY - measurementOffset, pageOffsetX + singlePageWidth, pageOffsetY - measurementOffset,
       convertFromMM(inputs.pageWidth, unit, typeSize), unit);
     
     // Page height measurement
-    addMeasurement(-measurementOffset, 0, -measurementOffset, visHeight,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
       convertFromMM(inputs.pageHeight, unit, typeSize), unit);
     
     // Margin measurements
-    addMeasurement(0, scaledTopMargin - measurementOffset, scaledLeftMargin, scaledTopMargin - measurementOffset,
+    addMeasurement(pageOffsetX, pageOffsetY + scaledTopMargin - measurementOffset, pageOffsetX + scaledLeftMargin, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.leftMargin, unit, typeSize), unit);
-    addMeasurement(singlePageWidth - scaledRightMargin, scaledTopMargin - measurementOffset, singlePageWidth, scaledTopMargin - measurementOffset,
+    addMeasurement(pageOffsetX + singlePageWidth - scaledRightMargin, pageOffsetY + scaledTopMargin - measurementOffset, pageOffsetX + singlePageWidth, pageOffsetY + scaledTopMargin - measurementOffset,
       convertFromMM(inputs.rightMargin, unit, typeSize), unit);
     
     // Top margin
-    addMeasurement(-measurementOffset, 0, -measurementOffset, scaledTopMargin,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY, pageOffsetX - measurementOffset, pageOffsetY + scaledTopMargin,
       convertFromMM(inputs.topMargin, unit, typeSize), unit);
     
     // Bottom margin
-    addMeasurement(-measurementOffset, visHeight - scaledBottomMargin, -measurementOffset, visHeight,
+    addMeasurement(pageOffsetX - measurementOffset, pageOffsetY + visHeight - scaledBottomMargin, pageOffsetX - measurementOffset, pageOffsetY + visHeight,
       convertFromMM(inputs.bottomMargin, unit, typeSize), unit);
     
     // Text box width
@@ -731,7 +738,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const labelText = facingPages 
     ? `Facing pages: ${inputs.pageWidth} × ${inputs.pageHeight} mm each`
     : `${inputs.pageWidth} × ${inputs.pageHeight} mm`;
-  addLabel(visWidth / 2, visHeight + 15, labelText, 'page-dimensions');
+  addLabel(svgWidth / 2, svgHeight - 5, labelText, 'page-dimensions');
 
   // Clear container and add new SVG
   container.innerHTML = '';
