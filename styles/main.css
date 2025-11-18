@@ -810,10 +810,9 @@ button {
   padding: var(--spacing-md);
   background-color: transparent;
   border-radius: var(--border-radius-sm);
-  border: 1px solid #333333;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   flex: 1 1 0;
   min-height: 300px;
   overflow: hidden;
