@@ -317,6 +317,8 @@ h2 {
   width: 100% !important;
   clear: both !important;
   flex-shrink: 0 !important;
+  grid-column: 1 / -1 !important;
+  margin-top: var(--spacing-md) !important;
 }
 
 @media (min-width: 1200px) {
@@ -335,6 +337,8 @@ h2 {
     display: grid !important;
     width: 100% !important;
     clear: both !important;
+    grid-column: 1 / -1 !important;
+    margin-top: var(--spacing-md) !important;
   }
 }
 
