@@ -499,6 +499,7 @@ function updateColumnSpanCheckboxes(): void {
       // Update text column checkboxes to match span
       updateTextColumnCheckboxes();
       updateVisualizationOnInputChange();
+      saveSettings();
     });
     
     const span = document.createElement('span');
@@ -552,6 +553,7 @@ function updateTextColumnCheckboxes(): void {
         checkbox.checked = true;
       }
       updateVisualizationOnInputChange();
+      saveSettings();
     });
     
     const span = document.createElement('span');
@@ -653,6 +655,7 @@ function applyPaperSize(paperSizeName: string): void {
   if (heightInput) heightInput.value = height.toFixed(1);
   
   updateVisualizationOnInputChange();
+  saveSettings();
 }
 
 /**
@@ -1011,7 +1014,268 @@ function exportVisualizationAsHTML(): void {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Saves all form settings to localStorage
+ */
+function saveSettings(): void {
+  try {
+    const settings: Record<string, string | boolean | number[]> = {};
+    
+    // Page dimensions
+    const pageWidth = (document.getElementById('pageWidth') as HTMLInputElement)?.value || '';
+    const pageHeight = (document.getElementById('pageHeight') as HTMLInputElement)?.value || '';
+    const paperSizeSelect = (document.getElementById('paperSizeSelect') as HTMLSelectElement)?.value || '';
+    const orientationPortrait = (document.getElementById('orientationPortrait') as HTMLInputElement)?.checked ?? true;
+    
+    settings.pageWidth = pageWidth;
+    settings.pageHeight = pageHeight;
+    settings.paperSizeSelect = paperSizeSelect;
+    settings.orientationPortrait = orientationPortrait;
+    
+    // Margins
+    const marginUnitToggle = (document.getElementById('marginUnitToggle') as HTMLInputElement)?.checked ?? false;
+    settings.marginUnitToggle = marginUnitToggle;
+    
+    const topMargin = (document.getElementById('topMargin') as HTMLInputElement)?.value || '';
+    const bottomMargin = (document.getElementById('bottomMargin') as HTMLInputElement)?.value || '';
+    const leftMargin = (document.getElementById('leftMargin') as HTMLInputElement)?.value || '';
+    const rightMargin = (document.getElementById('rightMargin') as HTMLInputElement)?.value || '';
+    const innerMarginLeft = (document.getElementById('innerMarginLeft') as HTMLInputElement)?.value || '';
+    const innerMarginRight = (document.getElementById('innerMarginRight') as HTMLInputElement)?.value || '';
+    const outerMarginLeft = (document.getElementById('outerMarginLeft') as HTMLInputElement)?.value || '';
+    const outerMarginRight = (document.getElementById('outerMarginRight') as HTMLInputElement)?.value || '';
+    
+    settings.topMargin = topMargin;
+    settings.bottomMargin = bottomMargin;
+    settings.leftMargin = leftMargin;
+    settings.rightMargin = rightMargin;
+    settings.innerMarginLeft = innerMarginLeft;
+    settings.innerMarginRight = innerMarginRight;
+    settings.outerMarginLeft = outerMarginLeft;
+    settings.outerMarginRight = outerMarginRight;
+    
+    // Facing pages
+    const facingPages = (document.getElementById('facingPages') as HTMLInputElement)?.checked ?? false;
+    settings.facingPages = facingPages;
+    
+    // Columns
+    const numCols = (document.getElementById('numCols') as HTMLInputElement)?.value || '';
+    const gutterWidth = (document.getElementById('gutterWidth') as HTMLInputElement)?.value || '';
+    settings.numCols = numCols;
+    settings.gutterWidth = gutterWidth;
+    
+    // Column span checkboxes
+    const columnSpanCheckboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+    const columnSpanValues: number[] = [];
+    columnSpanCheckboxes.forEach(cb => {
+      if (cb.checked) {
+        columnSpanValues.push(parseInt(cb.value, 10));
+      }
+    });
+    settings.columnSpan = columnSpanValues;
+    
+    // Text column checkboxes
+    const textColumnCheckboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+    const textColumnValues: number[] = [];
+    textColumnCheckboxes.forEach(cb => {
+      if (cb.checked) {
+        textColumnValues.push(parseInt(cb.value, 10));
+      }
+    });
+    settings.textColumns = textColumnValues;
+    
+    // Typography
+    const typeSize = (document.getElementById('typeSize') as HTMLInputElement)?.value || '';
+    const leading = (document.getElementById('leading') as HTMLInputElement)?.value || '';
+    const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement)?.value || '';
+    const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? true;
+    
+    settings.typeSize = typeSize;
+    settings.leading = leading;
+    settings.fontFamily = fontFamily;
+    settings.hyphenation = hyphenation;
+    
+    // Sample text
+    const sampleText = (document.getElementById('sampleText') as HTMLTextAreaElement)?.value || '';
+    settings.sampleText = sampleText;
+    
+    // Layer visibility
+    const showMargins = (document.getElementById('showMargins') as HTMLInputElement)?.checked ?? true;
+    const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
+    const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
+    
+    settings.showMargins = showMargins;
+    settings.showColumns = showColumns;
+    settings.showText = showText;
+    
+    localStorage.setItem('compositorSettings', JSON.stringify(settings));
+  } catch (e) {
+    // Silently fail if localStorage is not available
+    console.error('Failed to save settings:', e);
+  }
+}
+
+/**
+ * Loads all form settings from localStorage
+ */
+function loadSettings(): void {
+  try {
+    const savedSettings = localStorage.getItem('compositorSettings');
+    if (!savedSettings) return;
+    
+    const settings = JSON.parse(savedSettings);
+    
+    // Page dimensions
+    if (settings.pageWidth) {
+      const pageWidthInput = document.getElementById('pageWidth') as HTMLInputElement;
+      if (pageWidthInput) pageWidthInput.value = settings.pageWidth;
+    }
+    if (settings.pageHeight) {
+      const pageHeightInput = document.getElementById('pageHeight') as HTMLInputElement;
+      if (pageHeightInput) pageHeightInput.value = settings.pageHeight;
+    }
+    if (settings.paperSizeSelect !== undefined) {
+      const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
+      if (paperSizeSelect) paperSizeSelect.value = settings.paperSizeSelect;
+    }
+    if (settings.orientationPortrait !== undefined) {
+      const orientationPortrait = document.getElementById('orientationPortrait') as HTMLInputElement;
+      const orientationLandscape = document.getElementById('orientationLandscape') as HTMLInputElement;
+      if (orientationPortrait) orientationPortrait.checked = settings.orientationPortrait;
+      if (orientationLandscape) orientationLandscape.checked = !settings.orientationPortrait;
+    }
+    
+    // Margin unit
+    if (settings.marginUnitToggle !== undefined) {
+      const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+      if (marginUnitToggle) marginUnitToggle.checked = settings.marginUnitToggle;
+    }
+    
+    // Margins
+    if (settings.topMargin) {
+      const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
+      if (topMarginInput) topMarginInput.value = settings.topMargin;
+    }
+    if (settings.bottomMargin) {
+      const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
+      if (bottomMarginInput) bottomMarginInput.value = settings.bottomMargin;
+    }
+    if (settings.leftMargin) {
+      const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+      if (leftMarginInput) leftMarginInput.value = settings.leftMargin;
+    }
+    if (settings.rightMargin) {
+      const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+      if (rightMarginInput) rightMarginInput.value = settings.rightMargin;
+    }
+    if (settings.innerMarginLeft) {
+      const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+      if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
+    }
+    if (settings.innerMarginRight) {
+      const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+      if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
+    }
+    if (settings.outerMarginLeft) {
+      const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+      if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
+    }
+    if (settings.outerMarginRight) {
+      const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+      if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
+    }
+    
+    // Facing pages
+    if (settings.facingPages !== undefined) {
+      const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
+      if (facingPagesCheckbox) facingPagesCheckbox.checked = settings.facingPages;
+    }
+    
+    // Columns
+    if (settings.numCols) {
+      const numColsInput = document.getElementById('numCols') as HTMLInputElement;
+      if (numColsInput) numColsInput.value = settings.numCols;
+    }
+    if (settings.gutterWidth) {
+      const gutterWidthInput = document.getElementById('gutterWidth') as HTMLInputElement;
+      if (gutterWidthInput) gutterWidthInput.value = settings.gutterWidth;
+    }
+    
+    // Typography
+    if (settings.typeSize) {
+      const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
+      if (typeSizeInput) typeSizeInput.value = settings.typeSize;
+    }
+    if (settings.leading) {
+      const leadingInput = document.getElementById('leading') as HTMLInputElement;
+      if (leadingInput) leadingInput.value = settings.leading;
+    }
+    if (settings.fontFamily) {
+      const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
+      if (fontFamilySelect) fontFamilySelect.value = settings.fontFamily;
+    }
+    if (settings.hyphenation !== undefined) {
+      const hyphenationCheckbox = document.getElementById('hyphenation') as HTMLInputElement;
+      if (hyphenationCheckbox) hyphenationCheckbox.checked = settings.hyphenation;
+    }
+    
+    // Sample text
+    if (settings.sampleText !== undefined) {
+      const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
+      if (sampleTextInput) sampleTextInput.value = settings.sampleText;
+    }
+    
+    // Layer visibility
+    if (settings.showMargins !== undefined) {
+      const showMarginsCheckbox = document.getElementById('showMargins') as HTMLInputElement;
+      if (showMarginsCheckbox) showMarginsCheckbox.checked = settings.showMargins;
+    }
+    if (settings.showColumns !== undefined) {
+      const showColumnsCheckbox = document.getElementById('showColumns') as HTMLInputElement;
+      if (showColumnsCheckbox) showColumnsCheckbox.checked = settings.showColumns;
+    }
+    if (settings.showText !== undefined) {
+      const showTextCheckbox = document.getElementById('showText') as HTMLInputElement;
+      if (showTextCheckbox) showTextCheckbox.checked = settings.showText;
+    }
+    
+    // Update margin labels and inputs visibility after loading
+    updateMarginLabels();
+    updateMarginInputs();
+    
+    // Restore column span checkboxes (need to wait for them to be created)
+    if (settings.columnSpan && Array.isArray(settings.columnSpan)) {
+      setTimeout(() => {
+        const columnSpanCheckboxes = document.querySelectorAll('#columnSpanCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+        columnSpanCheckboxes.forEach(cb => {
+          if (settings.columnSpan.includes(parseInt(cb.value, 10))) {
+            cb.checked = true;
+          }
+        });
+      }, 100);
+    }
+    
+    // Restore text column checkboxes (need to wait for them to be created)
+    if (settings.textColumns && Array.isArray(settings.textColumns)) {
+      setTimeout(() => {
+        const textColumnCheckboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
+        textColumnCheckboxes.forEach(cb => {
+          if (settings.textColumns.includes(parseInt(cb.value, 10))) {
+            cb.checked = true;
+          }
+        });
+      }, 100);
+    }
+  } catch (e) {
+    // Silently fail if localStorage is not available or data is corrupted
+    console.error('Failed to load settings:', e);
+  }
+}
+
 export function initializeCalculator(): void {
+  // Load saved settings first
+  loadSettings();
+  
   // Initialize margin inputs visibility
   updateMarginInputs();
   
@@ -1071,6 +1335,7 @@ export function initializeCalculator(): void {
       
       updateMarginInputs();
       updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
   
@@ -1087,8 +1352,14 @@ export function initializeCalculator(): void {
   // Handle sample text input - update visualization when text changes
   const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
   if (sampleTextInput) {
-    sampleTextInput.addEventListener('input', updateVisualizationOnInputChange);
-    sampleTextInput.addEventListener('change', updateVisualizationOnInputChange);
+    sampleTextInput.addEventListener('input', () => {
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    sampleTextInput.addEventListener('change', () => {
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
   }
 
   // Handle layer visibility checkboxes
@@ -1100,10 +1371,13 @@ export function initializeCalculator(): void {
     }
   });
 
-  // Load default text on page open
+  // Load default text on page open (only if no saved text exists)
   if (sampleTextInput) {
-    sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
-    // Trigger initial visualization update with default text
+    // Check if we loaded saved text, if not use default
+    if (!sampleTextInput.value) {
+      sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+    }
+    // Trigger initial visualization update
     updateVisualizationOnInputChange();
   }
 
@@ -1113,6 +1387,7 @@ export function initializeCalculator(): void {
     loadDefaultTextButton.addEventListener('click', () => {
       sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
       updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
 
@@ -1122,6 +1397,7 @@ export function initializeCalculator(): void {
     clearTextButton.addEventListener('click', () => {
       sampleTextInput.value = '';
       updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
 
@@ -1170,8 +1446,14 @@ export function initializeCalculator(): void {
 
   // Handle leading input
   if (leadingInput) {
-    leadingInput.addEventListener('input', updateVisualizationOnInputChange);
-    leadingInput.addEventListener('change', updateVisualizationOnInputChange);
+    leadingInput.addEventListener('input', () => {
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    leadingInput.addEventListener('change', () => {
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
   }
 
   // Export as HTML button
@@ -1189,6 +1471,7 @@ export function initializeCalculator(): void {
         applyPaperSize(target.value);
       } else {
         updateVisualizationOnInputChange();
+        saveSettings();
       }
     });
   }
@@ -1203,6 +1486,7 @@ export function initializeCalculator(): void {
       } else {
         // Otherwise, swap current width and height
         updateOrientation();
+        saveSettings();
       }
     });
   });
