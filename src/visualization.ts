@@ -147,8 +147,8 @@ function drawPage(
       // Calculate font size and line height
       const typeSizeMM = inputs.typeSize * 0.3528;
       const fontSizeSVG = typeSizeMM * scaleY;
-      // Use leading if provided, otherwise default to 1.5x type size
-      const leadingPt = inputs.leading !== undefined ? inputs.leading : inputs.typeSize * 1.5;
+      // Use leading if provided, otherwise default to type size + 2
+      const leadingPt = inputs.leading !== undefined ? inputs.leading : inputs.typeSize + 2;
       const leadingMM = leadingPt * 0.3528;
       const lineHeight = leadingMM * scaleY;
       const padding = fontSizeSVG * 0.5;

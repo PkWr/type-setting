@@ -44,9 +44,9 @@ function getFormInputs(): LayoutInputs {
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
   const leadingInput = document.getElementById('leading') as HTMLInputElement;
   let leading = parseFloat(leadingInput?.value || '');
-  // Default to 1.5x type size if not set
+  // Default to type size + 2 if not set
   if (isNaN(leading) || leading <= 0) {
-    leading = typeSize * 1.5;
+    leading = typeSize + 2;
     if (leadingInput) {
       leadingInput.value = leading.toFixed(1);
     }
@@ -724,11 +724,11 @@ export function initializeCalculator(): void {
   const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
   const leadingInput = document.getElementById('leading') as HTMLInputElement;
 
-  // Initialize leading to default value (1.5x type size) if empty
+  // Initialize leading to default value (type size + 2) if empty
   if (typeSizeInput && leadingInput && (!leadingInput.value || leadingInput.value === '')) {
     const typeSize = parseFloat(typeSizeInput.value);
     if (!isNaN(typeSize)) {
-      leadingInput.value = (typeSize * 1.5).toFixed(1);
+      leadingInput.value = (typeSize + 2).toFixed(1);
     }
   }
 
@@ -736,10 +736,10 @@ export function initializeCalculator(): void {
   if (typeSizeInput) {
     typeSizeInput.addEventListener('input', () => {
       suggestGutter();
-      // Auto-update leading to 1.5x type size if leading is empty
+      // Auto-update leading to type size + 2 if leading is empty
       if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
         const newTypeSize = parseFloat(typeSizeInput.value);
-        leadingInput.value = (newTypeSize * 1.5).toFixed(1);
+        leadingInput.value = (newTypeSize + 2).toFixed(1);
       }
       updateVisualizationOnInputChange();
     });
