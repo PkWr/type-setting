@@ -76,6 +76,49 @@ export function calcLayout(): void {
   const results = calculateLayout(inputs);
   displayResults(results);
   updateVisualization(inputs);
+  updateWordsPerLine();
+}
+
+/**
+ * Calculates words per line based on column width and type size
+ * @param columnWidthMM - Column width in millimeters
+ * @param typeSize - Type size in points
+ * @returns Estimated words per line
+ */
+function calculateWordsPerLine(columnWidthMM: number, typeSize: number): number {
+  // Average character width is approximately 0.5-0.6 times the type size
+  // Converting type size from points to mm: typeSize * 0.3528
+  const typeSizeMM = typeSize * 0.3528;
+  const avgCharWidthMM = typeSizeMM * 0.55; // Average character width
+  
+  // Calculate characters per line
+  const charsPerLine = columnWidthMM / avgCharWidthMM;
+  
+  // Average word length is approximately 5 characters (including space)
+  const wordsPerLine = charsPerLine / 5;
+  
+  return Math.round(wordsPerLine);
+}
+
+/**
+ * Updates words per line indicator
+ */
+function updateWordsPerLine(): void {
+  try {
+    const inputs = getFormInputs();
+    const results = calculateLayout(inputs);
+    const wordsPerLine = calculateWordsPerLine(results.columnWidth, inputs.typeSize);
+    
+    const wordsPerLineElement = document.getElementById('wordsPerLine');
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = wordsPerLine.toString();
+    }
+  } catch (e) {
+    const wordsPerLineElement = document.getElementById('wordsPerLine');
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = '—';
+    }
+  }
 }
 
 /**
@@ -85,6 +128,7 @@ function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
     updateVisualization(inputs);
+    updateWordsPerLine();
   } catch (e) {
     // Silently fail if inputs are invalid
   }
@@ -316,7 +360,7 @@ export function initializeCalculator(): void {
     suggestGutterButton.addEventListener('click', suggestGutter);
   }
 
-  // Recalculate gutter when type size changes
+  // Recalculate gutter and words per line when type size changes
   const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
   if (typeSizeInput) {
     typeSizeInput.addEventListener('input', () => {
@@ -347,7 +391,8 @@ export function initializeCalculator(): void {
     }
   });
 
-  // Initial visualization
+  // Initial visualization and words per line
   updateVisualizationOnInputChange();
+  updateWordsPerLine();
 }
 

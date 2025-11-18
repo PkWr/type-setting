@@ -136,3 +136,16 @@ This file tracks all changes made to the type-setting project.
   - Helper text explains facing pages are for book layouts
   - Checkbox styling matches form design
 
+### [2025-01-27 - Words Per Line Indicator]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Added words per line indicator in Typography Settings section
+  - Calculates estimated words per line based on column width and type size
+  - Uses average character width (0.55 × type size) and average word length (5 characters)
+  - Updates automatically when inputs change (type size, margins, columns, etc.)
+  - Styled as info display with highlighted value
+  - Shows "—" when calculation cannot be performed
+  - Helper text explains it's an estimate based on column width and type size
+
