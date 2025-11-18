@@ -228,7 +228,7 @@ select,
 textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid #333333;
+  border: 1px solid #444444;
   border-radius: var(--border-radius-sm);
   font-size: 1rem;
   font-family: var(--font-family);
