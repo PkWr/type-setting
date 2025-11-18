@@ -285,7 +285,8 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
   // For facing pages, show two pages side by side (flush, no gap)
   const visWidth = facingPages ? singlePageWidth * 2 : singlePageWidth;
-  const visHeight = singlePageHeight;
+  const headingHeight = facingPages ? 20 : 0; // Space for headings above pages
+  const visHeight = singlePageHeight + headingHeight;
   
   // SVG dimensions
   const svgWidth = visWidth;
@@ -312,13 +313,40 @@ export function updateVisualization(inputs: LayoutInputs): void {
     
     const leftPageX = 0;
     const rightPageX = singlePageWidth;
+    const pageY = headingHeight; // Offset pages down to make room for headings
+    const headingY = headingHeight - 5; // Position headings just above pages
+    const headingFontSize = 14;
+    
+    // Add Verso heading above left page
+    const versoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    versoText.setAttribute('x', (singlePageWidth / 2).toString());
+    versoText.setAttribute('y', headingY.toString());
+    versoText.setAttribute('text-anchor', 'middle');
+    versoText.setAttribute('font-size', headingFontSize.toString());
+    versoText.setAttribute('font-family', 'IBM Plex Mono, monospace');
+    versoText.setAttribute('fill', '#ffffff');
+    versoText.setAttribute('font-weight', '400');
+    versoText.textContent = 'Verso';
+    svg.appendChild(versoText);
+    
+    // Add Recto heading above right page
+    const rectoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    rectoText.setAttribute('x', (singlePageWidth + singlePageWidth / 2).toString());
+    rectoText.setAttribute('y', headingY.toString());
+    rectoText.setAttribute('text-anchor', 'middle');
+    rectoText.setAttribute('font-size', headingFontSize.toString());
+    rectoText.setAttribute('font-family', 'IBM Plex Mono, monospace');
+    rectoText.setAttribute('fill', '#ffffff');
+    rectoText.setAttribute('font-weight', '400');
+    rectoText.textContent = 'Recto';
+    svg.appendChild(rectoText);
     
     // Verso (left page): outer margin on left, inner margin on right
     drawPage(
       svg,
       inputs,
       leftPageX,
-      0,
+      pageY,
       singlePageWidth,
       singlePageHeight,
       outerMarginLeft,  // Left margin (outer)
@@ -335,7 +363,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
       svg,
       inputs,
       rightPageX,
-      0,
+      pageY,
       singlePageWidth,
       singlePageHeight,
       innerMarginRight,  // Left margin (inner)
