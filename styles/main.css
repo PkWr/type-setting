@@ -948,6 +948,7 @@ button {
     max-height: calc(100vh - var(--spacing-lg) * 2);
     overflow-y: auto;
     padding: 0;
+    padding-right: 100px;
   }
 
   .preview-wrapper {
