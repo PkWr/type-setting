@@ -136,6 +136,10 @@ textarea {
   background-color: var(--color-bg);
 }
 
+.input-small {
+  max-width: 120px;
+}
+
 textarea {
   resize: vertical;
   min-height: 80px;
