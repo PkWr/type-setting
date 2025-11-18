@@ -323,31 +323,70 @@ export function updateVisualization(inputs: LayoutInputs): void {
   label.textContent = labelText;
   svg.appendChild(label);
 
-  // Update scale indicator
-  // Since we maintain aspect ratio, scaleX and scaleY should be the same
-  // Calculate the scale ratio (e.g., if scaleX = 0.5, that's 1/2 scale)
-  // scaleX represents pixels per mm, so if scaleX = 1.5, that's 1.5px per mm
-  // To show as a ratio, we want to show how many mm in reality = 1mm in preview
-  // So if scaleX = 1.5, then 1mm preview = 1/1.5 = 0.67mm reality, or scale is 1:1.5
-  const scaleRatio = 1 / scaleX; // Invert to show "1:N" format where N is the reduction factor
-  const scaleIndicator = document.getElementById('scaleIndicator');
-  if (scaleIndicator) {
-    // Format: if scaleX = 0.5 (50% size), show "Scale: 1:2" (1 unit preview = 2 units reality)
-    // Or if scaleX = 2 (200% size), show "Scale: 2:1" (2 units preview = 1 unit reality)
-    if (scaleX < 1) {
-      // Preview is smaller than reality
-      const ratio = Math.round((1 / scaleX) * 100) / 100;
-      scaleIndicator.textContent = `Scale: 1:${ratio.toFixed(2)}`;
-    } else if (scaleX > 1) {
-      // Preview is larger than reality
-      const ratio = Math.round(scaleX * 100) / 100;
-      scaleIndicator.textContent = `Scale: ${ratio.toFixed(2)}:1`;
-    } else {
-      scaleIndicator.textContent = 'Scale: 1:1';
-    }
-  }
-
   // Clear container and add new SVG
   container.innerHTML = '';
   container.appendChild(svg);
+
+  // Update scale indicator after SVG is rendered
+  // Use a small delay to ensure SVG is rendered and we can get its actual size
+  requestAnimationFrame(() => {
+    updateScaleIndicator(container, svg, inputs, facingPages);
+  });
+}
+
+/**
+ * Updates the scale indicator based on actual rendered SVG size
+ */
+function updateScaleIndicator(
+  container: HTMLElement,
+  svg: SVGSVGElement,
+  inputs: LayoutInputs,
+  facingPages: boolean
+): void {
+  const scaleIndicator = document.getElementById('scaleIndicator');
+  if (!scaleIndicator || !container) return;
+
+  // Get actual rendered size of the SVG
+  // The SVG uses preserveAspectRatio="xMidYMid meet", so it scales to fit
+  const containerRect = container.getBoundingClientRect();
+  const svgRect = svg.getBoundingClientRect();
+  
+  // Calculate actual rendered dimensions (accounting for padding)
+  const actualWidth = svgRect.width;
+  const actualHeight = svgRect.height;
+  
+  // Calculate what the page dimensions would be at this rendered size
+  const pageAspectRatio = inputs.pageHeight / inputs.pageWidth;
+  const totalPageWidth = facingPages ? inputs.pageWidth * 2 : inputs.pageWidth;
+  
+  // Determine which dimension is constraining (width or height)
+  let renderedPageWidth: number;
+  let renderedPageHeight: number;
+  
+  if (actualWidth / actualHeight > totalPageWidth / inputs.pageHeight) {
+    // Height is constraining
+    renderedPageHeight = actualHeight;
+    renderedPageWidth = actualHeight * (totalPageWidth / inputs.pageHeight);
+  } else {
+    // Width is constraining
+    renderedPageWidth = actualWidth;
+    renderedPageHeight = actualWidth * (inputs.pageHeight / totalPageWidth);
+  }
+  
+  // Calculate scale based on actual rendered size
+  const singlePageWidth = facingPages ? renderedPageWidth / 2 : renderedPageWidth;
+  const actualScaleX = singlePageWidth / inputs.pageWidth;
+  
+  // Update scale indicator
+  if (actualScaleX < 1) {
+    // Preview is smaller than reality
+    const ratio = Math.round((1 / actualScaleX) * 100) / 100;
+    scaleIndicator.textContent = `Scale: 1:${ratio.toFixed(2)}`;
+  } else if (actualScaleX > 1) {
+    // Preview is larger than reality
+    const ratio = Math.round(actualScaleX * 100) / 100;
+    scaleIndicator.textContent = `Scale: ${ratio.toFixed(2)}:1`;
+  } else {
+    scaleIndicator.textContent = 'Scale: 1:1';
+  }
 }

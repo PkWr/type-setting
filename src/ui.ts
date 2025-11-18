@@ -778,5 +778,32 @@ export function initializeCalculator(): void {
   // Initial visualization and words per line
   updateVisualizationOnInputChange();
   updateWordsPerLine();
+
+  // Add resize observer to update scale indicator when window/container resizes
+  const visualizationContainer = document.getElementById('visualizationContainer');
+  let resizeTimeout: number | undefined;
+  
+  if (visualizationContainer && window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(() => {
+      // Debounce resize updates
+      if (resizeTimeout !== undefined) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = window.setTimeout(() => {
+        updateVisualizationOnInputChange();
+      }, 100);
+    });
+    resizeObserver.observe(visualizationContainer);
+  } else {
+    // Fallback to window resize listener if ResizeObserver not available
+    window.addEventListener('resize', () => {
+      if (resizeTimeout !== undefined) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = window.setTimeout(() => {
+        updateVisualizationOnInputChange();
+      }, 100);
+    });
+  }
 }
 
