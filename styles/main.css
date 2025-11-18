@@ -632,12 +632,12 @@ button {
 
 .page-visualization .page-dimensions {
   font-weight: 600;
-  fill: var(--color-text);
+  fill: #ffffff;
 }
 
 .page-visualization .margin-label {
   font-size: 9px;
-  fill: var(--color-text-light);
+  fill: #999999;
 }
 
 .specification-section {
