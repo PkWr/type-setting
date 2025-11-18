@@ -649,22 +649,21 @@ function updateMarginLabels(): void {
   const marginUnit: Unit = (marginUnitSelect?.value as Unit) || 'mm';
   const unitLabel = marginUnit === 'em' ? 'em' : 'mm';
   
-  const labels = [
-    'topMarginLabel',
-    'bottomMarginLabel',
-    'leftMarginLabel',
-    'rightMarginLabel',
-    'innerMarginLeftLabel',
-    'innerMarginRightLabel',
-    'outerMarginLeftLabel',
-    'outerMarginRightLabel'
-  ];
+  const labelMap: Record<string, string> = {
+    'topMarginLabel': 'Top',
+    'bottomMarginLabel': 'Bottom',
+    'leftMarginLabel': 'Left',
+    'rightMarginLabel': 'Right',
+    'innerMarginLeftLabel': 'Inner left',
+    'innerMarginRightLabel': 'Inner right',
+    'outerMarginLeftLabel': 'Outer left',
+    'outerMarginRightLabel': 'Outer right'
+  };
   
-  labels.forEach(labelId => {
+  Object.keys(labelMap).forEach(labelId => {
     const label = document.getElementById(labelId);
     if (label) {
-      const baseText = label.textContent?.replace(/\(mm\)|\(em\)/g, '').trim() || '';
-      label.textContent = `${baseText} (${unitLabel})`;
+      label.textContent = `${labelMap[labelId]} (${unitLabel})`;
     }
   });
 }
