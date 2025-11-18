@@ -307,6 +307,12 @@ h2 {
   flex-shrink: 0;
 }
 
+/* Ensure equal column sizing for rows with 2 items */
+.form-row > .form-group:first-child:nth-last-child(2),
+.form-row > .form-group:last-child:nth-first-child(2) {
+  grid-column: span 1;
+}
+
 
 
 /* Force single column for facing pages row - must override auto-fit */
@@ -361,10 +367,12 @@ textarea {
   color: #ffffff;
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: #000000;
+  box-sizing: border-box;
 }
 
 .input-small {
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 textarea {
