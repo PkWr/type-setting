@@ -63,7 +63,7 @@ function drawPage(
   pageRect.setAttribute('width', pageWidth.toString());
   pageRect.setAttribute('height', pageHeight.toString());
   pageRect.setAttribute('fill', '#ffffff');
-  pageRect.setAttribute('stroke', '#000000');
+  pageRect.setAttribute('stroke', '#333333');
   pageRect.setAttribute('stroke-width', '0.5');
   svg.appendChild(pageRect);
 
@@ -124,7 +124,7 @@ function drawPage(
       marginRect.setAttribute('width', (pageWidth - scaledLeftMargin - scaledRightMargin).toString());
       marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
       marginRect.setAttribute('fill', 'none');
-      marginRect.setAttribute('stroke', '#000000');
+      marginRect.setAttribute('stroke', '#333333');
       marginRect.setAttribute('stroke-width', '0.5');
       svg.appendChild(marginRect);
     }
@@ -154,7 +154,7 @@ function drawPage(
         colRect.setAttribute('stroke', 'none');
       } else {
         colRect.setAttribute('fill', 'none');
-        colRect.setAttribute('stroke', '#000000');
+        colRect.setAttribute('stroke', '#333333');
         colRect.setAttribute('stroke-width', '0.5');
       }
       svg.appendChild(colRect);
