@@ -223,6 +223,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
       // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
       const spanTextBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
       
+      // Debug logging
+      console.log('Facing pages - Text box calculation:', {
+        columnSpanStart,
+        columnSpanEnd,
+        spanCols,
+        spanGutters,
+        spanStartIndex,
+        pageTextX,
+        actualColumnWidth,
+        scaledGutterWidth,
+        spanTextBoxX,
+        spanTextBoxWidth,
+        expectedWidth: `(${actualColumnWidth} * ${spanCols}) + (${scaledGutterWidth} * ${spanGutters}) = ${spanTextBoxWidth}`
+      });
+      
       // Validate values to prevent NaN
       if (isNaN(spanTextBoxX) || isNaN(spanTextBoxWidth) || isNaN(actualColumnWidth) || isNaN(scaledGutterWidth) || actualColumnWidth <= 0) {
         console.error('Invalid values in facing pages text box calculation:', { spanTextBoxX, spanTextBoxWidth, actualColumnWidth, scaledGutterWidth, columnSpanStart, columnSpanEnd, spanCols, spanGutters, inputs });
@@ -278,6 +293,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
           textGroup.setAttribute('width', spanTextBoxWidth.toString()); // Full text box width
           textGroup.setAttribute('height', textBoxHeight.toString());
           
+          // Debug logging for text rendering
+          console.log('Facing pages - Text rendering:', {
+            columnsToShowText,
+            spanTextBoxX,
+            spanTextBoxWidth,
+            textGroupWidth: spanTextBoxWidth,
+            actualColumnWidth,
+            scaledGutterWidth,
+            padding
+          });
+          
           // Create clipping path to only show text in selected columns
           const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
           const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
@@ -287,15 +313,24 @@ export function updateVisualization(inputs: LayoutInputs): void {
           // Clipping coordinates are relative to the textGroup (which starts at spanTextBoxX)
           columnsToShowText.forEach(colIndex => {
             const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
+            const clipX = colOffset * (actualColumnWidth + scaledGutterWidth);
             const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
             // Column 1 (offset 0): x=0
             // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
-            clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
+            clipRect.setAttribute('x', clipX.toString());
             clipRect.setAttribute('y', padding.toString()); // Account for padding
             clipRect.setAttribute('width', actualColumnWidth.toString());
             clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
             clipPath.appendChild(clipRect);
+            
+            console.log(`Facing pages - Clip rect for column ${colIndex}:`, {
+              colIndex,
+              colOffset,
+              clipX,
+              width: actualColumnWidth,
+              height: textBoxHeight - padding * 2
+            });
           });
           
           svg.appendChild(clipPath);
@@ -413,6 +448,21 @@ export function updateVisualization(inputs: LayoutInputs): void {
     // For 2 columns: spanCols=2, spanGutters=1, so width = (colWidth * 2) + (gutterWidth * 1)
     const textBoxWidth = (actualColumnWidth * spanCols) + (scaledGutterWidth * spanGutters);
     
+    // Debug logging
+    console.log('Single page - Text box calculation:', {
+      columnSpanStart,
+      columnSpanEnd,
+      spanCols,
+      spanGutters,
+      spanStartIndex,
+      fullTextBoxX,
+      actualColumnWidth,
+      scaledGutterWidth,
+      textBoxX,
+      textBoxWidth,
+      expectedWidth: `(${actualColumnWidth} * ${spanCols}) + (${scaledGutterWidth} * ${spanGutters}) = ${textBoxWidth}`
+    });
+    
     // Validate values to prevent NaN
     if (isNaN(textBoxX) || isNaN(textBoxWidth) || isNaN(actualColumnWidth) || isNaN(scaledGutterWidth) || actualColumnWidth <= 0) {
       console.error('Invalid values in text box calculation:', { textBoxX, textBoxWidth, actualColumnWidth, scaledGutterWidth, columnSpanStart, columnSpanEnd, spanCols, spanGutters, inputs });
@@ -469,6 +519,17 @@ export function updateVisualization(inputs: LayoutInputs): void {
         textGroup.setAttribute('width', textBoxWidth.toString()); // Full text box width
         textGroup.setAttribute('height', textBoxHeight.toString());
         
+        // Debug logging for text rendering
+        console.log('Single page - Text rendering:', {
+          columnsToShowText,
+          textBoxX,
+          textBoxWidth,
+          textGroupWidth: textBoxWidth,
+          actualColumnWidth,
+          scaledGutterWidth,
+          padding
+        });
+        
         // Create clipping path to only show text in selected columns
         const clipId = `textClip-${Math.random().toString(36).substr(2, 9)}`;
         const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
@@ -478,15 +539,25 @@ export function updateVisualization(inputs: LayoutInputs): void {
         // Clipping coordinates are relative to the textGroup (which starts at textBoxX)
         columnsToShowText.forEach(colIndex => {
           const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
+          const clipX = colOffset * (actualColumnWidth + scaledGutterWidth);
           const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           // Position relative to textGroup: colOffset * (columnWidth + gutterWidth)
           // Column 1 (offset 0): x=0
           // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
-          clipRect.setAttribute('x', (colOffset * (actualColumnWidth + scaledGutterWidth)).toString());
+          clipRect.setAttribute('x', clipX.toString());
           clipRect.setAttribute('y', padding.toString()); // Account for padding
           clipRect.setAttribute('width', actualColumnWidth.toString());
           clipRect.setAttribute('height', (textBoxHeight - padding * 2).toString());
           clipPath.appendChild(clipRect);
+          
+          console.log(`Single page - Clip rect for column ${colIndex}:`, {
+            colIndex,
+            colOffset,
+            clipX,
+            width: actualColumnWidth,
+            height: textBoxHeight - padding * 2,
+            expectedX: colOffset === 0 ? 0 : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`
+          });
         });
         
         svg.appendChild(clipPath);
