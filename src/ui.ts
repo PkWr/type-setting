@@ -157,7 +157,7 @@ function calculateWordsPerLine(columnWidthMM: number, typeSize: number): number 
 }
 
 /**
- * Updates words per line indicator
+ * Updates words per line indicator with Bringhurst's guidance
  */
 function updateWordsPerLine(): void {
   try {
@@ -167,9 +167,31 @@ function updateWordsPerLine(): void {
     // This gives accurate words per line for the actual text box width
     const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
     
+    // Bringhurst's ideal line length: ~66 characters per line
+    // Average word length is ~5 characters (including space), so ideal is ~13 words
+    const BRINGHURST_IDEAL_WORDS = 13;
+    const BRINGHURST_MIN_WORDS = 9; // ~45 characters (acceptable minimum)
+    const BRINGHURST_MAX_WORDS = 17; // ~85 characters (acceptable maximum)
+    
     const wordsPerLineElement = document.getElementById('wordsPerLine');
+    const wordsPerLineContainer = wordsPerLineElement?.closest('.form-group');
+    const helperTextElement = wordsPerLineContainer?.querySelector('.helper-text') as HTMLElement;
+    
     if (wordsPerLineElement) {
       wordsPerLineElement.textContent = wordsPerLine.toString();
+    }
+    
+    // Update helper text with Bringhurst's guidance
+    if (helperTextElement) {
+      let guidance = '';
+      if (wordsPerLine >= BRINGHURST_MIN_WORDS && wordsPerLine <= BRINGHURST_MAX_WORDS) {
+        guidance = `Ideal range: ${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words (Bringhurst: ~66 characters)`;
+      } else if (wordsPerLine < BRINGHURST_MIN_WORDS) {
+        guidance = `Below ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
+      } else {
+        guidance = `Above ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
+      }
+      helperTextElement.textContent = guidance;
     }
   } catch (e) {
     const wordsPerLineElement = document.getElementById('wordsPerLine');
