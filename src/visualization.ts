@@ -139,8 +139,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
   }
 
   // STAGE 2: Add column rectangles (keylines only, no fills)
-  // Always show columns if numCols > 0 (ignore checkbox for now to debug)
-  if (inputs.numCols > 0) {
+  if (layerVisibility.columns && inputs.numCols > 0) {
     const textBoxX = pageOffsetX + scaledLeftMargin;
     const textBoxY = pageOffsetY + scaledTopMargin;
     const textBoxWidth = singlePageWidth - scaledLeftMargin - scaledRightMargin;
@@ -151,16 +150,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
     const totalGutters = (inputs.numCols - 1) * scaledGutterWidth;
     const availableWidth = textBoxWidth - totalGutters;
     const columnWidth = availableWidth / inputs.numCols;
-    
-    console.log('Column rendering:', {
-      numCols: inputs.numCols,
-      textBoxX,
-      textBoxY,
-      textBoxWidth,
-      columnWidth,
-      scaledGutterWidth,
-      layerVisibilityColumns: layerVisibility.columns
-    });
     
     // Draw each column as a rectangle with keyline only
     for (let i = 0; i < inputs.numCols; i++) {
@@ -174,8 +163,6 @@ export function updateVisualization(inputs: LayoutInputs): void {
       colRect.setAttribute('stroke', '#000000');
       colRect.setAttribute('stroke-width', '1');
       svg.appendChild(colRect);
-      
-      console.log(`Column ${i}:`, { colX, columnWidth, height: textBoxHeight });
     }
   }
 
