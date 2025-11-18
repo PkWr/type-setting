@@ -348,9 +348,43 @@ export function updateVisualization(inputs: LayoutInputs): void {
   container.innerHTML = '';
   container.appendChild(svg);
 
-  // Update scale indicator after SVG is rendered
-  // Use a small delay to ensure SVG is rendered and we can get its actual size
+  // Calculate proper sizing based on container and SVG aspect ratios
   requestAnimationFrame(() => {
+    const containerRect = container.getBoundingClientRect();
+    const containerWidth = containerRect.width - (parseFloat(getComputedStyle(container).paddingLeft) || 0) - (parseFloat(getComputedStyle(container).paddingRight) || 0);
+    const containerHeight = containerRect.height - (parseFloat(getComputedStyle(container).paddingTop) || 0) - (parseFloat(getComputedStyle(container).paddingBottom) || 0);
+    
+    const svgAspectRatio = svgWidth / svgHeight;
+    const containerAspectRatio = containerWidth / containerHeight;
+    
+    // Determine which edge of SVG is longer
+    const isLandscape = svgAspectRatio > 1;
+    
+    if (isLandscape) {
+      // Width is longer - fit by width
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    } else {
+      // Height is longer - fit by height
+      // Calculate scale based on container height
+      const scale = containerHeight / svgHeight;
+      const scaledWidth = svgWidth * scale;
+      
+      // Set explicit dimensions to ensure height fits
+      svg.setAttribute('width', `${scaledWidth}px`);
+      svg.setAttribute('height', `${containerHeight}px`);
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      
+      // Ensure it doesn't exceed container width
+      if (scaledWidth > containerWidth) {
+        // If scaled width exceeds container, fit by width instead
+        const widthScale = containerWidth / svgWidth;
+        svg.setAttribute('width', `${containerWidth}px`);
+        svg.setAttribute('height', `${svgHeight * widthScale}px`);
+      }
+    }
+    
     updateScaleIndicator(container, svg, inputs, facingPages);
   });
 }
