@@ -95,3 +95,15 @@ This file tracks all changes made to the type-setting project.
   - Color-coded elements: white page, gray margins, blue columns with gutters
   - Visualization section added between form and results
 
+### [2025-01-27 - Fix MIME Type Error and Netlify Configuration]
+- **Timestamp**: 2025-01-27 (approximate)
+- **Agent**: Composer
+- **Status**: SUCCESS
+- **Description**:
+  - Fixed Netlify redirects configuration to exclude static assets (dist/, styles/)
+  - Updated _redirects file to allow static files to be served correctly
+  - Added local development server script (npm run serve)
+  - Fixed issue where JavaScript modules were being redirected to HTML
+  - Updated README with instructions for running local server
+  - ES modules now work correctly in both local development and Netlify deployment
+

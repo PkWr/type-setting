@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "serve": "python3 -m http.server 8000 || python -m SimpleHTTPServer 8000 || npx serve ."
   },
   "keywords": [
     "typography",

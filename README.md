@@ -34,7 +34,14 @@ npm install
 npm run build
 ```
 
-4. Open `index.html` in a web browser
+4. Start a local web server (required for ES modules):
+```bash
+npm run serve
+```
+
+Then open http://localhost:8000 in your web browser.
+
+**Note:** ES modules require a web server and won't work when opening `index.html` directly (file:// protocol).
 
 ### Development
 
