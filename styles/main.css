@@ -795,7 +795,7 @@ button {
 
   .visualization-section {
     flex: 0 0 auto;
-    margin-top: var(--spacing-lg);
+    margin-top: 0;
     padding-top: var(--spacing-lg);
     border-top: none;
     display: flex;
