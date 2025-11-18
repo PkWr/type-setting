@@ -188,16 +188,30 @@ function getFormInputs(): LayoutInputs {
  */
 export function suggestGutter(): void {
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  const marginUnit: Unit = (marginUnitToggle?.checked ? 'em' : 'mm');
   
   const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
   const noteSpan = document.getElementById('autoGutterNote');
 
-  // Gutter is always 1em (always displayed in ems)
-  gutterInput.value = '1.000';
+  // Set gutter based on selected unit
+  if (marginUnit === 'em') {
+    gutterInput.value = '1.000';
+  } else {
+    // Convert 1em to mm
+    const gutterMM = convertToMM(1.0, 'em', typeSize);
+    gutterInput.value = gutterMM.toFixed(3);
+  }
+  
   if (noteSpan) {
     // Show actual value: 1em = typeSize pt = typeSize * 0.3528 mm
     const gutterMM = typeSize * 0.3528;
-    noteSpan.textContent = `1em = ${typeSize}pt (${gutterMM.toFixed(2)}mm)`;
+    if (marginUnit === 'em') {
+      noteSpan.textContent = `1em = ${typeSize}pt (${gutterMM.toFixed(2)}mm)`;
+    } else {
+      const gutterEm = convertFromMM(gutterMM, 'em', typeSize);
+      noteSpan.textContent = `${gutterMM.toFixed(2)}mm = ${gutterEm.toFixed(2)}em (${typeSize}pt)`;
+    }
   }
 }
 
@@ -773,27 +787,35 @@ function convertMarginValues(fromUnit: Unit, toUnit: Unit): void {
   
   // Convert gutter width
   const gutterInput = document.getElementById('gutterWidth') as HTMLInputElement;
-  if (gutterInput && gutterInput.value) {
-    const currentGutter = parseFloat(gutterInput.value);
-    if (!isNaN(currentGutter)) {
-      // Convert to mm first, then to target unit
-      let gutterInMM: number;
+  if (gutterInput) {
+    let currentGutter = parseFloat(gutterInput.value);
+    
+    // If gutter is empty or invalid, use default (1em or equivalent)
+    if (isNaN(currentGutter) || currentGutter <= 0) {
       if (fromUnit === 'em') {
-        gutterInMM = convertToMM(currentGutter, 'em', typeSize);
+        currentGutter = 1.0; // Default to 1em
       } else {
-        gutterInMM = currentGutter; // Already in mm
+        currentGutter = convertToMM(1.0, 'em', typeSize); // Default to 1em equivalent in mm
       }
-      
-      // Convert from mm to target unit
-      let newGutter: number;
-      if (toUnit === 'em') {
-        newGutter = convertFromMM(gutterInMM, 'em', typeSize);
-      } else {
-        newGutter = gutterInMM; // Already in mm
-      }
-      
-      gutterInput.value = newGutter.toFixed(3);
     }
+    
+    // Convert to mm first, then to target unit
+    let gutterInMM: number;
+    if (fromUnit === 'em') {
+      gutterInMM = convertToMM(currentGutter, 'em', typeSize);
+    } else {
+      gutterInMM = currentGutter; // Already in mm
+    }
+    
+    // Convert from mm to target unit
+    let newGutter: number;
+    if (toUnit === 'em') {
+      newGutter = convertFromMM(gutterInMM, 'em', typeSize);
+    } else {
+      newGutter = gutterInMM; // Already in mm
+    }
+    
+    gutterInput.value = newGutter.toFixed(3);
   }
 }
 
@@ -973,6 +995,8 @@ export function initializeCalculator(): void {
       convertMarginValues(previousUnit, newUnit);
       updateMarginLabels();
       previousUnit = newUnit;
+      // Update gutter helper text after unit change
+      updateColumnWidthDisplay();
       updateVisualizationOnInputChange();
     });
   }
