@@ -3,7 +3,7 @@
  * Handles calculations for typographic layouts based on Bringhurst principles
  */
 
-import { LayoutInputs, LayoutResults } from './types';
+import { LayoutInputs, LayoutResults } from './types.js';
 
 const PT_TO_MM = 0.3528; // 1 point = 0.3528 mm
 const BRINGHURST_COLUMN_MULTIPLIER = 33; // Multiplier for optimal column width calculation

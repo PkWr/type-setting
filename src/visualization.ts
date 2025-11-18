@@ -3,8 +3,8 @@
  * Creates SVG-based visual representation of page layout
  */
 
-import { LayoutInputs } from './types';
-import { calculateLayout } from './calculator';
+import { LayoutInputs } from './types.js';
+import { calculateLayout } from './calculator.js';
 
 const VISUALIZATION_SIZE = 400; // Maximum size for the visualization in pixels
 const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility

@@ -3,10 +3,10 @@
  * Handles DOM manipulation and user interactions
  */
 
-import { calculateGutterWidth, calculateLayout } from './calculator';
-import { LayoutInputs, LayoutResults } from './types';
-import { PAPER_SIZES, getPaperSize, getDefaultPaperSize, PaperSize } from './paperSizes';
-import { updateVisualization } from './visualization';
+import { calculateGutterWidth, calculateLayout } from './calculator.js';
+import { LayoutInputs, LayoutResults } from './types.js';
+import { PAPER_SIZES, getPaperSize, getDefaultPaperSize, PaperSize } from './paperSizes.js';
+import { updateVisualization } from './visualization.js';
 
 /**
  * Gets all input values from the form
