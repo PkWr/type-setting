@@ -599,19 +599,20 @@ export function updateVisualization(inputs: LayoutInputs): void {
         clipPath.setAttribute('id', clipId);
         
         // Add rectangles for each column that should show text
-        // Clipping coordinates are relative to the textGroup (which starts at textBoxX)
-        // The textGroup spans the full text box width, and clipping should align with column positions
+        // Clipping coordinates are relative to the textGroup (which starts at constrainedTextBoxX)
+        // Need to account for the offset between textBoxX and constrainedTextBoxX
+        const textGroupOffset = constrainedTextBoxX - textBoxX;
         columnsToShowText.forEach(colIndex => {
           const colOffset = colIndex - columnSpanStart; // Offset within span (0-indexed)
           // Calculate clipX relative to textGroup origin (0,0)
-          // Column positions: colOffset * (columnWidth + gutterWidth)
-          const clipX = colOffset * (actualColumnWidth + scaledGutterWidth);
+          // Column positions: colOffset * (columnWidth + gutterWidth) - textGroupOffset
+          const clipX = (colOffset * (actualColumnWidth + scaledGutterWidth)) - textGroupOffset;
           const clipRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           // Position relative to textGroup origin
           // Column 1 (offset 0): x=0
           // Column 2 (offset 1): x=actualColumnWidth + scaledGutterWidth
           // Note: textDiv padding is internal, clipping is applied to textGroup
-          clipRect.setAttribute('x', clipX.toString());
+          clipRect.setAttribute('x', Math.max(0, clipX).toString()); // Don't allow negative x
           clipRect.setAttribute('y', '0'); // Start from top of textGroup
           clipRect.setAttribute('width', actualColumnWidth.toString());
           clipRect.setAttribute('height', textBoxHeight.toString()); // Full height of textGroup
@@ -625,11 +626,12 @@ export function updateVisualization(inputs: LayoutInputs): void {
             clipEndX,
             width: actualColumnWidth,
             height: textBoxHeight,
-            expectedX: colOffset === 0 ? '0' : `${actualColumnWidth} + ${scaledGutterWidth} = ${clipX}`,
+            textGroupOffset,
+            expectedX: colOffset === 0 ? `0 - ${textGroupOffset} = ${clipX}` : `${actualColumnWidth} + ${scaledGutterWidth} - ${textGroupOffset} = ${clipX}`,
             nextColumnStart: colOffset === 0 ? actualColumnWidth : null,
             gap: colOffset === 0 ? scaledGutterWidth : null,
-            textGroupX: textBoxX,
-            textGroupWidth: textBoxWidth
+            textGroupX: constrainedTextBoxX,
+            textGroupWidth: constrainedTextBoxWidth
           });
         });
         
