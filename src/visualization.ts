@@ -244,8 +244,9 @@ export function updateVisualization(inputs: LayoutInputs): void {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
   svg.classList.add('page-visualization');
-  // Let CSS handle sizing - don't set width/height to 100% as it can cause cropping
 
   if (facingPages) {
     // Draw two pages side by side (flush, no gap)
