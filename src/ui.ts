@@ -300,13 +300,13 @@ function updateSpecification(): void {
     // Columns
     html += '<div class="spec-group"><h4>Columns</h4>';
     html += `<div class="spec-item"><span class="spec-label">Number:</span><span class="spec-value">${inputs.numCols}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterEm.toFixed(3)} em (${results.gutterWidth.toFixed(2)} mm)</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Column width:</span><span class="spec-value">${results.columnWidth.toFixed(2)} mm</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterEm.toFixed(1)} em (${results.gutterWidth.toFixed(1)} mm)</span></div>`;
+    html += `<div class="spec-item"><span class="spec-label">Column width:</span><span class="spec-value">${results.columnWidth.toFixed(1)} mm</span></div>`;
     if (columnSpan) {
       html += `<div class="spec-item"><span class="spec-label">Text box spans:</span><span class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(2)} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(1)} mm</span></div>`;
     } else {
-      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(2)} mm</span></div>`;
+      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(1)} mm</span></div>`;
     }
     if (textColumns && textColumns.length > 0) {
       html += `<div class="spec-item"><span class="spec-label">Text appears in:</span><span class="spec-value">Columns ${textColumns.join(', ')}</span></div>`;
