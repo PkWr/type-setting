@@ -825,8 +825,8 @@ button {
   filter: grayscale(100%);
   pointer-events: none;
   z-index: 1;
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 500px;
+  max-height: 500px;
   object-fit: contain;
   transition: opacity 0.3s ease-out;
 }
