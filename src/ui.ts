@@ -1618,8 +1618,13 @@ export function initializeCalculator(): void {
   }
 
   // Initial visualization and words per line
-  updateVisualizationOnInputChange();
-  updateWordsPerLine();
+  // Note: loadSettings() already triggers visualization updates after loading settings
+  // Only update if no settings were loaded (first visit)
+  const hasSavedSettings = localStorage.getItem('compositorSettings');
+  if (!hasSavedSettings) {
+    updateVisualizationOnInputChange();
+    updateWordsPerLine();
+  }
 
   // Add resize observer to update scale indicator when window/container resizes
   const visualizationContainer = document.getElementById('visualizationContainer');
