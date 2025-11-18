@@ -954,8 +954,26 @@ button {
   font-size: 0.95rem;
 }
 
-.modal-em-description {
+.modal-section {
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.modal-section-title {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+.modal-section-text {
   margin: 0;
+  color: #cccccc;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.modal-em-description {
+  margin: var(--spacing-lg) 0 0 0;
   color: #999999;
   font-size: 0.85rem;
 }
