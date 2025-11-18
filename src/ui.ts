@@ -88,7 +88,25 @@ function displayResults(results: LayoutResults): void {
  */
 function populatePaperSizeDropdown(): void {
   const select = document.getElementById('paperSizeSelect') as HTMLSelectElement;
-  if (!select) return;
+  if (!select) {
+    console.error('Paper size select element not found');
+    return;
+  }
+
+  // Clear all existing options
+  select.innerHTML = '';
+  
+  // Add Custom option first
+  const customOpt = document.createElement('option');
+  customOpt.value = '';
+  customOpt.textContent = 'Custom';
+  select.appendChild(customOpt);
+
+  // Check if PAPER_SIZES is available
+  if (!PAPER_SIZES || PAPER_SIZES.length === 0) {
+    console.error('PAPER_SIZES array is empty or not available');
+    return;
+  }
 
   // Group paper sizes by category
   const categories = new Map<string, PaperSize[]>();
@@ -114,8 +132,10 @@ function populatePaperSizeDropdown(): void {
 
   // Set default to A4
   const defaultSize = getDefaultPaperSize();
-  select.value = defaultSize.name;
-  applyPaperSize(defaultSize.name);
+  if (defaultSize) {
+    select.value = defaultSize.name;
+    applyPaperSize(defaultSize.name);
+  }
 }
 
 /**
