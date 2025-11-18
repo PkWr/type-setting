@@ -195,6 +195,14 @@ h2 {
   color: #ffffff;
 }
 
+.visualization-section h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--font-family);
+  color: #ffffff;
+}
+
 .form-section {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
