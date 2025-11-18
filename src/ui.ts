@@ -1278,15 +1278,23 @@ function loadSettings(): void {
         // Trigger visualization update after restoring checkboxes
         updateVisualizationOnInputChange();
       }, 150);
-    } else {
-      // If no saved checkboxes, trigger update anyway
-      setTimeout(() => {
-        updateVisualizationOnInputChange();
-      }, 150);
     }
+    
+    // Trigger visualization update after all settings are loaded
+    setTimeout(() => {
+      updateVisualizationOnInputChange();
+      updateWordsPerLine();
+      updateColumnWidthDisplay();
+    }, 200);
   } catch (e) {
     // Silently fail if localStorage is not available or data is corrupted
     console.error('Failed to load settings:', e);
+    // Still trigger visualization with defaults
+    setTimeout(() => {
+      updateVisualizationOnInputChange();
+      updateWordsPerLine();
+      updateColumnWidthDisplay();
+    }, 200);
   }
 }
 
@@ -1468,13 +1476,9 @@ export function initializeCalculator(): void {
   });
 
   // Load default text on page open (only if no saved text exists)
-  if (sampleTextInput) {
-    // Check if we loaded saved text, if not use default
-    if (!sampleTextInput.value) {
-      sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
-    }
-    // Trigger initial visualization update
-    updateVisualizationOnInputChange();
+  // Note: loadSettings() handles loading saved text, so we only set default if nothing was loaded
+  if (sampleTextInput && !sampleTextInput.value) {
+    sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
   }
 
   // Handle load default text button
