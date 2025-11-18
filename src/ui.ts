@@ -8,6 +8,7 @@ import { LayoutInputs, LayoutResults } from './types.js';
 import { PAPER_SIZES, getPaperSize, getDefaultPaperSize, PaperSize } from './paperSizes.js';
 import { updateVisualization } from './visualization.js';
 import { Unit, UNITS, convertFromMM, convertToMM, formatValue } from './units.js';
+import { DEFAULT_SAMPLE_TEXT } from './defaultText.js';
 
 // Current unit preference (stored in mm internally, displayed in selected unit)
 let currentUnit: Unit = 'mm';
@@ -407,6 +408,15 @@ export function initializeCalculator(): void {
   if (sampleTextInput) {
     sampleTextInput.addEventListener('input', updateSampleTextPreview);
     sampleTextInput.addEventListener('change', updateSampleTextPreview);
+  }
+
+  // Handle load default text button
+  const loadDefaultTextButton = document.getElementById('loadDefaultTextButton');
+  if (loadDefaultTextButton && sampleTextInput) {
+    loadDefaultTextButton.addEventListener('click', () => {
+      sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+      updateSampleTextPreview();
+    });
   }
 
   // Populate paper size dropdown
