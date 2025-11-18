@@ -10,6 +10,7 @@ export interface LayoutInputs {
   topMargin: number;
   bottomMargin: number;
   typeSize: number;
+  leading?: number; // Line height (leading) in points
   fontFamily?: string; // Font family name
   numCols: number;
   gutterWidth: number;

@@ -144,10 +144,13 @@ function drawPage(
       const availableColsFromStart = inputs.numCols - textStartIndex;
       const numberOfSpans = Math.floor(availableColsFromStart / spanCols);
       
-      // Calculate font size
+      // Calculate font size and line height
       const typeSizeMM = inputs.typeSize * 0.3528;
       const fontSizeSVG = typeSizeMM * scaleY;
-      const lineHeight = fontSizeSVG * 1.5;
+      // Use leading if provided, otherwise default to 1.5x type size
+      const leadingPt = inputs.leading !== undefined ? inputs.leading : inputs.typeSize * 1.5;
+      const leadingMM = leadingPt * 0.3528;
+      const lineHeight = leadingMM * scaleY;
       const padding = fontSizeSVG * 0.5;
       
       // Create text boxes for each span repetition

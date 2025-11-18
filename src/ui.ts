@@ -42,6 +42,15 @@ function getTextColumns(): number[] {
 
 function getFormInputs(): LayoutInputs {
   const typeSize = parseFloat((document.getElementById('typeSize') as HTMLInputElement).value);
+  const leadingInput = document.getElementById('leading') as HTMLInputElement;
+  let leading = parseFloat(leadingInput?.value || '');
+  // Default to 1.5x type size if not set
+  if (isNaN(leading) || leading <= 0) {
+    leading = typeSize * 1.5;
+    if (leadingInput) {
+      leadingInput.value = leading.toFixed(1);
+    }
+  }
   const facingPages = isFacingPages();
 
   // Page dimensions and margins are always in mm (no conversion needed)
@@ -94,6 +103,7 @@ function getFormInputs(): LayoutInputs {
     topMargin, // Already in mm
     bottomMargin, // Already in mm
     typeSize, // Type size is always in points
+    leading, // Leading (line height) in points
     fontFamily, // Font family name
     numCols,
     gutterWidth: convertToMM(gutterWidth, GUTTER_UNIT, typeSize), // Convert em to mm
