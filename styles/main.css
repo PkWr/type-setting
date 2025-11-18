@@ -83,12 +83,12 @@ body {
 }
 
 .container {
-  max-width: 25%;
+  max-width: 33.333%;
   margin: 0 auto;
   background-color: #000000;
   padding: 0;
   padding-right: 100px;
-  width: 25%;
+  width: 33.333%;
   color: #ffffff;
 }
 
@@ -952,8 +952,8 @@ button {
   }
 
   .container {
-    flex: 0 0 25%;
-    max-width: 25%;
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
     margin: 0;
     position: sticky;
     top: var(--spacing-lg);
