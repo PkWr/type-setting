@@ -518,10 +518,10 @@ button {
 }
 
 .page-visualization {
-  width: 100%;
-  height: 100%;
   display: block;
-  /* preserveAspectRatio ensures longest edge fits, other edge scales proportionally */
+  /* Width and height are set dynamically based on orientation */
+  /* For portrait: height=100%, width=auto (fits by height) */
+  /* For landscape: width=100%, height=100% (fits by width) */
 }
 
 .page-visualization .page-dimensions {

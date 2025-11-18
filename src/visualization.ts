@@ -250,22 +250,26 @@ export function updateVisualization(inputs: LayoutInputs): void {
   
   // For portrait (height is longer), we want to fit by height
   // For landscape (width is longer), we want to fit by width
-  // Use 'slice' for portrait to ensure height fits, 'meet' for landscape to ensure width fits
-  // But 'slice' crops, so we'll use a different approach: set the constraining dimension
+  // Use 'slice' for portrait to ensure height fits and fills container height
+  // Use 'meet' for landscape to ensure width fits and fills container width
   
   if (isLandscape) {
-    // Width is longer - fit by width using meet
+    // Width is longer - fit by width using meet (fits within, no cropping)
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   } else {
-    // Height is longer - fit by height
-    // Remove width attribute and set height to 100% so height is the constraint
+    // Height is longer - fit by height using slice (fills height, may crop width)
+    // But we want to avoid cropping, so we'll use meet but ensure height is constraint
+    // Calculate the width that would result from fitting height
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // Set height to 100% and let width be calculated from aspect ratio
     svg.setAttribute('height', '100%');
-    // Don't set width attribute - let it scale automatically based on aspect ratio
+    // Use CSS to ensure width scales from aspect ratio, not container width
     svg.style.width = 'auto';
+    svg.style.height = '100%';
     svg.style.maxWidth = '100%';
+    svg.style.objectFit = 'contain';
   }
   
   svg.classList.add('page-visualization');
