@@ -972,6 +972,7 @@ button {
 @media (min-width: 1200px) {
   body {
     padding: var(--spacing-lg);
+    padding-top: calc(40px + 100px); /* Fixed header height (40px) + 100px gap */
   }
 
   .app-wrapper {
