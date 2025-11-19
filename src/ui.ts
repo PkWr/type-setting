@@ -1370,14 +1370,14 @@ function addLetterpressDecorations(): void {
       name: 'compositor'
     },
     {
-      src: 'images/chase.jpg',
+      src: 'images/chase.jpeg',
       alt: 'Chase with type',
       name: 'chase'
     },
     {
-      src: 'images/M.jpg',
+      src: 'images/em.jpg',
       alt: 'Capital wooden M',
-      name: 'M'
+      name: 'em'
     }
   ];
   
