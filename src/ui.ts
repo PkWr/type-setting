@@ -1418,7 +1418,7 @@ function addLetterpressDecorations(): void {
         element.textContent = decoration.src;
         element.className = 'letterpress-decoration letterpress-emoji';
         element.id = `decoration-${decoration.name}`;
-        element.style.fontSize = '120px';
+        element.style.fontSize = '200px';
         element.style.textAlign = 'center';
         element.style.lineHeight = '1';
       } else {
@@ -1439,7 +1439,7 @@ function addLetterpressDecorations(): void {
       }
       
       // Random position anywhere in the container
-      const imageSize = decoration.type === 'emoji' ? 120 : 500;
+      const imageSize = decoration.type === 'emoji' ? 200 : 500;
       const padding = 50; // Padding from edges
       
       // Calculate available area for positioning

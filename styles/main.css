@@ -832,12 +832,12 @@ button {
 }
 
 .letterpress-emoji {
-  filter: grayscale(100%);
+  filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 120px;
+  width: 200px;
+  height: 200px;
 }
 
 .page-visualization {
