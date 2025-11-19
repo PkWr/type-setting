@@ -802,7 +802,7 @@ button {
 .visualization-section {
   margin-top: 0;
   padding: var(--spacing-md);
-  padding-top: 100px;
+  padding-top: 0;
   border-top: 2px solid #333333;
   background-color: transparent;
   border-radius: var(--border-radius);
@@ -1007,7 +1007,7 @@ button {
   .visualization-section {
     flex: 0 0 auto;
     margin-top: 0;
-    padding-top: 100px;
+    padding-top: 0;
     border-top: none;
     display: flex;
     flex-direction: column;
