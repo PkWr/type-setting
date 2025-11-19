@@ -1478,13 +1478,8 @@ function addLetterpressDecorations(): void {
       
       setTimeout(() => {
         if (element.parentNode && element.parentNode === container) {
-          element.style.transition = 'opacity 0.3s ease-out';
-          element.style.opacity = '0';
-          setTimeout(() => {
-            if (element.parentNode && element.parentNode === container) {
-              element.remove();
-            }
-          }, 300);
+          // Remove instantly without fade-out
+          element.remove();
         }
       }, displayDuration);
     }, appearanceDelay);
