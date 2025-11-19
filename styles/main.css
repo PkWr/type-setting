@@ -1007,7 +1007,7 @@ button {
   .visualization-section {
     flex: 0 0 auto;
     margin-top: 0;
-    padding-top: var(--spacing-xl);
+    padding-top: 100px;
     border-top: none;
     display: flex;
     flex-direction: column;
