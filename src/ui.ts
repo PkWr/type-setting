@@ -1438,37 +1438,21 @@ function addLetterpressDecorations(): void {
         element = img;
       }
       
-      // Position around the perimeter of the container
-      // Choose a side: 0=top, 1=right, 2=bottom, 3=left
-      const side = Math.floor(Math.random() * 4);
-      let x = 0;
-      let y = 0;
-      
+      // Random position anywhere in the container
       const imageSize = decoration.type === 'emoji' ? 120 : 500;
       const padding = 50; // Padding from edges
       
-      switch (side) {
-        case 0: // Top edge
-          x = padding + Math.random() * (containerWidth - imageSize - padding * 2);
-          y = padding;
-          break;
-        case 1: // Right edge
-          x = containerWidth - imageSize - padding;
-          y = padding + Math.random() * (containerHeight - imageSize - padding * 2);
-          break;
-        case 2: // Bottom edge
-          x = padding + Math.random() * (containerWidth - imageSize - padding * 2);
-          y = containerHeight - imageSize - padding;
-          break;
-        case 3: // Left edge
-          x = padding;
-          y = padding + Math.random() * (containerHeight - imageSize - padding * 2);
-          break;
-      }
+      // Calculate available area for positioning
+      const maxX = containerWidth - imageSize - padding;
+      const maxY = containerHeight - imageSize - padding;
+      
+      // Random position within available bounds
+      let x = padding + Math.random() * Math.max(0, maxX - padding);
+      let y = padding + Math.random() * Math.max(0, maxY - padding);
       
       // Ensure values are valid
-      x = Math.max(0, Math.min(x, containerWidth - imageSize));
-      y = Math.max(0, Math.min(y, containerHeight - imageSize));
+      x = Math.max(padding, Math.min(x, containerWidth - imageSize - padding));
+      y = Math.max(padding, Math.min(y, containerHeight - imageSize - padding));
       
       element.style.left = `${x}px`;
       element.style.top = `${y}px`;
