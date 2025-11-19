@@ -1367,71 +1367,138 @@ function addLetterpressDecorations(): void {
     {
       src: 'images/compositor.jpg',
       alt: 'Composing stick with lead type',
-      name: 'compositor'
+      name: 'compositor',
+      type: 'image'
     },
     {
       src: 'images/chase.jpeg',
       alt: 'Chase with type',
-      name: 'chase'
+      name: 'chase',
+      type: 'image'
     },
     {
       src: 'images/em.jpg',
       alt: 'Capital wooden M',
-      name: 'em'
+      name: 'em',
+      type: 'image'
     }
   ];
   
-  decorations.forEach((decoration, index) => {
+  // Randomly decide if we should include an emoji (50% chance)
+  const includeEmoji = Math.random() > 0.5;
+  const emojis = ['💣', '🔥', '💥'];
+  
+  if (includeEmoji) {
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    decorations.push({
+      src: randomEmoji,
+      alt: 'Random emoji',
+      name: 'emoji',
+      type: 'emoji'
+    });
+  }
+  
+  // Shuffle decorations for random order
+  const shuffledDecorations = decorations.sort(() => Math.random() - 0.5);
+  
+  shuffledDecorations.forEach((decoration, index) => {
     // Stagger appearance: each decoration appears 1 second after the previous one
-    const appearanceDelay = index * 1000; // 0ms, 1000ms, 2000ms
+    const appearanceDelay = index * 1000;
     
     setTimeout(() => {
-      const img = document.createElement('img');
-      img.src = decoration.src;
-      img.alt = decoration.alt;
-      img.className = 'letterpress-decoration';
-      img.id = `decoration-${decoration.name}`;
-      
-      // Handle image load errors gracefully
-      img.onerror = () => {
-        console.warn(`Failed to load decoration image: ${decoration.src}`);
-        img.style.display = 'none';
-      };
-      
-      // Random position within container bounds
       const containerRect = container.getBoundingClientRect();
-      const maxX = containerRect.width - 500;
-      const maxY = containerRect.height - 500;
-      const randomX = Math.random() * Math.max(0, maxX);
-      const randomY = Math.random() * Math.max(0, maxY);
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
       
-      img.style.left = `${randomX}px`;
-      img.style.top = `${randomY}px`;
+      let element: HTMLElement;
       
-      // Random rotation between -15 and 15 degrees
-      const rotation = (Math.random() * 30) - 15;
-      img.style.transform = `rotate(${rotation}deg)`;
+      if (decoration.type === 'emoji') {
+        // Create emoji element
+        element = document.createElement('div');
+        element.textContent = decoration.src;
+        element.className = 'letterpress-decoration letterpress-emoji';
+        element.id = `decoration-${decoration.name}`;
+        element.style.fontSize = '120px';
+        element.style.textAlign = 'center';
+        element.style.lineHeight = '1';
+      } else {
+        // Create image element
+        const img = document.createElement('img');
+        img.src = decoration.src;
+        img.alt = decoration.alt;
+        img.className = 'letterpress-decoration';
+        img.id = `decoration-${decoration.name}`;
+        
+        // Handle image load errors gracefully
+        img.onerror = () => {
+          console.warn(`Failed to load decoration image: ${decoration.src}`);
+          img.style.display = 'none';
+        };
+        
+        element = img;
+      }
+      
+      // Position around the perimeter of the container
+      // Choose a side: 0=top, 1=right, 2=bottom, 3=left
+      const side = Math.floor(Math.random() * 4);
+      let x = 0;
+      let y = 0;
+      
+      const imageSize = decoration.type === 'emoji' ? 120 : 500;
+      const padding = 50; // Padding from edges
+      
+      switch (side) {
+        case 0: // Top edge
+          x = padding + Math.random() * (containerWidth - imageSize - padding * 2);
+          y = padding;
+          break;
+        case 1: // Right edge
+          x = containerWidth - imageSize - padding;
+          y = padding + Math.random() * (containerHeight - imageSize - padding * 2);
+          break;
+        case 2: // Bottom edge
+          x = padding + Math.random() * (containerWidth - imageSize - padding * 2);
+          y = containerHeight - imageSize - padding;
+          break;
+        case 3: // Left edge
+          x = padding;
+          y = padding + Math.random() * (containerHeight - imageSize - padding * 2);
+          break;
+      }
+      
+      // Ensure values are valid
+      x = Math.max(0, Math.min(x, containerWidth - imageSize));
+      y = Math.max(0, Math.min(y, containerHeight - imageSize));
+      
+      element.style.left = `${x}px`;
+      element.style.top = `${y}px`;
+      
+      // Random rotation between -15 and 15 degrees (only for images)
+      if (decoration.type === 'image') {
+        const rotation = (Math.random() * 30) - 15;
+        element.style.transform = `rotate(${rotation}deg)`;
+      }
       
       // Start with opacity 0 and fade in
-      img.style.opacity = '0';
-      container.appendChild(img);
+      element.style.opacity = '0';
+      container.appendChild(element);
       
       // Fade in after a brief moment
       setTimeout(() => {
-        img.style.transition = 'opacity 0.3s ease-in';
-        img.style.opacity = '1';
+        element.style.transition = 'opacity 0.3s ease-in';
+        element.style.opacity = '1';
       }, 50);
       
       // Random display duration between 2-4 seconds after appearance
       const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
       
       setTimeout(() => {
-        if (img.parentNode && img.parentNode === container) {
-          img.style.transition = 'opacity 0.3s ease-out';
-          img.style.opacity = '0';
+        if (element.parentNode && element.parentNode === container) {
+          element.style.transition = 'opacity 0.3s ease-out';
+          element.style.opacity = '0';
           setTimeout(() => {
-            if (img.parentNode && img.parentNode === container) {
-              img.remove();
+            if (element.parentNode && element.parentNode === container) {
+              element.remove();
             }
           }, 300);
         }

@@ -831,6 +831,15 @@ button {
   transition: opacity 0.3s ease-out;
 }
 
+.letterpress-emoji {
+  filter: grayscale(100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+}
+
 .page-visualization {
   display: block;
   /* Width and height are set dynamically based on orientation */
