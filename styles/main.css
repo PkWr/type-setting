@@ -65,6 +65,12 @@ body {
   align-items: center;
 }
 
+@media (min-width: 1200px) {
+  .fixed-header-content {
+    padding: 0 var(--spacing-lg);
+  }
+}
+
 .fixed-header-left {
   color: #ffffff;
   font-size: 0.85rem;
