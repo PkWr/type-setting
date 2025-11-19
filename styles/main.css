@@ -104,6 +104,7 @@ body {
 header {
   margin-bottom: 0;
   margin-top: 0;
+  padding-top: 100px;
   padding-bottom: var(--spacing-lg);
   border-bottom: 2px solid #333333;
 }
@@ -802,7 +803,7 @@ button {
 .visualization-section {
   margin-top: 0;
   padding: var(--spacing-md);
-  padding-top: var(--spacing-xl);
+  padding-top: 100px;
   border-top: 2px solid #333333;
   background-color: transparent;
   border-radius: var(--border-radius);
