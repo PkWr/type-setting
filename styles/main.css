@@ -284,6 +284,7 @@ h2 {
 .form-section {
   margin: 0;
   padding: var(--spacing-md);
+  padding-left: 0;
   background-color: transparent;
   border-top: 1px solid #333333;
   display: flex;
