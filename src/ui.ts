@@ -1005,7 +1005,6 @@ function exportVisualizationAsHTML(): void {
       width: ${totalWidthPx}px;
       height: ${totalHeightPx}px;
       max-width: 100%;
-      height: auto;
     }
   </style>
 </head>
