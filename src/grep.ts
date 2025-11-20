@@ -24,12 +24,14 @@ function generateWordsPattern(words: string[], options: GrepOptions): string {
   const escapedWords = words.map(word => escapeRegex(word.trim())).filter(w => w.length > 0);
   if (escapedWords.length === 0) return '';
   
-  let pattern = escapedWords.join('|');
+  let pattern: string;
   
   if (options.wholeWord) {
-    pattern = `\\b(${pattern})\\b`;
-  } else {
+    // Wrap each word individually with word boundaries for proper whole word matching
+    pattern = escapedWords.map(word => `\\b${word}\\b`).join('|');
     pattern = `(${pattern})`;
+  } else {
+    pattern = `(${escapedWords.join('|')})`;
   }
   
   return pattern;
