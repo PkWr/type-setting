@@ -245,6 +245,10 @@ function updateGrepPattern(): void {
             <td class="syntax-description">The pattern uses {n,m} syntax where n is minimum and m is maximum. For example, {2,4} matches 2, 3, or 4 digits. Set both to the same value for exact length matching.</td>
           </tr>
           <tr>
+            <td class="syntax-code"><strong>Case sensitive</strong></td>
+            <td class="syntax-description">When checked: matches exact capitalization. When unchecked: adds (?i) flag to ignore case. Note: This option mainly affects patterns that include letters, but can be useful for mixed alphanumeric patterns.</td>
+          </tr>
+          <tr>
             <td class="syntax-code"><strong>Use case</strong></td>
             <td class="syntax-description">Perfect for finding phone numbers, dates, reference numbers, or any numeric sequences of specific lengths. Great for formatting numbers consistently.</td>
           </tr>
@@ -266,6 +270,10 @@ function updateGrepPattern(): void {
             <td class="syntax-description">Choose individual punctuation types to target specific marks. Useful when you want to format only certain punctuation differently, like making periods larger or changing quote styles.</td>
           </tr>
           <tr>
+            <td class="syntax-code"><strong>Case sensitive</strong></td>
+            <td class="syntax-description">When checked: matches exact capitalization. When unchecked: adds (?i) flag to ignore case. Note: This option mainly affects patterns that include letters alongside punctuation.</td>
+          </tr>
+          <tr>
             <td class="syntax-code"><strong>Use case</strong></td>
             <td class="syntax-description">Ideal for applying consistent formatting to punctuation marks, replacing punctuation styles, or finding specific punctuation patterns throughout your document.</td>
           </tr>
@@ -273,7 +281,7 @@ function updateGrepPattern(): void {
         break;
         
       case 'enclosed':
-          instructionsTable += `
+        instructionsTable += `
           <tr>
             <td class="syntax-code"><strong>Start marker</strong></td>
             <td class="syntax-description">Enter the character(s) that mark the beginning of the content you want to match. Can be a single character like "(" or "[", or multiple characters like "{{" or "<!--". Special characters are automatically escaped.</td>
@@ -287,6 +295,10 @@ function updateGrepPattern(): void {
             <td class="syntax-description">The pattern uses [^end] to match any character except the end marker, ensuring it stops at the correct closing marker. Works with nested markers too, matching content up to the first closing marker.</td>
           </tr>
           <tr>
+            <td class="syntax-code"><strong>Case sensitive</strong></td>
+            <td class="syntax-description">When checked: matches exact capitalization within the enclosed content. When unchecked: adds (?i) flag to ignore case, so content matching is case-insensitive.</td>
+          </tr>
+          <tr>
             <td class="syntax-code"><strong>Use case</strong></td>
             <td class="syntax-description">Perfect for finding and formatting content within parentheses, brackets, quotes, or any custom delimiters. Great for styling citations, notes, or any bracketed content.</td>
           </tr>
@@ -294,17 +306,15 @@ function updateGrepPattern(): void {
         break;
     }
     
-    // Add Options instructions for all search types
-    instructionsTable += `
-      <tr>
-        <td class="syntax-code"><strong>Case sensitive</strong></td>
-        <td class="syntax-description">When checked: matches exact capitalization (e.g., "Hello" won't match "hello"). When unchecked: adds (?i) flag to ignore case, so "Hello", "hello", and "HELLO" all match the same way.</td>
-      </tr>
-      <tr>
-        <td class="syntax-code"><strong>Whole word only</strong></td>
-        <td class="syntax-description">When checked: matches complete words only using word boundaries (\\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</td>
-      </tr>
-    `;
+    // Add Whole word option instruction only for words search type
+    if (searchType === 'words') {
+      instructionsTable += `
+        <tr>
+          <td class="syntax-code"><strong>Whole word only</strong></td>
+          <td class="syntax-description">When checked: matches complete words only using word boundaries (\\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</td>
+        </tr>
+      `;
+    }
     
     instructionsTable += '</table>';
     output.innerHTML = instructionsTable;
