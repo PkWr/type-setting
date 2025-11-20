@@ -114,6 +114,7 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-xs);
+  margin-top: 0;
 }
 
 .header-right {
@@ -584,6 +585,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 0;
   margin-bottom: var(--spacing-md);
 }
 
