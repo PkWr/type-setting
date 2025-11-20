@@ -1032,20 +1032,17 @@ button {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    max-height: calc(100vh - var(--spacing-lg) * 2);
     min-height: 0;
   }
 
   .visualization-section {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     margin-top: 0;
     padding-top: var(--spacing-md);
     border-top: none;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - var(--spacing-lg) * 2);
-    min-height: calc(100vh - var(--spacing-lg) * 2);
-    max-height: calc(100vh - var(--spacing-lg) * 2);
+    min-height: 0;
   }
   
   .specification-section {
