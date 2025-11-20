@@ -15,6 +15,68 @@ const PAGE_UNIT: Unit = 'mm';
 const GUTTER_UNIT: Unit = 'em';
 
 /**
+ * Parses and converts a margin value from form input to millimeters
+ * @param inputId - ID of the input element
+ * @param marginUnit - Current margin unit ('em' or 'mm')
+ * @param typeSize - Type size in points (required for em conversion)
+ * @returns Margin value in millimeters
+ */
+function parseAndConvertMargin(inputId: string, marginUnit: Unit, typeSize: number): number {
+  const input = document.getElementById(inputId) as HTMLInputElement;
+  let value = parseFloat(input?.value || '0');
+  
+  if (marginUnit === 'em') {
+    value = convertToMM(value, 'em', typeSize);
+  }
+  
+  return value;
+}
+
+/**
+ * Gets facing pages margins and converts them to millimeters
+ * @param marginUnit - Current margin unit ('em' or 'mm')
+ * @param typeSize - Type size in points (required for em conversion)
+ * @returns Object with all facing pages margins in millimeters
+ */
+function getFacingPagesMargins(marginUnit: Unit, typeSize: number): {
+  innerMarginLeft: number;
+  innerMarginRight: number;
+  outerMarginLeft: number;
+  outerMarginRight: number;
+} {
+  return {
+    innerMarginLeft: parseAndConvertMargin('innerMarginLeft', marginUnit, typeSize),
+    innerMarginRight: parseAndConvertMargin('innerMarginRight', marginUnit, typeSize),
+    outerMarginLeft: parseAndConvertMargin('outerMarginLeft', marginUnit, typeSize),
+    outerMarginRight: parseAndConvertMargin('outerMarginRight', marginUnit, typeSize),
+  };
+}
+
+/**
+ * Adds input and change event listeners to an element with common handlers
+ * @param elementId - ID of the element
+ * @param handlers - Object with optional handler functions
+ */
+function addInputChangeListeners(
+  elementId: string,
+  handlers: {
+    onInput?: () => void;
+    onChange?: () => void;
+    onBoth?: () => void;
+  }
+): void {
+  const element = document.getElementById(elementId) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+  if (!element) return;
+  
+  const bothHandler = handlers.onBoth || (() => {});
+  const inputHandler = handlers.onInput || bothHandler;
+  const changeHandler = handlers.onChange || bothHandler;
+  
+  element.addEventListener('input', inputHandler);
+  element.addEventListener('change', changeHandler);
+}
+
+/**
  * Gets all input values from the form, converting from selected unit to mm
  * @returns LayoutInputs object with form values in millimeters
  */
@@ -80,14 +142,8 @@ function getFormInputs(): LayoutInputs {
   const pageHeight = parseFloat((document.getElementById('pageHeight') as HTMLInputElement).value);
   
   // Get margins and convert to mm if needed
-  let topMargin = parseFloat((document.getElementById('topMargin') as HTMLInputElement).value);
-  let bottomMargin = parseFloat((document.getElementById('bottomMargin') as HTMLInputElement).value);
-  
-  // Convert margins to mm if they're in em
-  if (marginUnit === 'em') {
-    topMargin = convertToMM(topMargin, 'em', typeSize);
-    bottomMargin = convertToMM(bottomMargin, 'em', typeSize);
-  }
+  const topMargin = parseAndConvertMargin('topMargin', marginUnit, typeSize);
+  const bottomMargin = parseAndConvertMargin('bottomMargin', marginUnit, typeSize);
   
   // Get margins based on facing pages mode
   let leftMargin: number;
@@ -95,32 +151,15 @@ function getFormInputs(): LayoutInputs {
   
   if (facingPages) {
     // Facing pages: use inner and outer margins
-    let innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
-    let innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
-    let outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
-    let outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
-    
-    // Convert to mm if needed
-    if (marginUnit === 'em') {
-      innerMarginLeft = convertToMM(innerMarginLeft, 'em', typeSize);
-      innerMarginRight = convertToMM(innerMarginRight, 'em', typeSize);
-      outerMarginLeft = convertToMM(outerMarginLeft, 'em', typeSize);
-      outerMarginRight = convertToMM(outerMarginRight, 'em', typeSize);
-    }
+    const facingMargins = getFacingPagesMargins(marginUnit, typeSize);
     
     // For compatibility, set leftMargin = average inner, rightMargin = average outer
-    leftMargin = (innerMarginLeft + innerMarginRight) / 2;
-    rightMargin = (outerMarginLeft + outerMarginRight) / 2;
+    leftMargin = (facingMargins.innerMarginLeft + facingMargins.innerMarginRight) / 2;
+    rightMargin = (facingMargins.outerMarginLeft + facingMargins.outerMarginRight) / 2;
   } else {
     // Single page: use left and right margins
-    leftMargin = parseFloat((document.getElementById('leftMargin') as HTMLInputElement).value);
-    rightMargin = parseFloat((document.getElementById('rightMargin') as HTMLInputElement).value);
-    
-    // Convert to mm if needed
-    if (marginUnit === 'em') {
-      leftMargin = convertToMM(leftMargin, 'em', typeSize);
-      rightMargin = convertToMM(rightMargin, 'em', typeSize);
-    }
+    leftMargin = parseAndConvertMargin('leftMargin', marginUnit, typeSize);
+    rightMargin = parseAndConvertMargin('rightMargin', marginUnit, typeSize);
   }
   
   // Get gutter width - convert based on selected unit
@@ -169,23 +208,11 @@ function getFormInputs(): LayoutInputs {
   
   // Add facing pages specific margins if in facing pages mode (already converted to mm above)
   if (facingPages) {
-    let innerMarginLeft = parseFloat((document.getElementById('innerMarginLeft') as HTMLInputElement).value);
-    let innerMarginRight = parseFloat((document.getElementById('innerMarginRight') as HTMLInputElement).value);
-    let outerMarginLeft = parseFloat((document.getElementById('outerMarginLeft') as HTMLInputElement).value);
-    let outerMarginRight = parseFloat((document.getElementById('outerMarginRight') as HTMLInputElement).value);
-    
-    // Convert to mm if needed
-    if (marginUnit === 'em') {
-      innerMarginLeft = convertToMM(innerMarginLeft, 'em', typeSize);
-      innerMarginRight = convertToMM(innerMarginRight, 'em', typeSize);
-      outerMarginLeft = convertToMM(outerMarginLeft, 'em', typeSize);
-      outerMarginRight = convertToMM(outerMarginRight, 'em', typeSize);
-    }
-    
-    inputs.innerMarginLeft = innerMarginLeft;
-    inputs.innerMarginRight = innerMarginRight;
-    inputs.outerMarginLeft = outerMarginLeft;
-    inputs.outerMarginRight = outerMarginRight;
+    const facingMargins = getFacingPagesMargins(marginUnit, typeSize);
+    inputs.innerMarginLeft = facingMargins.innerMarginLeft;
+    inputs.innerMarginRight = facingMargins.innerMarginRight;
+    inputs.outerMarginLeft = facingMargins.outerMarginLeft;
+    inputs.outerMarginRight = facingMargins.outerMarginRight;
   }
   
   if (columnSpan) {
@@ -2036,19 +2063,13 @@ export function initializeCalculator(): void {
   }
   
   // Handle gutter width input changes to update label
-  const gutterWidthInput = document.getElementById('gutterWidth') as HTMLInputElement;
-  if (gutterWidthInput) {
-    gutterWidthInput.addEventListener('input', () => {
+  addInputChangeListeners('gutterWidth', {
+    onBoth: () => {
       updateMarginLabels();
       updateVisualizationOnInputChange();
       saveSettings();
-    });
-    gutterWidthInput.addEventListener('change', () => {
-      updateMarginLabels();
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-  }
+    }
+  });
   
   // Handle margin input changes to update labels with conversion values
   const marginInputs = [
@@ -2063,19 +2084,13 @@ export function initializeCalculator(): void {
   ];
   
   marginInputs.forEach(inputId => {
-    const input = document.getElementById(inputId) as HTMLInputElement;
-    if (input) {
-      input.addEventListener('input', () => {
+    addInputChangeListeners(inputId, {
+      onBoth: () => {
         updateMarginLabels();
         updateVisualizationOnInputChange();
         saveSettings();
-      });
-      input.addEventListener('change', () => {
-        updateMarginLabels();
-        updateVisualizationOnInputChange();
-        saveSettings();
-      });
-    }
+      }
+    });
   });
 
   // Handle facing pages checkbox
@@ -2094,47 +2109,26 @@ export function initializeCalculator(): void {
     });
   }
   
-  // Add event listeners for facing pages margin inputs
-  const facingPagesMarginInputs = ['innerMarginLeft', 'innerMarginRight', 'outerMarginLeft', 'outerMarginRight'];
-  facingPagesMarginInputs.forEach(id => {
-    const input = document.getElementById(id) as HTMLInputElement;
-    if (input) {
-      input.addEventListener('input', () => {
-        updateMarginLabels();
-        updateVisualizationOnInputChange();
-        saveSettings();
-      });
-      input.addEventListener('change', () => {
-        updateMarginLabels();
-        updateVisualizationOnInputChange();
-        saveSettings();
-      });
-    }
-  });
+  // Note: Facing pages margin inputs are already handled above in marginInputs array
 
   // Handle sample text input - update visualization when text changes
   const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
-  if (sampleTextInput) {
-    sampleTextInput.addEventListener('input', () => {
+  addInputChangeListeners('sampleText', {
+    onBoth: () => {
       updateVisualizationOnInputChange();
       saveSettings();
-    });
-    sampleTextInput.addEventListener('change', () => {
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-  }
+    }
+  });
 
   // Handle layer visibility checkboxes
   const layerCheckboxes = ['showMargins', 'showColumns', 'showText', 'solidFills'];
   layerCheckboxes.forEach(id => {
-    const checkbox = document.getElementById(id) as HTMLInputElement;
-    if (checkbox) {
-      checkbox.addEventListener('change', () => {
+    addInputChangeListeners(id, {
+      onChange: () => {
         updateVisualizationOnInputChange();
         saveSettings();
-      });
-    }
+      }
+    });
   });
 
   // Load default text on page open (only if no saved text exists)
@@ -2168,20 +2162,22 @@ export function initializeCalculator(): void {
   
   // Handle column span slider
   const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
+  const columnSpanValue = document.getElementById('columnSpanValue');
   if (columnSpanSlider) {
-    const columnSpanValue = document.getElementById('columnSpanValue');
-    columnSpanSlider.addEventListener('input', () => {
-      if (columnSpanValue) {
-        columnSpanValue.textContent = columnSpanSlider.value;
+    addInputChangeListeners('columnSpanSlider', {
+      onInput: () => {
+        if (columnSpanValue) {
+          columnSpanValue.textContent = columnSpanSlider.value;
+        }
+        updateTextStartSlider();
+        updateVisualizationOnInputChange();
+        saveSettings();
+      },
+      onChange: () => {
+        updateTextStartSlider();
+        updateVisualizationOnInputChange();
+        saveSettings();
       }
-      updateTextStartSlider();
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-    columnSpanSlider.addEventListener('change', () => {
-      updateTextStartSlider();
-      updateVisualizationOnInputChange();
-      saveSettings();
     });
   }
   
@@ -2190,40 +2186,28 @@ export function initializeCalculator(): void {
   
   // Handle text start slider
   const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
+  const textStartValue = document.getElementById('textStartValue');
   if (textStartSlider) {
-    const textStartValue = document.getElementById('textStartValue');
-    textStartSlider.addEventListener('input', () => {
-      if (textStartValue) {
-        textStartValue.textContent = textStartSlider.value;
+    addInputChangeListeners('textStartSlider', {
+      onBoth: () => {
+        if (textStartValue) {
+          textStartValue.textContent = textStartSlider.value;
+        }
+        updateVisualizationOnInputChange();
+        saveSettings();
       }
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-    textStartSlider.addEventListener('change', () => {
-      if (textStartValue) {
-        textStartValue.textContent = textStartSlider.value;
-      }
-      updateVisualizationOnInputChange();
-      saveSettings();
     });
   }
   
   // Handle number of columns change
-  const numColsInput = document.getElementById('numCols') as HTMLInputElement;
-  if (numColsInput) {
-    numColsInput.addEventListener('input', () => {
+  addInputChangeListeners('numCols', {
+    onBoth: () => {
       updateColumnSpanSlider();
       updateTextStartSlider();
       updateVisualizationOnInputChange();
       saveSettings();
-    });
-    numColsInput.addEventListener('change', () => {
-      updateColumnSpanSlider();
-      updateTextStartSlider();
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-  }
+    }
+  });
 
   // Populate paper size dropdown
   populatePaperSizeDropdown();
@@ -2245,39 +2229,37 @@ export function initializeCalculator(): void {
 
   // Recalculate gutter and words per line when type size changes
   if (typeSizeInput) {
-    typeSizeInput.addEventListener('input', () => {
-      suggestGutter();
-      // Auto-update leading to type size + 2 if leading is empty
-      if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
-        const newTypeSize = parseFloat(typeSizeInput.value);
-        leadingInput.value = (newTypeSize + 2).toFixed(1);
+    addInputChangeListeners('typeSize', {
+      onInput: () => {
+        suggestGutter();
+        // Auto-update leading to type size + 2 if leading is empty
+        if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
+          const newTypeSize = parseFloat(typeSizeInput.value);
+          leadingInput.value = (newTypeSize + 2).toFixed(1);
+        }
+        updateColumnWidthDisplay();
+        updateWordsPerLine();
+        updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
+      },
+      onChange: () => {
+        updateColumnWidthDisplay();
+        updateWordsPerLine();
+        updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
       }
-      updateColumnWidthDisplay();
-      updateWordsPerLine();
-      updateMarginLabels();
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-    typeSizeInput.addEventListener('change', () => {
-      updateColumnWidthDisplay();
-      updateWordsPerLine();
-      updateMarginLabels();
-      updateVisualizationOnInputChange();
-      saveSettings();
     });
   }
 
   // Handle leading input
-  if (leadingInput) {
-    leadingInput.addEventListener('input', () => {
+  addInputChangeListeners('leading', {
+    onBoth: () => {
       updateVisualizationOnInputChange();
       saveSettings();
-    });
-    leadingInput.addEventListener('change', () => {
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-  }
+    }
+  });
 
   // Export to PDF button
   const exportHtmlButton = document.getElementById('exportHtmlButton');
@@ -2305,19 +2287,13 @@ export function initializeCalculator(): void {
   }
   
   // Handle custom page width/height inputs
-  const pageWidthInput = document.getElementById('pageWidth') as HTMLInputElement;
-  const pageHeightInput = document.getElementById('pageHeight') as HTMLInputElement;
-  if (pageWidthInput && pageHeightInput) {
-    const updateCustomSize = () => {
-      if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
-      updateVisualizationOnInputChange();
-      saveSettings();
-    };
-    pageWidthInput.addEventListener('input', updateCustomSize);
-    pageWidthInput.addEventListener('change', updateCustomSize);
-    pageHeightInput.addEventListener('input', updateCustomSize);
-    pageHeightInput.addEventListener('change', updateCustomSize);
-  }
+  const updateCustomSize = () => {
+    if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
+    updateVisualizationOnInputChange();
+    saveSettings();
+  };
+  addInputChangeListeners('pageWidth', { onBoth: updateCustomSize });
+  addInputChangeListeners('pageHeight', { onBoth: updateCustomSize });
 
   // Handle orientation toggle change
   const orientationToggle = document.getElementById('orientationToggle') as HTMLInputElement;
@@ -2336,30 +2312,22 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Update visualization when inputs change
-  const inputIds = ['pageWidth', 'pageHeight', 'leftMargin', 'rightMargin', 'topMargin', 'bottomMargin', 'numCols', 'gutterWidth'];
-  inputIds.forEach(id => {
-    const input = document.getElementById(id) as HTMLInputElement;
-    if (input) {
-      input.addEventListener('input', updateVisualizationOnInputChange);
-      input.addEventListener('change', updateVisualizationOnInputChange);
-    }
-  });
+  // Note: Most inputs are already handled above with specific handlers
+  // pageWidth/pageHeight handled above, margins handled in marginInputs,
+  // numCols/gutterWidth handled above, so no need for duplicate listeners
   
   // Handle font family change
-  const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
-  if (fontFamilySelect) {
-    fontFamilySelect.addEventListener('change', () => {
+  addInputChangeListeners('fontFamily', {
+    onChange: () => {
       updateVisualizationOnInputChange();
       saveSettings();
-    });
-  }
+    }
+  });
 
   // Handle hyphenation checkbox
-  const hyphenationCheckbox = document.getElementById('hyphenation') as HTMLInputElement;
-  if (hyphenationCheckbox) {
-    hyphenationCheckbox.addEventListener('change', updateVisualizationOnInputChange);
-  }
+  addInputChangeListeners('hyphenation', {
+    onChange: updateVisualizationOnInputChange
+  });
 
   // Initial visualization and words per line
   // Note: loadSettings() already triggers visualization updates after loading settings
