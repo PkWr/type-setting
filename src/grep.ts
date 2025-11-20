@@ -201,9 +201,56 @@ function updateSectionVisibility(): void {
 }
 
 /**
+ * Shows the grep info modal
+ */
+function showGrepModal(): void {
+  const modal = document.getElementById('grepModal');
+  if (modal) {
+    modal.classList.add('show');
+  }
+}
+
+/**
+ * Hides the grep info modal
+ */
+function hideGrepModal(): void {
+  const modal = document.getElementById('grepModal');
+  if (modal) {
+    modal.classList.remove('show');
+  }
+}
+
+/**
  * Initializes the grep generator
  */
 export function initializeGrep(): void {
+  // Check if modal has been shown before
+  const hasSeenModal = localStorage.getItem('grepModalShown');
+  
+  // Show modal on first visit
+  if (!hasSeenModal) {
+    setTimeout(() => {
+      showGrepModal();
+      localStorage.setItem('grepModalShown', 'true');
+    }, 100);
+  }
+  
+  // Modal close button
+  const modalClose = document.getElementById('grepModalClose');
+  if (modalClose) {
+    modalClose.addEventListener('click', hideGrepModal);
+  }
+  
+  // Close modal when clicking outside
+  const modal = document.getElementById('grepModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideGrepModal();
+      }
+    });
+  }
+  
   // Show/hide sections based on search type
   const searchTypeInputs = document.querySelectorAll('input[name="searchType"]');
   searchTypeInputs.forEach(input => {

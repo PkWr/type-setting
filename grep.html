@@ -154,6 +154,57 @@
     </div>
   </div>
 
+  <!-- Grep Info Modal -->
+  <div id="grepModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>About GREP</h2>
+        <button class="modal-close" id="grepModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 class="modal-section-title">What is GREP?</h3>
+          <p class="modal-section-text">
+            GREP (Global Regular Expression Print) is a powerful pattern-matching system used in Adobe InDesign's Find/Change dialog. It allows you to search for and replace text based on complex patterns rather than exact matches.
+          </p>
+          <p class="modal-section-text">
+            In InDesign, GREP uses a subset of regular expressions to help you find and format text efficiently. This tool generates GREP patterns that you can copy and paste directly into InDesign's Find/Change dialog.
+          </p>
+        </div>
+        <div class="modal-section">
+          <h3 class="modal-section-title">What can you do with GREP in InDesign?</h3>
+          <p class="modal-section-text">
+            <strong>Find specific words:</strong> Search for multiple words at once, with options for case sensitivity and whole word matching.
+          </p>
+          <p class="modal-section-text">
+            <strong>Find digits:</strong> Locate numbers of specific lengths, useful for finding phone numbers, dates, or other numeric patterns.
+          </p>
+          <p class="modal-section-text">
+            <strong>Find punctuation:</strong> Search for specific punctuation marks or all punctuation, helpful for cleaning up text or applying formatting.
+          </p>
+          <p class="modal-section-text">
+            <strong>Find enclosed content:</strong> Locate text between markers like parentheses, brackets, or custom characters.
+          </p>
+        </div>
+        <div class="modal-section">
+          <h3 class="modal-section-title">How to use this tool</h3>
+          <p class="modal-section-text">
+            1. Select a search type (words, digits, punctuation, or enclosed content)
+          </p>
+          <p class="modal-section-text">
+            2. Configure your search options (case sensitivity, whole word, etc.)
+          </p>
+          <p class="modal-section-text">
+            3. Copy the generated pattern
+          </p>
+          <p class="modal-section-text">
+            4. In InDesign, open Find/Change (Cmd/Ctrl+F), switch to the GREP tab, paste the pattern, and set your case sensitivity preference
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="dist/grep.js"></script>
 </body>
 </html>
