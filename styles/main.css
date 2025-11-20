@@ -593,7 +593,7 @@ select option {
 .info-value {
   font-weight: 600;
   color: var(--color-primary);
-  font-size: 1.1rem;
+  font-size: 0.75rem;
 }
 
 .label-with-action {
