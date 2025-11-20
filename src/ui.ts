@@ -930,9 +930,28 @@ function exportVisualizationAsHTML(): void {
 
   // Get current inputs for metadata
   const inputs = getFormInputs();
+  const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
+  const facingPages = facingPagesCheckbox?.checked ?? false;
   
   // Clone the SVG to avoid modifying the original
   const svgClone = svg.cloneNode(true) as SVGElement;
+  
+  // Calculate actual page dimensions in pixels (1mm = 3.779527559 pixels at 96 DPI)
+  const MM_TO_PX = 3.779527559;
+  const actualPageWidthPx = inputs.pageWidth * MM_TO_PX;
+  const actualPageHeightPx = inputs.pageHeight * MM_TO_PX;
+  const totalWidthPx = facingPages ? actualPageWidthPx * 2 : actualPageWidthPx;
+  const headingHeight = facingPages ? 20 : 0;
+  const totalHeightPx = actualPageHeightPx + headingHeight;
+  
+  // Get the viewBox from the original SVG
+  const viewBox = svg.getAttribute('viewBox') || '0 0 400 400';
+  
+  // Set explicit width and height on the SVG for 1:1 scale
+  svgClone.setAttribute('width', `${totalWidthPx}px`);
+  svgClone.setAttribute('height', `${totalHeightPx}px`);
+  svgClone.setAttribute('viewBox', viewBox);
+  svgClone.removeAttribute('style'); // Remove any inline styles that might affect sizing
   
   // Create standalone HTML
   const html = `<!DOCTYPE html>
@@ -983,6 +1002,8 @@ function exportVisualizationAsHTML(): void {
     }
     svg {
       display: block;
+      width: ${totalWidthPx}px;
+      height: ${totalHeightPx}px;
       max-width: 100%;
       height: auto;
     }
@@ -1000,6 +1021,7 @@ function exportVisualizationAsHTML(): void {
         <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Bottom: ${formatValue(inputs.bottomMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Left: ${formatValue(inputs.leftMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Right: ${formatValue(inputs.rightMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}</p>
         ${inputs.columnSpanStart && inputs.columnSpanEnd ? `<p><strong>Column Span:</strong> Columns ${inputs.columnSpanStart} to ${inputs.columnSpanEnd}</p>` : ''}
         ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text Columns:</strong> ${inputs.textColumns.join(', ')}</p>` : ''}
+        <p><strong>Scale:</strong> 1:1 (Actual size)</p>
       </div>
     </div>
     ${svgClone.outerHTML}
