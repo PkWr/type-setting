@@ -1234,6 +1234,7 @@ button {
 /* Grep Generator Styles */
 .grep-output {
   padding: var(--spacing-md);
+  padding-left: 0;
   background-color: #000000;
   border-radius: var(--border-radius-sm);
   min-height: 200px;
