@@ -1136,6 +1136,10 @@ function saveSettings(): void {
     settings.showText = showText;
     settings.solidFills = solidFills;
     
+    // Sparkle toggle
+    const sparkleToggle = (document.getElementById('sparkleToggle') as HTMLInputElement)?.checked ?? true;
+    settings.sparkleEnabled = sparkleToggle;
+    
     localStorage.setItem('compositorSettings', JSON.stringify(settings));
   } catch (e) {
     // Silently fail if localStorage is not available
