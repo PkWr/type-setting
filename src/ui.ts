@@ -453,16 +453,25 @@ function updateSpecification(): void {
     
     html += '</table>';
     
-    // Bringhurst says section
-    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
-    html += '<div class="bringhurst-section">';
-    html += '<h3>Bringhurst says</h3>';
-    html += '<table class="spec-table">';
-    html += `<tr><td class="spec-label">Words per line:</td><td class="spec-value">${wordsPerLine}</td></tr>`;
-    html += '</table>';
-    html += '</div>';
-    
     specContent.innerHTML = html;
+    
+    // Update Bringhurst says section in compositor side
+    updateBringhurstSection(results.textBoxWidth, inputs.typeSize);
+  } catch (e) {
+    // Silently fail if inputs are invalid
+  }
+}
+
+/**
+ * Updates the Bringhurst says section in the compositor side
+ */
+function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
+  try {
+    const wordsPerLine = calculateWordsPerLine(textBoxWidth, typeSize);
+    const bringhurstDisplay = document.getElementById('bringhurstWordsPerLine');
+    if (bringhurstDisplay) {
+      bringhurstDisplay.textContent = `Words per line: ${wordsPerLine}`;
+    }
   } catch (e) {
     // Silently fail if inputs are invalid
   }

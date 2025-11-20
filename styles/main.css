@@ -909,22 +909,9 @@ button {
   color: #ffffff;
 }
 
-.bringhurst-section {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: #2a2a2a;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  width: 100%;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.bringhurst-section h3 {
+.bringhurst-section h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   font-family: var(--font-family);
   color: #ffffff;
