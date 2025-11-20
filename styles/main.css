@@ -106,7 +106,7 @@ header {
   margin-bottom: 0;
   margin-top: 0;
   padding-top: var(--spacing-md);
-  padding-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
   border-bottom: 2px solid #333333;
 }
 
