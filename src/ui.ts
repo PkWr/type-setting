@@ -1524,6 +1524,37 @@ export function initializeCalculator(): void {
     });
   }
 
+  // Prevent scroll propagation from container to body
+  const container = document.querySelector('.container') as HTMLElement;
+  if (container) {
+    container.addEventListener('wheel', (e: Event) => {
+      const wheelEvent = e as WheelEvent;
+      const target = wheelEvent.target as HTMLElement;
+      
+      // Check if we're scrolling inside the container
+      if (container.contains(target)) {
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const height = container.clientHeight;
+        const isScrollingDown = wheelEvent.deltaY > 0;
+        const isScrollingUp = wheelEvent.deltaY < 0;
+        
+        // If at top and scrolling up, or at bottom and scrolling down, prevent default
+        if ((scrollTop === 0 && isScrollingUp) || (scrollTop + height >= scrollHeight - 1 && isScrollingDown)) {
+          // Only prevent if we're at the boundary
+          if (scrollTop === 0 && isScrollingUp) {
+            wheelEvent.preventDefault();
+          } else if (scrollTop + height >= scrollHeight - 1 && isScrollingDown) {
+            wheelEvent.preventDefault();
+          }
+        } else {
+          // Prevent scroll from propagating to body
+          wheelEvent.stopPropagation();
+        }
+      }
+    }, { passive: false });
+  }
+
   // Load saved settings first
   loadSettings();
   
