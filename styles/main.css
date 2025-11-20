@@ -1118,6 +1118,7 @@ button {
 
   .form-section {
     padding: var(--spacing-md);
+    padding-left: 0;
   }
 }
 
