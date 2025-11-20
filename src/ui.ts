@@ -1290,27 +1290,36 @@ function loadSettings(): void {
       const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
       if (rightMarginInput) rightMarginInput.value = settings.rightMargin;
     }
-    if (settings.innerMarginLeft) {
-      const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
-      if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
-    }
-    if (settings.innerMarginRight) {
-      const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
-      if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
-    }
-    if (settings.outerMarginLeft) {
-      const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
-      if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
-    }
-    if (settings.outerMarginRight) {
-      const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
-      if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
-    }
-    
-    // Facing pages
+    // Facing pages - load this FIRST so we can show/hide the correct inputs
     if (settings.facingPages !== undefined) {
       const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
-      if (facingPagesCheckbox) facingPagesCheckbox.checked = settings.facingPages;
+      if (facingPagesCheckbox) {
+        facingPagesCheckbox.checked = settings.facingPages;
+        // Update margin inputs visibility based on facing pages state
+        updateMarginInputs();
+        // Now load facing pages margins after inputs are visible
+        if (settings.facingPages) {
+          if (settings.innerMarginLeft) {
+            const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+            if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
+          }
+          if (settings.innerMarginRight) {
+            const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+            if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
+          }
+          if (settings.outerMarginLeft) {
+            const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+            if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
+          }
+          if (settings.outerMarginRight) {
+            const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+            if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
+          }
+        }
+      }
+    } else {
+      // If no facing pages setting, ensure margin inputs are updated
+      updateMarginInputs();
     }
     
     // Columns
