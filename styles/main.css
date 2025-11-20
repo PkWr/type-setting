@@ -339,7 +339,7 @@ h1 {
   height: 20px;
   background-color: white;
   border-radius: 50%;
-  border: 1px solid #555555;
+  border: none;
   transition: left 0.2s;
   pointer-events: none;
   z-index: 2;
