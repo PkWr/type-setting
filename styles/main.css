@@ -164,7 +164,11 @@ body {
 .footer-nav-item {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 0;
+}
+
+.footer-nav-link {
+  margin-bottom: var(--spacing-xs);
 }
 
 .footer-nav-link {
