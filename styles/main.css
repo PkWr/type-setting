@@ -770,7 +770,8 @@ button {
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid #999999;
+  border: none;
+  outline: none;
 }
 
 .slider-input::-moz-range-thumb {
@@ -779,7 +780,8 @@ button {
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid #999999;
+  border: none;
+  outline: none;
 }
 
 .slider-value {
