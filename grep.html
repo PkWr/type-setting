@@ -72,6 +72,7 @@
             <div class="form-group">
               <label for="wordsInput">Enter words (one per line)</label>
               <textarea id="wordsInput" rows="6" placeholder="word1&#10;word2&#10;word3"></textarea>
+              <span class="helper-text">Enter one word per line. The pattern will match all listed words.</span>
             </div>
           </div>
         </section>
@@ -82,10 +83,12 @@
             <div class="form-group">
               <label for="digitsMin">Minimum digits</label>
               <input type="number" id="digitsMin" value="1" min="1" class="input-small">
+              <span class="helper-text">The smallest number of consecutive digits to match (e.g., 1 matches single digits 0-9).</span>
             </div>
             <div class="form-group">
               <label for="digitsMax">Maximum digits</label>
               <input type="number" id="digitsMax" value="10" min="1" class="input-small">
+              <span class="helper-text">The largest number of consecutive digits to match. When equal to minimum, matches exact length.</span>
             </div>
           </div>
         </section>
@@ -111,6 +114,7 @@
                 <option value="brackets">Brackets [ ]</option>
                 <option value="braces">Braces { }</option>
               </select>
+              <span class="helper-text">Select which punctuation marks to match. "All punctuation" matches everything; specific options target individual marks.</span>
             </div>
           </div>
         </section>
@@ -121,10 +125,12 @@
             <div class="form-group">
               <label for="startMarker">Start marker</label>
               <input type="text" id="startMarker" placeholder="(" class="input-small">
+              <span class="helper-text">The character(s) that mark the beginning (e.g., "(" or "["). Can be single or multiple characters.</span>
             </div>
             <div class="form-group">
               <label for="endMarker">End marker</label>
               <input type="text" id="endMarker" placeholder=")" class="input-small">
+              <span class="helper-text">The character(s) that mark the end (e.g., ")" or "]"). Must match the start marker type.</span>
             </div>
           </div>
         </section>
