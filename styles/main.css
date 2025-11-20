@@ -474,7 +474,6 @@ select option {
 .info-label {
   font-weight: 500;
   color: var(--color-text);
-  font-size: 0.95rem;
 }
 
 .info-value {
