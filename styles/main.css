@@ -1311,6 +1311,14 @@ button {
   font-size: 0.85rem;
   color: #cccccc;
   line-height: 1.6;
+  padding-left: 8rem;
+  text-indent: -8rem;
+}
+
+.syntax-item code {
+  display: inline-block;
+  width: 7rem;
+  text-indent: 0;
 }
 
 .syntax-item code {
