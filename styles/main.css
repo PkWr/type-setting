@@ -970,11 +970,12 @@ button {
     top: var(--spacing-lg); /* Sticky positioning from top */
     height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
     max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
-    overflow-y: auto !important; /* Force scroll on container */
+    overflow-y: scroll !important; /* Use scroll instead of auto to always show scrollbar */
     overflow-x: visible !important;
     padding: 0;
     padding-right: 100px;
-    overscroll-behavior: contain; /* Prevent scroll chaining to body */
+    overscroll-behavior-y: contain; /* Prevent vertical scroll chaining to body */
+    overscroll-behavior-x: auto; /* Allow horizontal scroll chaining */
   }
 
   .preview-wrapper {
