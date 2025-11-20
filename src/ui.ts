@@ -467,10 +467,32 @@ function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
       }
       guidanceElement.textContent = guidance;
     }
+    
+    // Bringhurst's leading recommendations
+    // For body text: typically 1-2 points more than type size, or around 120% of type size
+    // Minimum: typeSize + 1pt, Optimal: typeSize + 2pt, Maximum: typeSize * 1.2
+    const leadingMin = typeSize + 1;
+    const leadingOptimal = typeSize + 2;
+    const leadingMax = Math.round(typeSize * 1.2 * 10) / 10; // Round to 1 decimal
+    
+    const leadingElement = document.getElementById('bringhurstLeading');
+    const leadingGuidanceElement = document.getElementById('bringhurstLeadingGuidance');
+    
+    if (leadingElement) {
+      leadingElement.textContent = `${leadingOptimal.toFixed(1)} pt`;
+    }
+    
+    if (leadingGuidanceElement) {
+      leadingGuidanceElement.textContent = `Recommended: ${leadingMin.toFixed(1)}–${leadingMax.toFixed(1)} pt (optimal: ${leadingOptimal.toFixed(1)} pt, ~120% of type size)`;
+    }
   } catch (e) {
     const wordsPerLineElement = document.getElementById('wordsPerLine');
     if (wordsPerLineElement) {
       wordsPerLineElement.textContent = '—';
+    }
+    const leadingElement = document.getElementById('bringhurstLeading');
+    if (leadingElement) {
+      leadingElement.textContent = '—';
     }
   }
 }
