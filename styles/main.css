@@ -404,13 +404,9 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 0;
   min-width: 0;
   width: 100%;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
 }
 
 .page-label {
@@ -849,17 +845,20 @@ button {
 }
 
 .specification-section {
-  margin-top: var(--spacing-lg);
+  margin-top: 0;
   padding: var(--spacing-md);
   background-color: #2a2a2a;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   width: 100%;
   color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .specification-section h3 {
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   font-family: var(--font-family);
@@ -970,7 +969,7 @@ button {
   
   .specification-section {
     flex: 0 0 auto;
-    margin-top: var(--spacing-lg);
+    margin-top: 0;
   }
 
   .visualization-container {
@@ -1168,7 +1167,7 @@ button {
 
 .grep-label {
   display: block;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 0;
   color: #999999;
 }
 
@@ -1181,7 +1180,7 @@ button {
   font-family: 'IBM Plex Mono', monospace;
   color: #ffffff;
   word-break: break-all;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 0;
 }
 
 .btn-copy {
@@ -1216,7 +1215,7 @@ button {
 }
 
 .syntax-title {
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0;
   font-size: 1rem;
   font-weight: 400;
   font-family: var(--font-family);
