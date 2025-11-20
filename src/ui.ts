@@ -936,28 +936,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
     return;
   }
 
-  // Import jsPDF and html2canvas dynamically
-  let jsPDF: any;
-  let html2canvas: any;
-  
-  try {
-    const jsPDFModule = await import('jspdf');
-    // jsPDF v3 exports as default
-    jsPDF = jsPDFModule.default || (jsPDFModule as any).jsPDF;
-    
-    const html2canvasModule = await import('html2canvas');
-    html2canvas = html2canvasModule.default || html2canvasModule;
-  } catch (importError) {
-    console.error('Error importing PDF libraries:', importError);
-    alert('Error loading PDF libraries. Please refresh the page and try again.');
+  // Check if PDF libraries are available (loaded from CDN)
+  if (typeof window === 'undefined' || !(window as any).jspdf || !(window as any).html2canvas) {
+    alert('PDF libraries not loaded. Please refresh the page and try again.');
     return;
   }
   
-  if (!jsPDF || !html2canvas) {
-    console.error('PDF libraries not available');
-    alert('PDF libraries not available. Please refresh the page and try again.');
-    return;
-  }
+  const jsPDF = (window as any).jspdf.jsPDF;
+  const html2canvas = (window as any).html2canvas;
 
   // Get current inputs
   const inputs = getFormInputs();
