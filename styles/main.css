@@ -1308,9 +1308,12 @@ button {
 
 .syntax-item {
   margin: 0;
+  margin-left: 1.5rem;
   font-size: 0.85rem;
   color: #cccccc;
   line-height: 1.6;
+  text-indent: -1.5rem;
+  padding-left: 1.5rem;
 }
 
 .syntax-item code {
