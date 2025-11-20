@@ -340,22 +340,19 @@ function updateSpecification(): void {
       }
     }
     
-    let html = '<div class="spec-grid">';
-    
-    // Page dimensions
-    html += '<div class="spec-group"><h4>Page</h4>';
-    html += `<div class="spec-item"><span class="spec-label">Size:</span><span class="spec-value">${pageSizeLabel}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Dimensions:</span><span class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Orientation:</span><span class="spec-value">${orientation}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Facing pages:</span><span class="spec-value">${facingPages ? 'Yes' : 'No'}</span></div>`;
-    html += '</div>';
-    
     // Get margin unit for display
     const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
     const marginUnit: Unit = (marginUnitToggle?.checked ? 'em' : 'mm');
     
+    let html = '<table class="spec-table">';
+    
+    // Page dimensions
+    html += `<tr><td class="spec-label">Size:</td><td class="spec-value">${pageSizeLabel}</td></tr>`;
+    html += `<tr><td class="spec-label">Dimensions:</td><td class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</td></tr>`;
+    html += `<tr><td class="spec-label">Orientation:</td><td class="spec-value">${orientation}</td></tr>`;
+    html += `<tr><td class="spec-label">Facing pages:</td><td class="spec-value">${facingPages ? 'Yes' : 'No'}</td></tr>`;
+    
     // Margins
-    html += '<div class="spec-group"><h4>Margins</h4>';
     if (facingPages) {
       let innerMarginLeft = inputs.innerMarginLeft || 0;
       let innerMarginRight = inputs.innerMarginRight || 0;
@@ -370,10 +367,10 @@ function updateSpecification(): void {
         outerMarginRight = convertFromMM(outerMarginRight, 'em', inputs.typeSize);
       }
       
-      html += `<div class="spec-item"><span class="spec-label">Verso inner:</span><span class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Verso outer:</span><span class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Recto inner:</span><span class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Recto outer:</span><span class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<tr><td class="spec-label">Verso inner:</td><td class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Verso outer:</td><td class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Recto inner:</td><td class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Recto outer:</td><td class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</td></tr>`;
     } else {
       let leftMargin = inputs.leftMargin;
       let rightMargin = inputs.rightMargin;
@@ -384,8 +381,8 @@ function updateSpecification(): void {
         rightMargin = convertFromMM(rightMargin, 'em', inputs.typeSize);
       }
       
-      html += `<div class="spec-item"><span class="spec-label">Left:</span><span class="spec-value">${leftMargin.toFixed(1)} ${marginUnit}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Right:</span><span class="spec-value">${rightMargin.toFixed(1)} ${marginUnit}</span></div>`;
+      html += `<tr><td class="spec-label">Left:</td><td class="spec-value">${leftMargin.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Right:</td><td class="spec-value">${rightMargin.toFixed(1)} ${marginUnit}</td></tr>`;
     }
     
     let topMargin = inputs.topMargin;
@@ -397,21 +394,17 @@ function updateSpecification(): void {
       bottomMargin = convertFromMM(bottomMargin, 'em', inputs.typeSize);
     }
     
-    html += `<div class="spec-item"><span class="spec-label">Top:</span><span class="spec-value">${topMargin.toFixed(1)} ${marginUnit}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Bottom:</span><span class="spec-value">${bottomMargin.toFixed(1)} ${marginUnit}</span></div>`;
-    html += '</div>';
+    html += `<tr><td class="spec-label">Top:</td><td class="spec-value">${topMargin.toFixed(1)} ${marginUnit}</td></tr>`;
+    html += `<tr><td class="spec-label">Bottom:</td><td class="spec-value">${bottomMargin.toFixed(1)} ${marginUnit}</td></tr>`;
     
     // Typography
-    html += '<div class="spec-group"><h4>Typography</h4>';
-    html += `<div class="spec-item"><span class="spec-label">Type size:</span><span class="spec-value">${inputs.typeSize} pt</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Leading:</span><span class="spec-value">${inputs.leading || inputs.typeSize + 2} pt</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Font family:</span><span class="spec-value">${inputs.fontFamily || 'serif'}</span></div>`;
-    html += `<div class="spec-item"><span class="spec-label">Hyphenation:</span><span class="spec-value">${inputs.hyphenation !== false ? 'Enabled' : 'Disabled'}</span></div>`;
-    html += '</div>';
+    html += `<tr><td class="spec-label">Type size:</td><td class="spec-value">${inputs.typeSize} pt</td></tr>`;
+    html += `<tr><td class="spec-label">Leading:</td><td class="spec-value">${inputs.leading || inputs.typeSize + 2} pt</td></tr>`;
+    html += `<tr><td class="spec-label">Font family:</td><td class="spec-value">${inputs.fontFamily || 'serif'}</td></tr>`;
+    html += `<tr><td class="spec-label">Hyphenation:</td><td class="spec-value">${inputs.hyphenation !== false ? 'Enabled' : 'Disabled'}</td></tr>`;
     
     // Columns
-    html += '<div class="spec-group"><h4>Columns</h4>';
-    html += `<div class="spec-item"><span class="spec-label">Number:</span><span class="spec-value">${inputs.numCols}</span></div>`;
+    html += `<tr><td class="spec-label">Number:</td><td class="spec-value">${inputs.numCols}</td></tr>`;
     
     // Get gutter width in display unit
     const gutterInputSpec = document.getElementById('gutterWidth') as HTMLInputElement;
@@ -423,32 +416,31 @@ function updateSpecification(): void {
       // Show in ems with mm equivalent
       gutterDisplayValue = gutterDisplay;
       gutterDisplayUnit = 'em';
-      html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${results.gutterWidth.toFixed(1)} mm)</span></div>`;
+      html += `<tr><td class="spec-label">Gutter width:</td><td class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${results.gutterWidth.toFixed(1)} mm)</td></tr>`;
     } else {
       // Show in mm with em equivalent
       gutterDisplayValue = gutterDisplay;
       gutterDisplayUnit = 'mm';
       const gutterEm = convertFromMM(results.gutterWidth, 'em', inputs.typeSize);
-      html += `<div class="spec-item"><span class="spec-label">Gutter width:</span><span class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${gutterEm.toFixed(1)} em)</span></div>`;
+      html += `<tr><td class="spec-label">Gutter width:</td><td class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${gutterEm.toFixed(1)} em)</td></tr>`;
     }
     
-    html += `<div class="spec-item"><span class="spec-label">Column width:</span><span class="spec-value">${results.columnWidth.toFixed(1)} mm</span></div>`;
+    html += `<tr><td class="spec-label">Column width:</td><td class="spec-value">${results.columnWidth.toFixed(1)} mm</td></tr>`;
     if (columnSpan) {
-      html += `<div class="spec-item"><span class="spec-label">Text box spans:</span><span class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</span></div>`;
-      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(1)} mm</span></div>`;
+      html += `<tr><td class="spec-label">Text box spans:</td><td class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</td></tr>`;
+      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm</td></tr>`;
     } else {
-      html += `<div class="spec-item"><span class="spec-label">Text box width:</span><span class="spec-value">${results.textBoxWidth.toFixed(1)} mm</span></div>`;
+      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm</td></tr>`;
     }
     if (textColumns && textColumns.length > 0) {
-      html += `<div class="spec-item"><span class="spec-label">Text appears in:</span><span class="spec-value">Columns ${textColumns.join(', ')}</span></div>`;
+      html += `<tr><td class="spec-label">Text appears in:</td><td class="spec-value">Columns ${textColumns.join(', ')}</td></tr>`;
     }
     
     // Words per line
     const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
-    html += `<div class="spec-item"><span class="spec-label">Words per line:</span><span class="spec-value">${wordsPerLine}</span></div>`;
-    html += '</div>';
+    html += `<tr><td class="spec-label">Words per line:</td><td class="spec-value">${wordsPerLine}</td></tr>`;
     
-    html += '</div>';
+    html += '</table>';
     specContent.innerHTML = html;
   } catch (e) {
     // Silently fail if inputs are invalid

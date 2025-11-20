@@ -755,45 +755,39 @@ button {
   color: #ffffff;
 }
 
-.spec-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  table-layout: fixed;
+  word-wrap: break-word;
 }
 
-.spec-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+.spec-table tr {
+  border-bottom: 1px solid #222222;
 }
 
-.spec-group h4 {
-  margin: 0 0 var(--spacing-xs) 0;
-  font-weight: 600;
-  font-family: var(--font-family);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #999999;
-}
-
-.spec-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--spacing-sm);
-  font-size: 0.9rem;
-  line-height: 1.5;
+.spec-table tr:last-child {
+  border-bottom: none;
 }
 
 .spec-label {
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 0;
+  vertical-align: top;
+  width: 8rem;
+  max-width: 8rem;
   color: #999999;
   font-weight: 500;
+  overflow-wrap: break-word;
 }
 
 .spec-value {
+  padding: var(--spacing-xs) 0;
   color: #ffffff;
   font-weight: 600;
-  text-align: right;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   font-variant-numeric: tabular-nums;
 }
 
