@@ -971,8 +971,8 @@ button {
   font-size: 0.9rem;
 }
 
-/* Tablet layout - side by side */
-@media (min-width: 900px) and (max-width: 1199px) {
+/* Desktop layout - side by side */
+@media (min-width: 768px) {
   .app-wrapper {
     flex-direction: row;
     align-items: flex-start;
@@ -991,7 +991,7 @@ button {
   }
 }
 
-/* Desktop layout - fixed preview on right */
+/* Large desktop layout - fixed preview on right */
 @media (min-width: 1200px) {
   body {
     padding: var(--spacing-lg);
