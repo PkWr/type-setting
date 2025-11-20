@@ -1054,6 +1054,25 @@ button {
   }
 }
 
+/* Mobile - stack vertically */
+@media (max-width: 899px) {
+  .app-wrapper {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-right: 0;
+  }
+
+  .preview-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   body {
@@ -1061,8 +1080,6 @@ button {
   }
 
   .container {
-    width: 100%;
-    max-width: 100%;
     padding: 0 var(--spacing-md);
   }
 
