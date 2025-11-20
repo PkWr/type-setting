@@ -752,7 +752,7 @@ button {
 .slider-input {
   flex: 1;
   height: 4px;
-  background: #333333;
+  background: #666666;
   border-radius: 2px;
   outline: none;
   -webkit-appearance: none;
@@ -762,21 +762,21 @@ button {
 .slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 1px solid #333333;
+  border: 2px solid #999999;
 }
 
 .slider-input::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #ffffff;
   border-radius: 50%;
   cursor: pointer;
-  border: 1px solid #555555;
+  border: 2px solid #999999;
 }
 
 .slider-value {
