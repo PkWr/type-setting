@@ -90,7 +90,7 @@ body {
   background-color: #ff0000;
   z-index: 1000;
   padding: var(--spacing-xs) 0;
-  max-height: auto;
+  max-height: 40px;
   transition: max-height 0.3s ease-in-out;
   overflow: hidden;
 }
