@@ -51,17 +51,63 @@
       // Prevent touch scrolling on body for mobile/tablet
       document.addEventListener('touchmove', function(e) {
         if (window.innerWidth >= 1200) {
-          const target = e.target as HTMLElement;
-          const container = document.querySelector('.container');
-          const previewWrapper = document.querySelector('.preview-wrapper');
+          var target = e.target;
+          var container = document.querySelector('.container');
+          var previewWrapper = document.querySelector('.preview-wrapper');
           if (container && previewWrapper) {
-            const isInContainer = container.contains(target) || container === target;
-            const isInPreview = previewWrapper.contains(target) || previewWrapper === target;
+            var isInContainer = container.contains(target) || container === target;
+            var isInPreview = previewWrapper.contains(target) || previewWrapper === target;
             if (!isInContainer && !isInPreview) {
               e.preventDefault();
             }
           } else {
             e.preventDefault();
+          }
+        }
+      }, { passive: false });
+      
+      // Actively prevent and reset any body scrolling
+      var lastScrollTop = 0;
+      function preventScroll() {
+        if (window.innerWidth >= 1200) {
+          var currentScroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+          if (currentScroll !== 0) {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }
+          lastScrollTop = 0;
+        }
+      }
+      
+      // Run preventScroll continuously
+      setInterval(preventScroll, 10);
+      
+      // Also prevent on scroll event
+      window.addEventListener('scroll', function(e) {
+        if (window.innerWidth >= 1200) {
+          preventScroll();
+        }
+      }, { passive: false });
+      
+      // Prevent on wheel at window level
+      window.addEventListener('wheel', function(e) {
+        if (window.innerWidth >= 1200) {
+          var target = e.target;
+          var container = document.querySelector('.container');
+          var previewWrapper = document.querySelector('.preview-wrapper');
+          if (container && previewWrapper) {
+            var isInContainer = container.contains(target) || container === target;
+            var isInPreview = previewWrapper.contains(target) || previewWrapper === target;
+            if (!isInContainer && !isInPreview) {
+              e.preventDefault();
+              e.stopPropagation();
+              preventScroll();
+            }
+          } else {
+            e.preventDefault();
+            e.stopPropagation();
+            preventScroll();
           }
         }
       }, { passive: false });
