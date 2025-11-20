@@ -157,7 +157,7 @@ function updateGrepPattern(): void {
     
     output.innerHTML = `
       <div class="grep-pattern">
-        <label class="grep-label">Grep Pattern:</label>
+        <label class="grep-label">Pattern:</label>
         <code class="grep-code">${escapeHtml(pattern)}</code>
         <button class="btn-copy" onclick="navigator.clipboard.writeText('${pattern.replace(/'/g, "\\'")}')">Copy</button>
       </div>
