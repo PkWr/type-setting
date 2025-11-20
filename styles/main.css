@@ -196,14 +196,22 @@ body {
   font-family: var(--font-family);
 }
 
-.footer-sparkle-control {
+.footer-sparkle-label {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-xs);
+  cursor: pointer;
+  font-weight: 600;
+  color: #000000;
+  font-size: 0.5rem;
+  font-family: var(--font-family);
 }
 
-.footer-sparkle-control .unit-toggle-label {
-  justify-content: center;
+.footer-sparkle-label .checkbox-input {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary);
 }
 
 .app-wrapper {
