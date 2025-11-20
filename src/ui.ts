@@ -1883,6 +1883,54 @@ function addLetterpressDecorations(): void {
 }
 
 export function initializeCalculator(): void {
+  // Prevent body scrolling on large screens - only containers scroll independently
+  const preventBodyScroll = () => {
+    if (window.matchMedia('(min-width: 1200px)').matches) {
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+      document.body.style.maxHeight = '100vh';
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.height = '100%';
+    } else {
+      // Restore normal scrolling on smaller screens
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.maxHeight = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
+    }
+  };
+  
+  // Apply on load
+  preventBodyScroll();
+  
+  // Re-apply on resize
+  window.addEventListener('resize', preventBodyScroll);
+  
+  // Prevent wheel events from scrolling body on large screens
+  document.addEventListener('wheel', (e: WheelEvent) => {
+    if (window.matchMedia('(min-width: 1200px)').matches) {
+      const target = e.target as HTMLElement;
+      const container = document.querySelector('.container') as HTMLElement;
+      const previewWrapper = document.querySelector('.preview-wrapper') as HTMLElement;
+      
+      // Only allow scrolling if target is inside container or preview-wrapper
+      if (container && previewWrapper) {
+        const isInContainer = container.contains(target) || container === target;
+        const isInPreview = previewWrapper.contains(target) || previewWrapper === target;
+        
+        // If not in either scrollable container, prevent default
+        if (!isInContainer && !isInPreview) {
+          e.preventDefault();
+        }
+      } else {
+        // If containers don't exist, prevent all body scrolling
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+  
   // Initialize footer menu toggle
   const footerMenuToggle = document.getElementById('footerMenuToggle');
   const footer = document.getElementById('footer');

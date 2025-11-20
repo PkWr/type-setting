@@ -41,6 +41,7 @@ body {
   color: #ffffff;
   line-height: 1.6;
   font-size: 0.75rem;
+  box-sizing: border-box; /* Include padding in height calculations */
 }
 
 .fixed-header {
@@ -979,17 +980,21 @@ button {
   html {
     height: 100%;
     overflow: hidden; /* Prevent html scrolling */
+    position: relative;
   }
   
   body {
     height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent body scrolling - only container scrolls */
+    max-height: 100vh; /* Ensure it never exceeds viewport */
+    overflow: hidden; /* Prevent body scrolling */
     padding: var(--spacing-lg);
     padding-top: var(--spacing-lg);
     padding-bottom: calc(60px + var(--spacing-lg)); /* Footer height + spacing */
     margin: 0;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box; /* Include padding in height calculation */
+    position: relative;
   }
 
   .app-wrapper {
@@ -998,10 +1003,12 @@ button {
     max-width: 1600px;
     margin: 0 auto;
     gap: var(--spacing-xl);
-    flex: 1;
+    flex: 1 1 0; /* Grow and shrink, base size 0 */
     min-height: 0;
+    max-height: 100%; /* Never exceed parent height */
     overflow: hidden; /* Prevent app-wrapper from causing scroll */
     height: 100%; /* Fill available space */
+    box-sizing: border-box;
   }
 
   .container {
