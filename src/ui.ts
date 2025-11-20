@@ -923,7 +923,7 @@ function updateMarginInputs(): void {
 /**
  * Exports the current visualization as a standalone HTML file
  */
-function exportVisualizationAsHTML(): void {
+async function exportVisualizationAsPDF(): Promise<void> {
   const container = document.getElementById('visualizationContainer');
   if (!container) {
     alert('Visualization container not found');
@@ -936,116 +936,158 @@ function exportVisualizationAsHTML(): void {
     return;
   }
 
-  // Get current inputs for metadata
+  // Import jsPDF dynamically
+  const { jsPDF } = await import('jspdf');
+  const html2canvas = (await import('html2canvas')).default;
+
+  // Get current inputs
   const inputs = getFormInputs();
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
   const facingPages = facingPagesCheckbox?.checked ?? false;
   
-  // Clone the SVG to avoid modifying the original
+  // Create PDF - A4 size in mm (210 x 297)
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  
+  const pdfWidth = 210; // A4 width in mm
+  const pdfHeight = 297; // A4 height in mm
+  const margin = 10; // Margin in mm
+  const contentWidth = pdfWidth - (margin * 2);
+  const contentHeight = pdfHeight - (margin * 2);
+  
+  // Clone SVG and modify for export (white background, black elements)
   const svgClone = svg.cloneNode(true) as SVGElement;
   
-  // Calculate actual page dimensions in pixels (1mm = 3.779527559 pixels at 96 DPI)
-  const MM_TO_PX = 3.779527559;
-  const actualPageWidthPx = inputs.pageWidth * MM_TO_PX;
-  const actualPageHeightPx = inputs.pageHeight * MM_TO_PX;
-  const totalWidthPx = facingPages ? actualPageWidthPx * 2 : actualPageWidthPx;
-  const headingHeight = facingPages ? 20 : 0;
-  const totalHeightPx = actualPageHeightPx + headingHeight;
+  // Set white background
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('width', '100%');
+  rect.setAttribute('height', '100%');
+  rect.setAttribute('fill', '#ffffff');
+  svgClone.insertBefore(rect, svgClone.firstChild);
   
-  // Get the viewBox from the original SVG
-  const viewBox = svg.getAttribute('viewBox') || '0 0 400 400';
+  // Change all colors to black
+  const allElements = svgClone.querySelectorAll('*');
+  allElements.forEach((el: Element) => {
+    const svgEl = el as SVGElement;
+    if (svgEl.hasAttribute('fill') && svgEl.getAttribute('fill') !== 'none') {
+      svgEl.setAttribute('fill', '#000000');
+    }
+    if (svgEl.hasAttribute('stroke') && svgEl.getAttribute('stroke') !== 'none') {
+      svgEl.setAttribute('stroke', '#000000');
+    }
+  });
   
-  // Set explicit width and height on the SVG for 1:1 scale
-  svgClone.setAttribute('width', `${totalWidthPx}px`);
-  svgClone.setAttribute('height', `${totalHeightPx}px`);
-  svgClone.setAttribute('viewBox', viewBox);
-  svgClone.removeAttribute('style'); // Remove any inline styles that might affect sizing
+  // Create a temporary container for the SVG
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'absolute';
+  tempContainer.style.left = '-9999px';
+  tempContainer.style.width = `${contentWidth}px`;
+  tempContainer.style.height = `${contentHeight}px`;
+  tempContainer.style.backgroundColor = '#ffffff';
+  tempContainer.appendChild(svgClone);
+  document.body.appendChild(tempContainer);
   
-  // Create standalone HTML
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Typography Layout Preview</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+  // Get SVG dimensions
+  const svgViewBox = svg.getAttribute('viewBox') || '0 0 400 400';
+  const viewBoxValues = svgViewBox.split(' ').map(v => parseFloat(v));
+  const svgWidth = viewBoxValues[2] || 400;
+  const svgHeight = viewBoxValues[3] || 400;
+  
+  // Calculate scale to fit SVG to content area
+  const scaleX = contentWidth / svgWidth;
+  const scaleY = contentHeight / svgHeight;
+  const scale = Math.min(scaleX, scaleY);
+  
+  const scaledWidth = svgWidth * scale;
+  const scaledHeight = svgHeight * scale;
+  const offsetX = (contentWidth - scaledWidth) / 2;
+  const offsetY = (contentHeight - scaledHeight) / 2;
+  
+  // Set SVG size
+  svgClone.setAttribute('width', `${scaledWidth}px`);
+  svgClone.setAttribute('height', `${scaledHeight}px`);
+  svgClone.setAttribute('viewBox', svgViewBox);
+  tempContainer.style.display = 'flex';
+  tempContainer.style.alignItems = 'center';
+  tempContainer.style.justifyContent = 'center';
+  
+  try {
+    // Convert SVG to canvas/image for page 1
+    const canvas = await html2canvas(tempContainer, {
+      backgroundColor: '#ffffff',
+      width: contentWidth,
+      height: contentHeight,
+      scale: 2 // Higher quality
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Page 1: Visualization
+    pdf.addImage(imgData, 'PNG', margin + offsetX / (96 / 25.4), margin + offsetY / (96 / 25.4), scaledWidth / (96 / 25.4), scaledHeight / (96 / 25.4));
+    
+    // Page 2: Specification table
+    pdf.addPage();
+    
+    // Get specification table HTML
+    const specContent = document.getElementById('specificationContent');
+    if (specContent) {
+      const specTable = specContent.querySelector('.spec-table');
+      if (specTable) {
+        // Create temporary container for table
+        const tempTableContainer = document.createElement('div');
+        tempTableContainer.style.position = 'absolute';
+        tempTableContainer.style.left = '-9999px';
+        tempTableContainer.style.width = `${contentWidth}px`;
+        tempTableContainer.style.backgroundColor = '#ffffff';
+        tempTableContainer.style.padding = '20px';
+        
+        // Clone and style table for PDF
+        const tableClone = specTable.cloneNode(true) as HTMLTableElement;
+        tableClone.style.width = '100%';
+        tableClone.style.borderCollapse = 'collapse';
+        tableClone.style.color = '#000000';
+        tableClone.style.fontSize = '12px';
+        tableClone.style.fontFamily = 'Arial, sans-serif';
+        
+        // Style all cells
+        const cells = tableClone.querySelectorAll('td');
+        cells.forEach((cell: HTMLTableCellElement) => {
+          cell.style.padding = '8px';
+          cell.style.borderBottom = '1px solid #000000';
+          cell.style.color = '#000000';
+        });
+        
+        tempTableContainer.appendChild(tableClone);
+        document.body.appendChild(tempTableContainer);
+        
+        const tableCanvas = await html2canvas(tempTableContainer, {
+          backgroundColor: '#ffffff',
+          width: contentWidth,
+          scale: 2
+        });
+        
+        const tableImgData = tableCanvas.toDataURL('image/png');
+        const tableHeight = (tableCanvas.height / (96 / 25.4)) / 2; // Convert to mm
+        
+        pdf.addImage(tableImgData, 'PNG', margin, margin, contentWidth, tableHeight);
+        
+        document.body.removeChild(tempTableContainer);
+      }
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      padding: 2rem;
-      background-color: #f8fafc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .preview-container {
-      background: white;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      max-width: 100%;
-    }
-    .preview-header {
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .preview-header h1 {
-      font-size: 1.5rem;
-      color: #1e293b;
-      margin-bottom: 0.5rem;
-    }
-    .preview-meta {
-      font-size: 0.875rem;
-      color: #64748b;
-      line-height: 1.6;
-    }
-    .preview-meta strong {
-      color: #1e293b;
-    }
-    svg {
-      display: block;
-      width: ${totalWidthPx}px;
-      height: ${totalHeightPx}px;
-      max-width: 100%;
-    }
-  </style>
-</head>
-<body>
-  <div class="preview-container">
-    <div class="preview-header">
-      <h1>Typography Layout Preview</h1>
-      <div class="preview-meta">
-        <p><strong>Page Size:</strong> ${inputs.pageWidth.toFixed(2)} × ${inputs.pageHeight.toFixed(2)} mm</p>
-        <p><strong>Type Size:</strong> ${inputs.typeSize} pt</p>
-        <p><strong>Columns:</strong> ${inputs.numCols}</p>
-        <p><strong>Gutter Width:</strong> ${formatValue(convertFromMM(inputs.gutterWidth, GUTTER_UNIT, inputs.typeSize), GUTTER_UNIT, 3)}</p>
-        <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Bottom: ${formatValue(inputs.bottomMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Left: ${formatValue(inputs.leftMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Right: ${formatValue(inputs.rightMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}</p>
-        ${inputs.columnSpanStart && inputs.columnSpanEnd ? `<p><strong>Column Span:</strong> Columns ${inputs.columnSpanStart} to ${inputs.columnSpanEnd}</p>` : ''}
-        ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text starts:</strong> Column ${Math.min(...inputs.textColumns)}</p>` : ''}
-        <p><strong>Scale:</strong> 1:1 (Actual size)</p>
-      </div>
-    </div>
-    ${svgClone.outerHTML}
-  </div>
-</body>
-</html>`;
-
-  // Create blob and download
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `typography-layout-preview-${Date.now()}.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    
+    // Clean up
+    document.body.removeChild(tempContainer);
+    
+    // Save PDF
+    pdf.save(`typography-layout-${Date.now()}.pdf`);
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    alert('Error exporting PDF. Please try again.');
+    document.body.removeChild(tempContainer);
+  }
 }
 
 /**
@@ -1950,10 +1992,15 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Export as HTML button
+  // Export to PDF button
   const exportHtmlButton = document.getElementById('exportHtmlButton');
   if (exportHtmlButton) {
-    exportHtmlButton.addEventListener('click', exportVisualizationAsHTML);
+    exportHtmlButton.addEventListener('click', () => {
+      exportVisualizationAsPDF().catch(error => {
+        console.error('PDF export error:', error);
+        alert('Error exporting PDF. Please try again.');
+      });
+    });
   }
 
   // Handle paper size selection
