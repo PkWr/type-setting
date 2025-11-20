@@ -35,7 +35,6 @@ body {
   font-family: var(--font-family);
   margin: 0;
   padding: var(--spacing-md);
-  padding-top: calc(40px + 100px); /* Fixed header height (40px) + 100px gap */
   padding-bottom: calc(60px + var(--spacing-md)); /* Fixed footer height + spacing */
   background-color: #2a2a2a;
   color: #ffffff;
@@ -1092,6 +1091,11 @@ button {
 
 /* Mobile - stack vertically */
 @media (max-width: 767px) {
+  body {
+    padding: var(--spacing-md);
+    padding-bottom: calc(60px + var(--spacing-md));
+  }
+
   .app-wrapper {
     flex-direction: column;
     gap: var(--spacing-md);
@@ -1100,6 +1104,7 @@ button {
   .container {
     width: 100%;
     max-width: 100%;
+    padding: 0 var(--spacing-md);
     padding-right: 0;
   }
 
@@ -1111,17 +1116,6 @@ button {
   .visualization-section {
     border-top: 1px solid #555555;
   }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  body {
-    padding: var(--spacing-md);
-  }
-
-  .container {
-    padding: 0 var(--spacing-md);
-  }
 
   h1 {
     font-size: 1.5rem;
@@ -1131,6 +1125,8 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* Responsive design - merged into mobile breakpoint */
 
 @media (max-width: 480px) {
   .container {
