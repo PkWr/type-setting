@@ -1517,7 +1517,13 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Load saved settings first
+  // Set em toggle default to checked before loading settings
+  const defaultMarginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  if (defaultMarginUnitToggle) {
+    defaultMarginUnitToggle.checked = true; // Default to em
+  }
+
+  // Load saved settings (will override default if settings exist)
   loadSettings();
   
   // Initialize orientation toggle state
