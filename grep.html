@@ -145,12 +145,14 @@
                 <input type="checkbox" id="caseSensitive">
                 <span>Case sensitive</span>
               </label>
+              <span class="helper-text">When checked: matches exact capitalization (e.g., "Hello" won't match "hello"). When unchecked: adds (?i) flag to ignore case, so "Hello", "hello", and "HELLO" all match the same way.</span>
             </div>
             <div class="form-group">
               <label>
                 <input type="checkbox" id="wholeWord" checked>
                 <span>Whole word only</span>
               </label>
+              <span class="helper-text">When checked: matches complete words only using word boundaries (\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</span>
             </div>
           </div>
         </section>
