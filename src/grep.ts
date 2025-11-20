@@ -213,7 +213,66 @@ function updateGrepPattern(): void {
       syntaxExplanation.style.display = 'block';
     }
   } else {
-    output.innerHTML = `<p class="helper-text">${description}</p>`;
+    // Show instructions table when no pattern is generated
+    let instructionsTable = '<table class="syntax-table">';
+    
+    switch (searchType) {
+      case 'words':
+        instructionsTable += `
+          <tr>
+            <td class="syntax-code"><strong>Words</strong></td>
+            <td class="syntax-description">Enter one word per line. The pattern will match all listed words.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Case sensitive</strong></td>
+            <td class="syntax-description">When checked, matches exact capitalization. When unchecked, adds (?i) flag to ignore case.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Whole word</strong></td>
+            <td class="syntax-description">When checked, matches complete words only (not parts of words).</td>
+          </tr>
+        `;
+        break;
+        
+      case 'digits':
+        instructionsTable += `
+          <tr>
+            <td class="syntax-code"><strong>Minimum digits</strong></td>
+            <td class="syntax-description">The smallest number of digits to match (e.g., 1 matches single digits).</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Maximum digits</strong></td>
+            <td class="syntax-description">The largest number of digits to match (e.g., 3 matches 1, 2, or 3 digits).</td>
+          </tr>
+        `;
+        break;
+        
+      case 'punctuation':
+        instructionsTable += `
+          <tr>
+            <td class="syntax-code"><strong>Punctuation type</strong></td>
+            <td class="syntax-description">Select which punctuation marks to match: all punctuation, periods, commas, quotes, etc.</td>
+          </tr>
+        `;
+        break;
+        
+      case 'enclosed':
+        instructionsTable += `
+          <tr>
+            <td class="syntax-code"><strong>Start marker</strong></td>
+            <td class="syntax-description">The character(s) that mark the beginning (e.g., "(" or "[").</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>End marker</strong></td>
+            <td class="syntax-description">The character(s) that mark the end (e.g., ")" or "]").</td>
+          </tr>
+        `;
+        break;
+    }
+    
+    instructionsTable += '</table>';
+    output.innerHTML = instructionsTable;
+    
     // Hide syntax explanation when no pattern
     if (syntaxExplanation) {
       syntaxExplanation.style.display = 'none';
