@@ -1152,6 +1152,15 @@ function saveSettings(): void {
 function loadSettings(): void {
   try {
     const savedSettings = localStorage.getItem('compositorSettings');
+    
+    // Margin unit - default to em (checked) if no saved settings
+    const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+    if (marginUnitToggle) {
+      if (!savedSettings) {
+        marginUnitToggle.checked = true; // Default to em
+      }
+    }
+    
     if (!savedSettings) return;
     
     const settings = JSON.parse(savedSettings);
@@ -1174,10 +1183,9 @@ function loadSettings(): void {
       if (orientationToggle) orientationToggle.checked = settings.orientationToggle;
     }
     
-    // Margin unit
-    if (settings.marginUnitToggle !== undefined) {
-      const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
-      if (marginUnitToggle) marginUnitToggle.checked = settings.marginUnitToggle;
+    // Margin unit - load saved setting if exists
+    if (settings.marginUnitToggle !== undefined && marginUnitToggle) {
+      marginUnitToggle.checked = settings.marginUnitToggle;
     }
     
     // Margins
