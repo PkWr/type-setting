@@ -151,6 +151,10 @@ function updateGrepPattern(): void {
   if (!output) return;
   
   if (pattern) {
+    const caseNote = options.caseSensitive 
+      ? '<p class="helper-text"><strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign Find/Change dialog</p>'
+      : '<p class="helper-text"><strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign Find/Change dialog)</p>';
+    
     output.innerHTML = `
       <div class="grep-pattern">
         <label class="grep-label">Grep Pattern:</label>
@@ -158,8 +162,8 @@ function updateGrepPattern(): void {
         <button class="btn-copy" onclick="navigator.clipboard.writeText('${pattern.replace(/'/g, "\\'")}')">Copy</button>
       </div>
       <p class="helper-text">${description}</p>
-      ${options.caseSensitive ? '<p class="helper-text">Case sensitive</p>' : ''}
-      ${options.wholeWord ? '<p class="helper-text">Whole word only</p>' : ''}
+      ${caseNote}
+      ${options.wholeWord ? '<p class="helper-text"><strong>Note:</strong> Pattern includes word boundaries (\\b) for whole word matching</p>' : ''}
     `;
   } else {
     output.innerHTML = `<p class="helper-text">${description}</p>`;
