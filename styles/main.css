@@ -144,6 +144,12 @@ h1 {
 .unit-toggle-wrapper {
   display: flex;
   align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.unit-selector-rule {
+  border-bottom: 1px solid #555555;
+  margin-bottom: var(--spacing-md);
 }
 
 .unit-toggle-label {
