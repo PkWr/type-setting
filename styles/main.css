@@ -119,14 +119,15 @@ body {
   background: none;
   border: none;
   color: #000000;
-  font-size: 0.5rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 400;
   cursor: pointer;
   padding: var(--spacing-xs) 0;
   margin-bottom: var(--spacing-xs);
   text-align: left;
   font-family: var(--font-family);
   transition: opacity 0.2s;
+  margin: 0;
 }
 
 .footer-menu-toggle:hover {
@@ -141,9 +142,11 @@ body {
   display: block;
 }
 
-.fixed-footer p {
+.fixed-footer h1 {
   margin: 0;
-  font-size: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+  font-family: var(--font-family);
   color: #000000;
   line-height: 1.6;
 }
