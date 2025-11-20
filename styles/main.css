@@ -519,7 +519,6 @@ button {
   padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
   border-radius: var(--border-radius-sm);
-  font-size: 0.95rem;
   font-weight: 500;
   font-family: var(--font-family);
   cursor: pointer;
@@ -1071,7 +1070,6 @@ button {
   border: 1px solid #333333;
   border-radius: var(--border-radius-sm);
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9rem;
   color: #ffffff;
   word-break: break-all;
   margin-bottom: var(--spacing-lg);
