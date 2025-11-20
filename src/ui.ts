@@ -1044,6 +1044,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
   tempContainer.appendChild(svgClone);
   document.body.appendChild(tempContainer);
   
+  // Wait a moment for the DOM to update
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   try {
     // Convert SVG to canvas/image for page 1
     const canvas = await html2canvas(tempContainer, {
@@ -1051,7 +1054,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
       width: scaledWidth,
       height: scaledHeight,
       scale: 2, // Higher quality
-      logging: false
+      logging: false,
+      useCORS: true,
+      allowTaint: false
     });
     
     const imgData = canvas.toDataURL('image/png');
