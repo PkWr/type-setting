@@ -152,8 +152,8 @@ function updateGrepPattern(): void {
   
   if (pattern) {
     const caseNote = options.caseSensitive 
-      ? '<p class="helper-text"><strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign Find/Change dialog</p>'
-      : '<p class="helper-text"><strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign Find/Change dialog)</p>';
+      ? '<p class="helper-text"><strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign paragraph style GREP Style settings</p>'
+      : '<p class="helper-text"><strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign paragraph style GREP Style settings)</p>';
     
     output.innerHTML = `
       <div class="grep-pattern">
