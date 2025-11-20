@@ -992,7 +992,7 @@ button {
     bottom: calc(60px + var(--spacing-lg)) !important;
     max-width: 1600px;
     margin: 0 auto;
-    padding: 0 var(--spacing-lg);
+    padding: 0;
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch !important;
