@@ -933,7 +933,7 @@ button {
 @media (min-width: 1200px) {
   body {
     padding: var(--spacing-lg);
-    padding-top: calc(40px + 100px); /* Fixed header height (40px) + 100px gap */
+    padding-top: var(--spacing-lg);
   }
 
   .app-wrapper {
@@ -951,10 +951,11 @@ button {
     position: sticky;
     top: var(--spacing-lg); /* Sticky positioning from top */
     max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Account for footer (60px) */
-    overflow-y: auto;
+    overflow-y: auto !important; /* Force scroll on container */
     overflow-x: visible;
     padding: 0;
     padding-right: 100px;
+    height: auto; /* Allow height to be determined by content */
   }
 
   .preview-wrapper {
