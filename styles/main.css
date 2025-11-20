@@ -950,12 +950,13 @@ button {
     margin: 0;
     position: sticky;
     top: var(--spacing-lg); /* Sticky positioning from top */
-    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Account for footer (60px) */
+    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
     overflow-y: auto !important; /* Force scroll on container */
     overflow-x: visible;
     padding: 0;
     padding-right: 100px;
-    height: auto; /* Allow height to be determined by content */
+    display: flex;
+    flex-direction: column;
   }
 
   .preview-wrapper {
