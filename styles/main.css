@@ -91,13 +91,14 @@ body {
   z-index: 1000;
   padding: var(--spacing-xs) 0;
   max-height: 40px;
-  transition: max-height 0.3s ease-in-out;
+  transition: max-height 0.3s ease-in-out, background-color 0.3s ease-in-out;
   overflow: hidden;
 }
 
 .fixed-footer.expanded {
   max-height: 50vh;
   overflow-y: auto;
+  background-color: #ffffff;
 }
 
 .fixed-footer-content {
@@ -179,7 +180,11 @@ body {
   text-decoration-color: #ffffff;
   text-underline-offset: 2px;
   font-family: var(--font-family);
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, text-decoration-color 0.3s ease-in-out;
+}
+
+.fixed-footer.expanded .footer-nav-link {
+  text-decoration-color: #ff0000;
 }
 
 .footer-nav-link:hover {
