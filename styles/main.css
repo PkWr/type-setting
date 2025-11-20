@@ -979,29 +979,19 @@ button {
 @media (min-width: 1200px) {
   html {
     height: 100%;
-    overflow: hidden; /* Prevent html scrolling */
-    position: relative;
+    overflow: hidden;
   }
   
   body {
-    height: 100vh; /* Full viewport height */
-    max-height: 100vh; /* Ensure it never exceeds viewport */
-    overflow: hidden !important; /* Prevent body scrolling - force override */
+    height: 100vh;
+    overflow: hidden;
     padding: var(--spacing-lg);
     padding-top: var(--spacing-lg);
-    padding-bottom: calc(60px + var(--spacing-lg)); /* Footer height + spacing */
+    padding-bottom: calc(60px + var(--spacing-lg));
     margin: 0;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box; /* Include padding in height calculation */
-    position: relative;
-    touch-action: none; /* Prevent touch scrolling on body */
-  }
-  
-  /* Allow touch scrolling only in containers */
-  .container,
-  .preview-wrapper {
-    touch-action: pan-y; /* Allow vertical touch scrolling */
+    box-sizing: border-box;
   }
 
   .app-wrapper {
