@@ -188,7 +188,9 @@ function updateGrepPattern(): void {
     
     const caseNoteP = document.createElement('p');
     caseNoteP.className = 'helper-text';
-    caseNoteP.innerHTML = caseNote.replace(/<p class="helper-text">(.*?)<\/p>/, '$1');
+    caseNoteP.innerHTML = options.caseSensitive 
+      ? '<strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign paragraph style GREP Style settings'
+      : '<strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign paragraph style GREP Style settings)';
     output.appendChild(caseNoteP);
     
     if (options.wholeWord) {
