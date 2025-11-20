@@ -586,7 +586,7 @@ button {
   justify-content: space-between;
   align-items: center;
   margin-top: 0;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .header-actions {
@@ -1233,15 +1233,16 @@ button {
 
 /* Grep Generator Styles */
 .grep-output {
-  padding: var(--spacing-md);
-  padding-left: 0;
+  padding: 0;
+  padding-bottom: var(--spacing-md);
   background-color: #000000;
   border-radius: var(--border-radius-sm);
   min-height: 200px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .grep-pattern {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .grep-label {
@@ -1261,7 +1262,7 @@ button {
   font-size: 0.9rem;
   color: #ffffff;
   word-break: break-all;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
 }
 
 .btn-copy {
@@ -1286,7 +1287,7 @@ button {
 
 /* Syntax Explanation Styles */
 .syntax-explanation {
-  margin-top: var(--spacing-lg);
+  margin-top: 0;
   padding: var(--spacing-md);
   background-color: #111111;
   border: 1px solid #333333;
