@@ -1908,24 +1908,68 @@ export function initializeCalculator(): void {
   // Re-apply on resize
   window.addEventListener('resize', preventBodyScroll);
   
-  // Prevent wheel events from scrolling body on large screens
+  // Aggressively prevent wheel events from scrolling body on large screens
   document.addEventListener('wheel', (e: WheelEvent) => {
     if (window.matchMedia('(min-width: 1200px)').matches) {
       const target = e.target as HTMLElement;
       const container = document.querySelector('.container') as HTMLElement;
       const previewWrapper = document.querySelector('.preview-wrapper') as HTMLElement;
       
-      // Only allow scrolling if target is inside container or preview-wrapper
+      // Check if target is in a scrollable container
+      let isInScrollableContainer = false;
+      
+      if (container && previewWrapper) {
+        // Check if target is inside container or preview-wrapper
+        isInScrollableContainer = container.contains(target) || container === target ||
+                                  previewWrapper.contains(target) || previewWrapper === target;
+        
+        // Also check if we're at scroll boundaries - if so, allow scroll to continue to next container
+        if (isInScrollableContainer) {
+          if (container.contains(target) || container === target) {
+            const isAtTop = container.scrollTop === 0;
+            const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+            // If at boundary and scrolling in that direction, prevent to stop body scroll
+            if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+          }
+          if (previewWrapper.contains(target) || previewWrapper === target) {
+            const isAtTop = previewWrapper.scrollTop === 0;
+            const isAtBottom = previewWrapper.scrollTop + previewWrapper.clientHeight >= previewWrapper.scrollHeight - 1;
+            // If at boundary and scrolling in that direction, prevent to stop body scroll
+            if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+          }
+        }
+      }
+      
+      // If not in either scrollable container, prevent default to stop body scroll
+      if (!isInScrollableContainer) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+  }, { passive: false });
+  
+  // Also prevent touchmove events
+  document.addEventListener('touchmove', (e: TouchEvent) => {
+    if (window.matchMedia('(min-width: 1200px)').matches) {
+      const target = e.target as HTMLElement;
+      const container = document.querySelector('.container') as HTMLElement;
+      const previewWrapper = document.querySelector('.preview-wrapper') as HTMLElement;
+      
       if (container && previewWrapper) {
         const isInContainer = container.contains(target) || container === target;
         const isInPreview = previewWrapper.contains(target) || previewWrapper === target;
-        
-        // If not in either scrollable container, prevent default
         if (!isInContainer && !isInPreview) {
           e.preventDefault();
         }
       } else {
-        // If containers don't exist, prevent all body scrolling
         e.preventDefault();
       }
     }

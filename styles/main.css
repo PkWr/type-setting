@@ -986,7 +986,7 @@ button {
   body {
     height: 100vh; /* Full viewport height */
     max-height: 100vh; /* Ensure it never exceeds viewport */
-    overflow: hidden; /* Prevent body scrolling */
+    overflow: hidden !important; /* Prevent body scrolling - force override */
     padding: var(--spacing-lg);
     padding-top: var(--spacing-lg);
     padding-bottom: calc(60px + var(--spacing-lg)); /* Footer height + spacing */
@@ -995,6 +995,13 @@ button {
     flex-direction: column;
     box-sizing: border-box; /* Include padding in height calculation */
     position: relative;
+    touch-action: none; /* Prevent touch scrolling on body */
+  }
+  
+  /* Allow touch scrolling only in containers */
+  .container,
+  .preview-wrapper {
+    touch-action: pan-y; /* Allow vertical touch scrolling */
   }
 
   .app-wrapper {
