@@ -11,24 +11,18 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     body {
-      padding-top: calc(40px + var(--spacing-md)) !important; /* Fixed header height (40px) + spacing */
+      padding-top: var(--spacing-md) !important;
       padding-bottom: calc(60px + var(--spacing-md)) !important; /* Fixed footer height + spacing */
     }
     @media (min-width: 1200px) {
       body {
-        padding-top: calc(40px + var(--spacing-lg)) !important; /* Fixed header height (40px) + spacing */
+        padding-top: var(--spacing-lg) !important;
         padding-bottom: calc(60px + var(--spacing-lg)) !important; /* Fixed footer height + spacing */
       }
     }
   </style>
 </head>
 <body>
-  <header class="fixed-header">
-    <div class="fixed-header-content">
-      <span class="fixed-header-left">PkWr</span>
-      <a href="#" id="readMeLinkFixed" class="read-me-link">Read me</a>
-    </div>
-  </header>
   <div class="app-wrapper">
     <div class="container">
       <header>
