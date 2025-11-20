@@ -1524,37 +1524,6 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Prevent scroll propagation from container to body
-  const container = document.querySelector('.container') as HTMLElement;
-  if (container) {
-    container.addEventListener('wheel', (e: Event) => {
-      const wheelEvent = e as WheelEvent;
-      const target = wheelEvent.target as HTMLElement;
-      
-      // Check if we're scrolling inside the container
-      if (container.contains(target)) {
-        const scrollTop = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const height = container.clientHeight;
-        const isScrollingDown = wheelEvent.deltaY > 0;
-        const isScrollingUp = wheelEvent.deltaY < 0;
-        
-        // Check if we're at the boundaries
-        const isAtTop = scrollTop <= 0;
-        const isAtBottom = scrollTop + height >= scrollHeight - 1;
-        
-        // If at top and trying to scroll up, or at bottom and trying to scroll down
-        // Prevent default to stop scroll chaining, but allow container to scroll normally otherwise
-        if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
-          // At boundary - prevent default to stop scroll chaining to body
-          wheelEvent.preventDefault();
-        }
-        // Always stop propagation to prevent body scroll when scrolling inside container
-        wheelEvent.stopPropagation();
-      }
-    }, { passive: false });
-  }
-
   // Load saved settings first
   loadSettings();
   
