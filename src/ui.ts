@@ -930,7 +930,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
     return;
   }
 
-  const svg = container.querySelector('svg');
+  let svg = container.querySelector('svg');
   if (!svg) {
     alert('No visualization to export. Please generate a layout first.');
     return;
@@ -949,6 +949,40 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const inputs = getFormInputs();
   const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
   const facingPages = facingPagesCheckbox?.checked ?? false;
+  
+  // Force enable all layers for PDF export to show all structural elements
+  const showMarginsCheckbox = document.getElementById('showMargins') as HTMLInputElement;
+  const showColumnsCheckbox = document.getElementById('showColumns') as HTMLInputElement;
+  const showTextCheckbox = document.getElementById('showText') as HTMLInputElement;
+  const originalMargins = showMarginsCheckbox?.checked ?? true;
+  const originalColumns = showColumnsCheckbox?.checked ?? true;
+  const originalText = showTextCheckbox?.checked ?? true;
+  
+  // Temporarily enable all layers
+  if (showMarginsCheckbox) showMarginsCheckbox.checked = true;
+  if (showColumnsCheckbox) showColumnsCheckbox.checked = true;
+  if (showTextCheckbox) showTextCheckbox.checked = true;
+  
+  // Re-render visualization with all layers visible
+  updateVisualizationOnInputChange();
+  
+  // Wait for visualization to update
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Get the updated SVG
+  const updatedSvg = container.querySelector('svg');
+  if (!updatedSvg) {
+    alert('Failed to generate visualization. Please try again.');
+    // Restore original layer states
+    if (showMarginsCheckbox) showMarginsCheckbox.checked = originalMargins;
+    if (showColumnsCheckbox) showColumnsCheckbox.checked = originalColumns;
+    if (showTextCheckbox) showTextCheckbox.checked = originalText;
+    updateVisualizationOnInputChange();
+    return;
+  }
+  
+  // Use the updated SVG (reassign the existing svg variable)
+  svg = updatedSvg;
   
   // Create PDF - A4 size in mm (210 x 297)
   const pdf = new jsPDF({
@@ -1196,6 +1230,12 @@ async function exportVisualizationAsPDF(): Promise<void> {
     if (tempTableContainer && document.body.contains(tempTableContainer)) {
       document.body.removeChild(tempTableContainer);
     }
+    
+    // Restore original layer states on error
+    if (showMarginsCheckbox) showMarginsCheckbox.checked = originalMargins;
+    if (showColumnsCheckbox) showColumnsCheckbox.checked = originalColumns;
+    if (showTextCheckbox) showTextCheckbox.checked = originalText;
+    updateVisualizationOnInputChange();
     
     alert(`Error exporting PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for details.`);
   }
