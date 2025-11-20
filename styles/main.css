@@ -949,8 +949,8 @@ button {
     max-width: 33.333%;
     margin: 0;
     position: sticky;
-    top: calc(40px + var(--spacing-lg)); /* Fixed header height (40px) + spacing */
-    max-height: calc(100vh - 40px - var(--spacing-lg) * 2);
+    top: var(--spacing-lg); /* Sticky positioning from top */
+    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Account for footer (60px) */
     overflow-y: auto;
     overflow-x: visible;
     padding: 0;
