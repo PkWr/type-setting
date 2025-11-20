@@ -229,7 +229,8 @@ header {
   gap: var(--spacing-md);
 }
 
-.read-me-link {
+.read-me-link,
+.scale-indicator {
   color: #999999;
   text-decoration: none;
   cursor: pointer;
@@ -683,7 +684,7 @@ button {
 
 .scale-indicator {
   font-size: 0.75rem;
-  color: var(--color-text-light);
+  color: #999999;
   font-weight: 500;
 }
 
