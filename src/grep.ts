@@ -147,6 +147,12 @@ function updateGrepPattern(): void {
     }
   }
   
+  // Add case-insensitive flag if case sensitive is NOT selected
+  // InDesign GREP: (?i) = case-insensitive, default is case-sensitive
+  if (!caseSensitive && pattern) {
+    pattern = `(?i)${pattern}`;
+  }
+  
   const output = document.getElementById('grepOutput');
   const syntaxExplanation = document.getElementById('syntaxExplanation');
   if (!output) return;
@@ -189,8 +195,8 @@ function updateGrepPattern(): void {
     const caseNoteP = document.createElement('p');
     caseNoteP.className = 'helper-text';
     caseNoteP.innerHTML = options.caseSensitive 
-      ? '<strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign paragraph style GREP Style settings'
-      : '<strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign paragraph style GREP Style settings)';
+      ? '<strong>Note:</strong> Pattern is case-sensitive (default InDesign behavior)'
+      : '<strong>Note:</strong> Pattern includes (?i) flag for case-insensitive matching';
     output.appendChild(caseNoteP);
     
     if (options.wholeWord) {
