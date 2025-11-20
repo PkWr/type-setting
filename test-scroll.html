@@ -7,9 +7,51 @@
   <link rel="stylesheet" href="styles/main.css">
   <style>
     /* Test-specific styles */
-    .test-container {
-      padding: 20px;
-      background-color: #1a1a1a;
+    @media (min-width: 1200px) {
+      html {
+        height: 100%;
+        overflow: hidden;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .app-wrapper {
+        flex-direction: row;
+        align-items: stretch;
+        margin: 0 auto;
+        gap: 20px;
+        flex: 1;
+        min-height: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      
+      .container {
+        flex: 0 0 50%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior-y: contain;
+      }
+      
+      .preview-wrapper {
+        flex: 0 0 50%;
+        min-width: 0;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: visible;
+        overscroll-behavior-y: contain;
+      }
     }
     
     .test-panel {
