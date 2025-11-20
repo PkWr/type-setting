@@ -36,6 +36,7 @@ body {
   margin: 0;
   padding: var(--spacing-md);
   padding-top: calc(40px + 100px); /* Fixed header height (40px) + 100px gap */
+  padding-bottom: calc(60px + var(--spacing-md)); /* Fixed footer height + spacing */
   background-color: #2a2a2a;
   color: #ffffff;
   line-height: 1.6;
@@ -79,6 +80,42 @@ body {
 
 .fixed-header .read-me-link {
   padding-top: 20px;
+}
+
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #2a2a2a;
+  border-top: 1px solid #555555;
+  z-index: 1000;
+  padding: var(--spacing-md) 0;
+}
+
+.fixed-footer-content {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+@media (min-width: 1200px) {
+  .fixed-footer-content {
+    padding: 0 var(--spacing-lg);
+  }
+}
+
+.fixed-footer p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #999999;
+  line-height: 1.6;
+}
+
+.fixed-footer i {
+  font-style: italic;
+  color: #cccccc;
 }
 
 .app-wrapper {
