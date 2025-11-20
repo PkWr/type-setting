@@ -971,6 +971,26 @@ button {
   font-size: 0.9rem;
 }
 
+/* Tablet layout - side by side */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .app-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
+
+  .container {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-right: var(--spacing-lg);
+  }
+
+  .preview-wrapper {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
 /* Desktop layout - fixed preview on right */
 @media (min-width: 1200px) {
   body {
