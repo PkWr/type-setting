@@ -1146,8 +1146,19 @@ async function exportVisualizationAsPDF(): Promise<void> {
       const divs = svgEl.querySelectorAll('div');
       divs.forEach((div: Element) => {
         const htmlDiv = div as HTMLElement;
+        // Force black text - remove any existing color first
+        htmlDiv.style.removeProperty('color');
+        htmlDiv.style.setProperty('color', '#000000', 'important');
         htmlDiv.style.color = '#000000';
         htmlDiv.style.backgroundColor = 'transparent';
+        // Also set on all nested elements
+        const nested = htmlDiv.querySelectorAll('*');
+        nested.forEach((nestedEl: Element) => {
+          const nestedHtml = nestedEl as HTMLElement;
+          nestedHtml.style.removeProperty('color');
+          nestedHtml.style.setProperty('color', '#000000', 'important');
+          nestedHtml.style.color = '#000000';
+        });
       });
     }
     
@@ -1171,12 +1182,17 @@ async function exportVisualizationAsPDF(): Promise<void> {
     const divs = foreignObj.querySelectorAll('div');
     divs.forEach((div: Element) => {
       const htmlDiv = div as HTMLElement;
+      // Force black text - remove any existing color first
+      htmlDiv.style.removeProperty('color');
+      htmlDiv.style.setProperty('color', '#000000', 'important');
       htmlDiv.style.color = '#000000';
       htmlDiv.style.backgroundColor = 'transparent';
       // Also check for any nested elements
       const nestedElements = htmlDiv.querySelectorAll('*');
       nestedElements.forEach((nested: Element) => {
         const nestedEl = nested as HTMLElement;
+        nestedEl.style.removeProperty('color');
+        nestedEl.style.setProperty('color', '#000000', 'important');
         nestedEl.style.color = '#000000';
       });
     });
@@ -1239,12 +1255,17 @@ async function exportVisualizationAsPDF(): Promise<void> {
         style.textContent = `
           foreignObject div,
           foreignObject div *,
-          foreignObject * {
+          foreignObject *,
+          foreignObject {
             color: #000000 !important;
             background-color: transparent !important;
           }
           text, tspan {
             fill: #000000 !important;
+            color: #000000 !important;
+          }
+          svg foreignObject div {
+            color: #000000 !important;
           }
         `;
         clonedDoc.head.appendChild(style);
@@ -1265,13 +1286,25 @@ async function exportVisualizationAsPDF(): Promise<void> {
           const divs = fo.querySelectorAll('div');
           divs.forEach((div: Element) => {
             const htmlDiv = div as HTMLElement;
-            // Remove existing style and force black
-            htmlDiv.setAttribute('style', htmlDiv.getAttribute('style')?.replace(/color\s*:\s*[^;]+;?/gi, '') || '');
+            // Force black text - remove any existing color styles first
+            const currentStyle = htmlDiv.getAttribute('style') || '';
+            // Remove color-related styles
+            const cleanedStyle = currentStyle
+              .replace(/color\s*:\s*[^;]+;?/gi, '')
+              .replace(/background-color\s*:\s*[^;]+;?/gi, '');
+            htmlDiv.setAttribute('style', cleanedStyle);
+            // Set black color with !important
             htmlDiv.style.setProperty('color', '#000000', 'important');
-            htmlDiv.style.setProperty('backgroundColor', 'transparent', 'important');
+            htmlDiv.style.setProperty('background-color', 'transparent', 'important');
+            // Also set directly on element
+            htmlDiv.style.color = '#000000';
+            htmlDiv.style.backgroundColor = 'transparent';
+            // Force all nested elements to black
             const nested = htmlDiv.querySelectorAll('*');
             nested.forEach((nestedEl: Element) => {
-              (nestedEl as HTMLElement).style.setProperty('color', '#000000', 'important');
+              const nestedHtml = nestedEl as HTMLElement;
+              nestedHtml.style.setProperty('color', '#000000', 'important');
+              nestedHtml.style.color = '#000000';
             });
           });
         });
@@ -1279,7 +1312,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
         // Ensure all SVG text elements are black
         const textElements = clonedDoc.querySelectorAll('text, tspan');
         textElements.forEach((textEl: Element) => {
-          (textEl as SVGElement).setAttribute('fill', '#000000');
+          const svgText = textEl as SVGElement;
+          svgText.setAttribute('fill', '#000000');
+          svgText.setAttribute('color', '#000000');
         });
       }
     });
