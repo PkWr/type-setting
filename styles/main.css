@@ -1186,3 +1186,55 @@ button {
   color: #ffffff;
   border-bottom-color: #333333;
 }
+
+/* Grep Generator Styles */
+.grep-output {
+  padding: var(--spacing-md);
+  background-color: #000000;
+  border-radius: var(--border-radius-sm);
+  min-height: 200px;
+}
+
+.grep-pattern {
+  margin-bottom: var(--spacing-md);
+}
+
+.grep-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.85rem;
+  color: #999999;
+}
+
+.grep-code {
+  display: block;
+  padding: var(--spacing-md);
+  background-color: #111111;
+  border: 1px solid #333333;
+  border-radius: var(--border-radius-sm);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: #ffffff;
+  word-break: break-all;
+  margin-bottom: var(--spacing-sm);
+}
+
+.btn-copy {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: #333333;
+  color: #ffffff;
+  border: 1px solid #555555;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-copy:hover {
+  background-color: #444444;
+}
+
+.btn-copy:active {
+  background-color: #222222;
+}
