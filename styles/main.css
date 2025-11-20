@@ -1021,6 +1021,7 @@ button {
     top: calc(40px + var(--spacing-lg)); /* Fixed header height (40px) + spacing */
     max-height: calc(100vh - 40px - var(--spacing-lg) * 2);
     overflow-y: auto;
+    overflow-x: visible;
     padding: 0;
     padding-right: 100px;
   }
