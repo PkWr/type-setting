@@ -463,6 +463,7 @@ textarea {
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: #1a1a1a;
   box-sizing: border-box;
+  font-size: 0.75rem;
 }
 
 .input-small {
