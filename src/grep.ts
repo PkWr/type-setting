@@ -220,16 +220,20 @@ function updateGrepPattern(): void {
       case 'words':
         instructionsTable += `
           <tr>
-            <td class="syntax-code"><strong>Words</strong></td>
-            <td class="syntax-description">Enter one word per line. The pattern will match all listed words.</td>
+            <td class="syntax-code"><strong>Words input</strong></td>
+            <td class="syntax-description">Enter one word per line in the text area. The pattern will match all listed words. Example: type "cat" on one line, "dog" on the next line to match both words.</td>
           </tr>
           <tr>
             <td class="syntax-code"><strong>Case sensitive</strong></td>
-            <td class="syntax-description">When checked, matches exact capitalization. When unchecked, adds (?i) flag to ignore case.</td>
+            <td class="syntax-description">When checked: matches exact capitalization (e.g., "Hello" won't match "hello"). When unchecked: adds (?i) flag to ignore case, so "Hello", "hello", and "HELLO" all match the same way.</td>
           </tr>
           <tr>
             <td class="syntax-code"><strong>Whole word</strong></td>
-            <td class="syntax-description">When checked, matches complete words only (not parts of words).</td>
+            <td class="syntax-description">When checked: matches complete words only using word boundaries (\\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Use case</strong></td>
+            <td class="syntax-description">Useful for finding specific terms, names, or keywords throughout your document. Perfect for applying consistent formatting to multiple words at once.</td>
           </tr>
         `;
         break;
@@ -238,11 +242,19 @@ function updateGrepPattern(): void {
         instructionsTable += `
           <tr>
             <td class="syntax-code"><strong>Minimum digits</strong></td>
-            <td class="syntax-description">The smallest number of digits to match (e.g., 1 matches single digits).</td>
+            <td class="syntax-description">The smallest number of consecutive digits to match. Set to 1 to match single digits (0-9), or higher to match longer numbers. Example: minimum 2 matches "12", "123", "1234" but not "1".</td>
           </tr>
           <tr>
             <td class="syntax-code"><strong>Maximum digits</strong></td>
-            <td class="syntax-description">The largest number of digits to match (e.g., 3 matches 1, 2, or 3 digits).</td>
+            <td class="syntax-description">The largest number of consecutive digits to match. When equal to minimum, matches exact length. Example: min 2, max 2 matches only two-digit numbers like "12" or "99".</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Pattern range</strong></td>
+            <td class="syntax-description">The pattern uses {n,m} syntax where n is minimum and m is maximum. For example, {2,4} matches 2, 3, or 4 digits. Set both to the same value for exact length matching.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Use case</strong></td>
+            <td class="syntax-description">Perfect for finding phone numbers, dates, reference numbers, or any numeric sequences of specific lengths. Great for formatting numbers consistently.</td>
           </tr>
         `;
         break;
@@ -251,7 +263,19 @@ function updateGrepPattern(): void {
         instructionsTable += `
           <tr>
             <td class="syntax-code"><strong>Punctuation type</strong></td>
-            <td class="syntax-description">Select which punctuation marks to match: all punctuation, periods, commas, quotes, etc.</td>
+            <td class="syntax-description">Select which punctuation marks to match from the dropdown menu. Options include: all punctuation (matches everything), specific marks like periods, commas, quotes, dashes, parentheses, brackets, braces, and more.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>All punctuation</strong></td>
+            <td class="syntax-description">Matches any punctuation mark: periods, commas, semicolons, colons, question marks, exclamation marks, quotes, apostrophes, hyphens, dashes, and brackets.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Specific marks</strong></td>
+            <td class="syntax-description">Choose individual punctuation types to target specific marks. Useful when you want to format only certain punctuation differently, like making periods larger or changing quote styles.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Use case</strong></td>
+            <td class="syntax-description">Ideal for applying consistent formatting to punctuation marks, replacing punctuation styles, or finding specific punctuation patterns throughout your document.</td>
           </tr>
         `;
         break;
@@ -260,11 +284,19 @@ function updateGrepPattern(): void {
         instructionsTable += `
           <tr>
             <td class="syntax-code"><strong>Start marker</strong></td>
-            <td class="syntax-description">The character(s) that mark the beginning (e.g., "(" or "[").</td>
+            <td class="syntax-description">Enter the character(s) that mark the beginning of the content you want to match. Can be a single character like "(" or "[", or multiple characters like "{{" or "<!--". Special characters are automatically escaped.</td>
           </tr>
           <tr>
             <td class="syntax-code"><strong>End marker</strong></td>
-            <td class="syntax-description">The character(s) that mark the end (e.g., ")" or "]").</td>
+            <td class="syntax-description">Enter the character(s) that mark the end of the content. Must match the start marker type. Example: if start is "(", end should be ")". The pattern matches everything between these markers.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Pattern behavior</strong></td>
+            <td class="syntax-description">The pattern uses [^end] to match any character except the end marker, ensuring it stops at the correct closing marker. Works with nested markers too, matching content up to the first closing marker.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Use case</strong></td>
+            <td class="syntax-description">Perfect for finding and formatting content within parentheses, brackets, quotes, or any custom delimiters. Great for styling citations, notes, or any bracketed content.</td>
           </tr>
         `;
         break;
