@@ -1522,14 +1522,18 @@ export function initializeCalculator(): void {
     });
   }
 
-  // Set em toggle default to checked before loading settings
-  const defaultMarginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
-  if (defaultMarginUnitToggle) {
-    defaultMarginUnitToggle.checked = true; // Default to em
-  }
-
-  // Load saved settings (will override default if settings exist)
+  // Load saved settings first
   loadSettings();
+  
+  // Set em toggle default to checked after loading (will override if no saved setting)
+  const defaultMarginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+  if (defaultMarginUnitToggle && !defaultMarginUnitToggle.checked) {
+    // Only set if not already checked (no saved setting was loaded)
+    const savedSettings = localStorage.getItem('compositorSettings');
+    if (!savedSettings || !JSON.parse(savedSettings).marginUnitToggle) {
+      defaultMarginUnitToggle.checked = true; // Default to em
+    }
+  }
   
   // Initialize orientation toggle state
   updateOrientationToggleState();
