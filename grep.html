@@ -168,9 +168,10 @@
             <p class="syntax-item"><code>\\</code> - Escape character (makes special characters literal)</p>
             <p class="syntax-item"><code>*</code> - Zero or more of preceding element</p>
             <p class="syntax-item"><code>?</code> - Zero or one of preceding element (non-greedy)</p>
-            <p class="syntax-item"><code>{n}</code> - Exactly n occurrences</p>
-            <p class="syntax-item"><code>{n,m}</code> - Between n and m occurrences</p>
+            <p class="syntax-item"><code>{n}</code> - Exactly n occurrences (where n is a number, e.g., <code>{3}</code> means exactly 3)</p>
+            <p class="syntax-item"><code>{n,m}</code> - Between n and m occurrences (where n and m are numbers, e.g., <code>{2,5}</code> means 2 to 5)</p>
             <p class="syntax-item"><code>^</code> - Negation in character class (matches anything NOT in brackets)</p>
+            <p class="syntax-item"><code>(?i)</code> - Case-insensitive flag (makes pattern match regardless of uppercase/lowercase)</p>
           </div>
         </div>
       </section>
