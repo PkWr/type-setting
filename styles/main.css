@@ -962,7 +962,7 @@ button {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    /* Remove overflow-y: auto - let it scroll with page naturally */
     min-height: 0;
   }
 
