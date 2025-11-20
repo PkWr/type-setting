@@ -451,11 +451,17 @@ function updateSpecification(): void {
       html += `<tr><td class="spec-label">Text starts:</td><td class="spec-value">Column ${textStart}</td></tr>`;
     }
     
-    // Words per line
-    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
-    html += `<tr><td class="spec-label">Words per line:</td><td class="spec-value">${wordsPerLine}</td></tr>`;
-    
     html += '</table>';
+    
+    // Bringhurst says section
+    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
+    html += '<div class="bringhurst-section">';
+    html += '<h3>Bringhurst says</h3>';
+    html += '<table class="spec-table">';
+    html += `<tr><td class="spec-label">Words per line:</td><td class="spec-value">${wordsPerLine}</td></tr>`;
+    html += '</table>';
+    html += '</div>';
+    
     specContent.innerHTML = html;
   } catch (e) {
     // Silently fail if inputs are invalid
