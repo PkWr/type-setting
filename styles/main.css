@@ -993,16 +993,9 @@ button {
     flex: 0 0 33.333%;
     max-width: 33.333%;
     margin: 0;
-    position: sticky;
-    top: var(--spacing-lg); /* Sticky positioning from top */
-    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
-    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
-    overflow-y: scroll !important; /* Use scroll instead of auto to always show scrollbar */
-    overflow-x: visible !important;
     padding: 0;
     padding-right: 100px;
-    overscroll-behavior-y: contain; /* Prevent vertical scroll chaining to body */
-    overscroll-behavior-x: auto; /* Allow horizontal scroll chaining */
+    overflow-x: visible;
   }
 
   .preview-wrapper {
@@ -1010,7 +1003,12 @@ button {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    position: relative; /* Ensure it's in normal flow for page scrolling */
+    position: sticky;
+    top: var(--spacing-lg); /* Sticky positioning from top */
+    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height */
+    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
+    overflow-y: auto;
+    overflow-x: visible;
   }
 
   .visualization-section {
