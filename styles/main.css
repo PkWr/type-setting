@@ -974,14 +974,15 @@ button {
     overflow-x: visible !important;
     padding: 0;
     padding-right: 100px;
+    overscroll-behavior: contain; /* Prevent scroll chaining to body */
   }
 
   .preview-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* Remove overflow-y: auto - let it scroll with page naturally */
     min-height: 0;
+    position: relative; /* Ensure it's in normal flow for page scrolling */
   }
 
   .visualization-section {
