@@ -416,12 +416,19 @@ function updateSpecification(): void {
       html += `<tr><td class="spec-label">Gutter width:</td><td class="spec-value">${gutterDisplayValue.toFixed(1)} ${gutterDisplayUnit} (${gutterEm.toFixed(1)} em)</td></tr>`;
     }
     
-    html += `<tr><td class="spec-label">Column width:</td><td class="spec-value">${results.columnWidth.toFixed(1)} mm</td></tr>`;
+    // Column width with em equivalent
+    const columnWidthEm = convertFromMM(results.columnWidth, 'em', inputs.typeSize);
+    html += `<tr><td class="spec-label">Column width:</td><td class="spec-value">${results.columnWidth.toFixed(1)} mm (${columnWidthEm.toFixed(1)} em)</td></tr>`;
+    
     if (columnSpan) {
       html += `<tr><td class="spec-label">Text box spans:</td><td class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</td></tr>`;
-      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm</td></tr>`;
+      // Text box width with em equivalent
+      const textBoxWidthEm = convertFromMM(results.textBoxWidth, 'em', inputs.typeSize);
+      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
     } else {
-      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm</td></tr>`;
+      // Text box width with em equivalent
+      const textBoxWidthEm = convertFromMM(results.textBoxWidth, 'em', inputs.typeSize);
+      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
     }
     if (textColumns && textColumns.length > 0) {
       html += `<tr><td class="spec-label">Text appears in:</td><td class="spec-value">Columns ${textColumns.join(', ')}</td></tr>`;
