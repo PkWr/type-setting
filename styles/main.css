@@ -995,7 +995,37 @@ button {
     margin: 0;
     padding: 0;
     padding-right: 100px;
-    overflow-x: visible;
+    position: sticky;
+    top: var(--spacing-lg); /* Sticky positioning from top */
+    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
+    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
+    overflow-y: auto; /* Enable independent scrolling */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    overscroll-behavior-y: contain; /* Prevent scroll chaining to body */
+    overscroll-behavior-x: auto;
+    /* Smooth scrolling for better UX */
+    scroll-behavior: smooth;
+    /* Custom scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #555555 #2a2a2a;
+  }
+  
+  /* Webkit scrollbar styling */
+  .container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .container::-webkit-scrollbar-track {
+    background: #2a2a2a;
+  }
+  
+  .container::-webkit-scrollbar-thumb {
+    background: #555555;
+    border-radius: 4px;
+  }
+  
+  .container::-webkit-scrollbar-thumb:hover {
+    background: #666666;
   }
 
   .preview-wrapper {
