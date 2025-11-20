@@ -220,7 +220,7 @@ header {
   margin-top: 0;
   padding-top: var(--spacing-md);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid #555555;
+  border-bottom: 1px solid #555555;
 }
 
 .header-top {
@@ -1011,7 +1011,7 @@ button {
   }
 
   .visualization-section {
-    border-top: 2px solid #555555;
+    border-top: 1px solid #555555;
   }
 }
 
