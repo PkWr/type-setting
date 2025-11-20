@@ -352,50 +352,41 @@ function updateSpecification(): void {
     html += `<tr><td class="spec-label">Orientation:</td><td class="spec-value">${orientation}</td></tr>`;
     html += `<tr><td class="spec-label">Facing pages:</td><td class="spec-value">${facingPages ? 'Yes' : 'No'}</td></tr>`;
     
+    // Helper function to format margin values with both units
+    const formatMarginValue = (mmValue: number, displayUnit: Unit): string => {
+      if (displayUnit === 'em') {
+        const emValue = convertFromMM(mmValue, 'em', inputs.typeSize);
+        return `${emValue.toFixed(1)} em (${mmValue.toFixed(1)} mm)`;
+      } else {
+        const emValue = convertFromMM(mmValue, 'em', inputs.typeSize);
+        return `${mmValue.toFixed(1)} mm (${emValue.toFixed(1)} em)`;
+      }
+    };
+    
     // Margins
     if (facingPages) {
-      let innerMarginLeft = inputs.innerMarginLeft || 0;
-      let innerMarginRight = inputs.innerMarginRight || 0;
-      let outerMarginLeft = inputs.outerMarginLeft || 0;
-      let outerMarginRight = inputs.outerMarginRight || 0;
+      const innerMarginLeftMM = inputs.innerMarginLeft || 0;
+      const innerMarginRightMM = inputs.innerMarginRight || 0;
+      const outerMarginLeftMM = inputs.outerMarginLeft || 0;
+      const outerMarginRightMM = inputs.outerMarginRight || 0;
       
-      // Convert to display unit if needed
-      if (marginUnit === 'em') {
-        innerMarginLeft = convertFromMM(innerMarginLeft, 'em', inputs.typeSize);
-        innerMarginRight = convertFromMM(innerMarginRight, 'em', inputs.typeSize);
-        outerMarginLeft = convertFromMM(outerMarginLeft, 'em', inputs.typeSize);
-        outerMarginRight = convertFromMM(outerMarginRight, 'em', inputs.typeSize);
-      }
-      
-      html += `<tr><td class="spec-label">Verso inner:</td><td class="spec-value">${innerMarginLeft.toFixed(1)} ${marginUnit}</td></tr>`;
-      html += `<tr><td class="spec-label">Verso outer:</td><td class="spec-value">${outerMarginLeft.toFixed(1)} ${marginUnit}</td></tr>`;
-      html += `<tr><td class="spec-label">Recto inner:</td><td class="spec-value">${innerMarginRight.toFixed(1)} ${marginUnit}</td></tr>`;
-      html += `<tr><td class="spec-label">Recto outer:</td><td class="spec-value">${outerMarginRight.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Verso inner:</td><td class="spec-value">${formatMarginValue(innerMarginLeftMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Verso outer:</td><td class="spec-value">${formatMarginValue(outerMarginLeftMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Recto inner:</td><td class="spec-value">${formatMarginValue(innerMarginRightMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Recto outer:</td><td class="spec-value">${formatMarginValue(outerMarginRightMM, marginUnit)}</td></tr>`;
     } else {
-      let leftMargin = inputs.leftMargin;
-      let rightMargin = inputs.rightMargin;
+      const leftMarginMM = inputs.leftMargin;
+      const rightMarginMM = inputs.rightMargin;
       
-      // Convert to display unit if needed
-      if (marginUnit === 'em') {
-        leftMargin = convertFromMM(leftMargin, 'em', inputs.typeSize);
-        rightMargin = convertFromMM(rightMargin, 'em', inputs.typeSize);
-      }
-      
-      html += `<tr><td class="spec-label">Left:</td><td class="spec-value">${leftMargin.toFixed(1)} ${marginUnit}</td></tr>`;
-      html += `<tr><td class="spec-label">Right:</td><td class="spec-value">${rightMargin.toFixed(1)} ${marginUnit}</td></tr>`;
+      html += `<tr><td class="spec-label">Left:</td><td class="spec-value">${formatMarginValue(leftMarginMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Right:</td><td class="spec-value">${formatMarginValue(rightMarginMM, marginUnit)}</td></tr>`;
     }
     
-    let topMargin = inputs.topMargin;
-    let bottomMargin = inputs.bottomMargin;
+    const topMarginMM = inputs.topMargin;
+    const bottomMarginMM = inputs.bottomMargin;
     
-    // Convert to display unit if needed
-    if (marginUnit === 'em') {
-      topMargin = convertFromMM(topMargin, 'em', inputs.typeSize);
-      bottomMargin = convertFromMM(bottomMargin, 'em', inputs.typeSize);
-    }
-    
-    html += `<tr><td class="spec-label">Top:</td><td class="spec-value">${topMargin.toFixed(1)} ${marginUnit}</td></tr>`;
-    html += `<tr><td class="spec-label">Bottom:</td><td class="spec-value">${bottomMargin.toFixed(1)} ${marginUnit}</td></tr>`;
+    html += `<tr><td class="spec-label">Top:</td><td class="spec-value">${formatMarginValue(topMarginMM, marginUnit)}</td></tr>`;
+    html += `<tr><td class="spec-label">Bottom:</td><td class="spec-value">${formatMarginValue(bottomMarginMM, marginUnit)}</td></tr>`;
     
     // Typography
     html += `<tr><td class="spec-label">Type size:</td><td class="spec-value">${inputs.typeSize} pt</td></tr>`;
