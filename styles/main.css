@@ -976,9 +976,20 @@ button {
 
 /* Large desktop layout - fixed preview on right */
 @media (min-width: 1200px) {
+  html {
+    height: 100%;
+    overflow: hidden; /* Prevent html scrolling */
+  }
+  
   body {
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent body scrolling - only container scrolls */
     padding: var(--spacing-lg);
     padding-top: var(--spacing-lg);
+    padding-bottom: calc(60px + var(--spacing-lg)); /* Footer height + spacing */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .app-wrapper {
@@ -987,6 +998,10 @@ button {
     max-width: 1600px;
     margin: 0 auto;
     gap: var(--spacing-xl);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; /* Prevent app-wrapper from causing scroll */
+    height: 100%; /* Fill available space */
   }
 
   .container {
@@ -995,10 +1010,8 @@ button {
     margin: 0;
     padding: 0;
     padding-right: 100px;
-    position: sticky;
-    top: var(--spacing-lg); /* Sticky positioning from top */
-    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
-    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
+    height: 100%; /* Fill available space in app-wrapper */
+    max-height: 100%;
     overflow-y: auto; /* Enable independent scrolling */
     overflow-x: hidden; /* Prevent horizontal scroll */
     overscroll-behavior-y: contain; /* Prevent scroll chaining to body */
@@ -1033,10 +1046,8 @@ button {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    position: sticky;
-    top: var(--spacing-lg); /* Sticky positioning from top */
-    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height */
-    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
+    height: 100%; /* Fill available space in app-wrapper */
+    max-height: 100%;
     overflow-y: auto;
     overflow-x: visible;
   }
