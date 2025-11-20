@@ -224,6 +224,14 @@ function updateGrepPattern(): void {
             <td class="syntax-description">Enter one word per line in the text area. The pattern will match all listed words. Example: type "cat" on one line, "dog" on the next line to match both words.</td>
           </tr>
           <tr>
+            <td class="syntax-code"><strong>Case sensitive</strong></td>
+            <td class="syntax-description">When checked: matches exact capitalization (e.g., "Hello" won't match "hello"). When unchecked: adds (?i) flag to ignore case, so "Hello", "hello", and "HELLO" all match the same way.</td>
+          </tr>
+          <tr>
+            <td class="syntax-code"><strong>Whole word only</strong></td>
+            <td class="syntax-description">When checked: matches complete words only using word boundaries (\\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</td>
+          </tr>
+          <tr>
             <td class="syntax-code"><strong>Use case</strong></td>
             <td class="syntax-description">Useful for finding specific terms, names, or keywords throughout your document. Perfect for applying consistent formatting to multiple words at once.</td>
           </tr>
