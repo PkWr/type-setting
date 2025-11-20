@@ -961,7 +961,7 @@ button {
 
 
 /* Desktop layout - side by side with independent scrolling */
-@media (min-width: 1200px) {
+@media (min-width: 768px) {
   * {
     box-sizing: border-box;
   }
@@ -1089,8 +1089,8 @@ button {
   }
 }
 
-/* Mobile/Tablet - stack vertically (up to 1199px) */
-@media (max-width: 1199px) {
+/* Mobile - stack vertically */
+@media (max-width: 767px) {
   body {
     padding: var(--spacing-md);
     padding-bottom: calc(60px + var(--spacing-md));
