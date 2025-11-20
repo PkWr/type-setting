@@ -157,7 +157,7 @@ body {
 .footer-nav {
   margin-top: var(--spacing-md);
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
 }
 
@@ -171,7 +171,9 @@ body {
   color: #000000;
   font-size: 0.5rem;
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: #ffffff;
+  text-underline-offset: 2px;
   font-family: var(--font-family);
   transition: opacity 0.2s;
 }
