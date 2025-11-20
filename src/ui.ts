@@ -961,72 +961,90 @@ async function exportVisualizationAsPDF(): Promise<void> {
   // Clone SVG and modify for export (white background, black elements)
   const svgClone = svg.cloneNode(true) as SVGElement;
   
-  // Set white background
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  rect.setAttribute('width', '100%');
-  rect.setAttribute('height', '100%');
-  rect.setAttribute('fill', '#ffffff');
-  svgClone.insertBefore(rect, svgClone.firstChild);
-  
-  // Change all colors to black
-  const allElements = svgClone.querySelectorAll('*');
-  allElements.forEach((el: Element) => {
-    const svgEl = el as SVGElement;
-    if (svgEl.hasAttribute('fill') && svgEl.getAttribute('fill') !== 'none') {
-      svgEl.setAttribute('fill', '#000000');
-    }
-    if (svgEl.hasAttribute('stroke') && svgEl.getAttribute('stroke') !== 'none') {
-      svgEl.setAttribute('stroke', '#000000');
-    }
-  });
-  
-  // Create a temporary container for the SVG
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  tempContainer.style.width = `${contentWidth}px`;
-  tempContainer.style.height = `${contentHeight}px`;
-  tempContainer.style.backgroundColor = '#ffffff';
-  tempContainer.appendChild(svgClone);
-  document.body.appendChild(tempContainer);
-  
-  // Get SVG dimensions
+  // Get SVG viewBox for background
   const svgViewBox = svg.getAttribute('viewBox') || '0 0 400 400';
   const viewBoxValues = svgViewBox.split(' ').map(v => parseFloat(v));
   const svgWidth = viewBoxValues[2] || 400;
   const svgHeight = viewBoxValues[3] || 400;
   
-  // Calculate scale to fit SVG to content area
+  // Set white background rect
+  const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bgRect.setAttribute('x', viewBoxValues[0].toString());
+  bgRect.setAttribute('y', viewBoxValues[1].toString());
+  bgRect.setAttribute('width', svgWidth.toString());
+  bgRect.setAttribute('height', svgHeight.toString());
+  bgRect.setAttribute('fill', '#ffffff');
+  svgClone.insertBefore(bgRect, svgClone.firstChild);
+  
+  // Remove any existing background/style elements
+  svgClone.removeAttribute('style');
+  
+  // Change all colors to black (except background)
+  const allElements = svgClone.querySelectorAll('*');
+  allElements.forEach((el: Element) => {
+    const svgEl = el as SVGElement;
+    // Skip the background rect we just added
+    if (svgEl === bgRect) return;
+    
+    // Remove inline styles that might override colors
+    svgEl.removeAttribute('style');
+    
+    if (svgEl.hasAttribute('fill') && svgEl.getAttribute('fill') !== 'none' && svgEl.getAttribute('fill') !== 'transparent') {
+      svgEl.setAttribute('fill', '#000000');
+    }
+    if (svgEl.hasAttribute('stroke') && svgEl.getAttribute('stroke') !== 'none' && svgEl.getAttribute('stroke') !== 'transparent') {
+      svgEl.setAttribute('stroke', '#000000');
+    }
+  });
+  
+  // Calculate scale to fit SVG to content area (maintaining aspect ratio)
   const scaleX = contentWidth / svgWidth;
   const scaleY = contentHeight / svgHeight;
   const scale = Math.min(scaleX, scaleY);
   
   const scaledWidth = svgWidth * scale;
   const scaledHeight = svgHeight * scale;
-  const offsetX = (contentWidth - scaledWidth) / 2;
-  const offsetY = (contentHeight - scaledHeight) / 2;
+  
+  // Create a temporary container for the SVG
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'absolute';
+  tempContainer.style.left = '-9999px';
+  tempContainer.style.width = `${scaledWidth}px`;
+  tempContainer.style.height = `${scaledHeight}px`;
+  tempContainer.style.backgroundColor = '#ffffff';
+  tempContainer.style.display = 'flex';
+  tempContainer.style.alignItems = 'center';
+  tempContainer.style.justifyContent = 'center';
   
   // Set SVG size
   svgClone.setAttribute('width', `${scaledWidth}px`);
   svgClone.setAttribute('height', `${scaledHeight}px`);
   svgClone.setAttribute('viewBox', svgViewBox);
-  tempContainer.style.display = 'flex';
-  tempContainer.style.alignItems = 'center';
-  tempContainer.style.justifyContent = 'center';
+  svgClone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  
+  tempContainer.appendChild(svgClone);
+  document.body.appendChild(tempContainer);
   
   try {
     // Convert SVG to canvas/image for page 1
     const canvas = await html2canvas(tempContainer, {
       backgroundColor: '#ffffff',
-      width: contentWidth,
-      height: contentHeight,
-      scale: 2 // Higher quality
+      width: scaledWidth,
+      height: scaledHeight,
+      scale: 2, // Higher quality
+      logging: false
     });
     
     const imgData = canvas.toDataURL('image/png');
+    const imgWidthMM = scaledWidth / (96 / 25.4); // Convert pixels to mm
+    const imgHeightMM = scaledHeight / (96 / 25.4);
+    
+    // Center the image on the page
+    const imgX = margin + (contentWidth - imgWidthMM) / 2;
+    const imgY = margin + (contentHeight - imgHeightMM) / 2;
     
     // Page 1: Visualization
-    pdf.addImage(imgData, 'PNG', margin + offsetX / (96 / 25.4), margin + offsetY / (96 / 25.4), scaledWidth / (96 / 25.4), scaledHeight / (96 / 25.4));
+    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidthMM, imgHeightMM);
     
     // Page 2: Specification table
     pdf.addPage();
@@ -1040,17 +1058,17 @@ async function exportVisualizationAsPDF(): Promise<void> {
         const tempTableContainer = document.createElement('div');
         tempTableContainer.style.position = 'absolute';
         tempTableContainer.style.left = '-9999px';
-        tempTableContainer.style.width = `${contentWidth}px`;
+        tempTableContainer.style.width = `${contentWidth * (96 / 25.4)}px`; // Convert mm to pixels
         tempTableContainer.style.backgroundColor = '#ffffff';
         tempTableContainer.style.padding = '20px';
+        tempTableContainer.style.fontFamily = 'Arial, sans-serif';
         
         // Clone and style table for PDF
         const tableClone = specTable.cloneNode(true) as HTMLTableElement;
         tableClone.style.width = '100%';
         tableClone.style.borderCollapse = 'collapse';
         tableClone.style.color = '#000000';
-        tableClone.style.fontSize = '12px';
-        tableClone.style.fontFamily = 'Arial, sans-serif';
+        tableClone.style.fontSize = '14px';
         
         // Style all cells
         const cells = tableClone.querySelectorAll('td');
@@ -1058,6 +1076,20 @@ async function exportVisualizationAsPDF(): Promise<void> {
           cell.style.padding = '8px';
           cell.style.borderBottom = '1px solid #000000';
           cell.style.color = '#000000';
+          cell.style.backgroundColor = '#ffffff';
+        });
+        
+        // Style labels
+        const labels = tableClone.querySelectorAll('.spec-label');
+        labels.forEach((label: Element) => {
+          (label as HTMLElement).style.fontWeight = 'bold';
+          (label as HTMLElement).style.color = '#000000';
+        });
+        
+        // Style values
+        const values = tableClone.querySelectorAll('.spec-value');
+        values.forEach((value: Element) => {
+          (value as HTMLElement).style.color = '#000000';
         });
         
         tempTableContainer.appendChild(tableClone);
@@ -1065,14 +1097,15 @@ async function exportVisualizationAsPDF(): Promise<void> {
         
         const tableCanvas = await html2canvas(tempTableContainer, {
           backgroundColor: '#ffffff',
-          width: contentWidth,
-          scale: 2
+          scale: 2,
+          logging: false
         });
         
         const tableImgData = tableCanvas.toDataURL('image/png');
-        const tableHeight = (tableCanvas.height / (96 / 25.4)) / 2; // Convert to mm
+        const tableHeightMM = (tableCanvas.height / 2) / (96 / 25.4); // Convert to mm (divide by 2 for scale)
+        const tableWidthMM = contentWidth; // Use content width
         
-        pdf.addImage(tableImgData, 'PNG', margin, margin, contentWidth, tableHeight);
+        pdf.addImage(tableImgData, 'PNG', margin, margin, tableWidthMM, tableHeightMM);
         
         document.body.removeChild(tempTableContainer);
       }
@@ -1086,7 +1119,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
   } catch (error) {
     console.error('Error exporting PDF:', error);
     alert('Error exporting PDF. Please try again.');
-    document.body.removeChild(tempContainer);
+    if (document.body.contains(tempContainer)) {
+      document.body.removeChild(tempContainer);
+    }
   }
 }
 
