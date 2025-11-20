@@ -1184,13 +1184,11 @@ function loadSettings(): void {
       if (orientationToggle) orientationToggle.checked = settings.orientationToggle;
     }
     
-    // Margin unit - only load saved setting if it exists, otherwise default to em
+    // Margin unit - only load saved setting if it's explicitly true, otherwise default to em
     if (marginUnitToggle) {
-      if (settings.marginUnitToggle !== undefined) {
-        marginUnitToggle.checked = settings.marginUnitToggle;
-      } else {
-        marginUnitToggle.checked = true; // Default to em if setting doesn't exist
-      }
+      // Only use saved setting if it's explicitly set to true (em)
+      // Default to em (checked) for all other cases
+      marginUnitToggle.checked = settings.marginUnitToggle === true;
     }
     
     // Margins
