@@ -154,6 +154,40 @@ body {
   color: #000000;
 }
 
+.footer-nav {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.footer-nav-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.footer-nav-link {
+  color: #000000;
+  font-size: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font-family);
+  transition: opacity 0.2s;
+}
+
+.footer-nav-link:hover {
+  opacity: 0.7;
+}
+
+.footer-nav-description {
+  margin: 0;
+  font-size: 0.5rem;
+  color: #000000;
+  line-height: 1.6;
+  font-family: var(--font-family);
+}
+
 .app-wrapper {
   display: flex;
   flex-direction: column;
