@@ -265,9 +265,8 @@ h1 {
 
 .unit-selector-rule {
   border-bottom: 1px solid #555555;
-  margin-bottom: 0;
-  padding-top: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .unit-toggle-label {
