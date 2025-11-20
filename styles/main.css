@@ -217,20 +217,25 @@ body {
 
 .app-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
   max-width: 100%;
 }
 
 .container {
-  max-width: 100%;
+  flex: 0 0 33.333%;
+  max-width: 33.333%;
   margin: 0 auto;
   background-color: #2a2a2a;
   padding: 0;
-  padding-right: 0;
-  width: 100%;
+  padding-right: var(--spacing-lg);
   color: #ffffff;
   overflow: visible;
+}
+
+.preview-wrapper {
+  flex: 1;
 }
 
 
@@ -956,26 +961,7 @@ button {
 }
 
 
-/* Desktop layout - side by side */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .app-wrapper {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--spacing-lg);
-  }
-
-  .container {
-    flex: 0 0 33.333%;
-    max-width: 33.333%;
-    padding-right: var(--spacing-lg);
-  }
-
-  .preview-wrapper {
-    flex: 1;
-  }
-}
-
-/* Large desktop layout - fixed preview on right */
+/* Desktop layout - side by side with independent scrolling */
 @media (min-width: 1200px) {
   * {
     box-sizing: border-box;
