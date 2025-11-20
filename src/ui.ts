@@ -1702,6 +1702,7 @@ export function initializeCalculator(): void {
       // Update gutter helper text after unit change
       updateColumnWidthDisplay();
       updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
   
@@ -1922,7 +1923,18 @@ export function initializeCalculator(): void {
         const newTypeSize = parseFloat(typeSizeInput.value);
         leadingInput.value = (newTypeSize + 2).toFixed(1);
       }
+      updateColumnWidthDisplay();
+      updateWordsPerLine();
+      updateMarginLabels();
       updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    typeSizeInput.addEventListener('change', () => {
+      updateColumnWidthDisplay();
+      updateWordsPerLine();
+      updateMarginLabels();
+      updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
 
