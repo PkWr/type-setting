@@ -1529,7 +1529,11 @@ export function initializeCalculator(): void {
   }
   
   if (readMeLinkFixed) {
-    readMeLinkFixed.addEventListener('click', handleReadMeClick);
+    readMeLinkFixed.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showIntroModal();
+    });
   }
   
   if (closeModal) {
