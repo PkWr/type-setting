@@ -89,7 +89,7 @@ body {
   right: 0;
   background-color: #000000;
   z-index: 1000;
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-xs) 0;
 }
 
 .fixed-footer-content {
