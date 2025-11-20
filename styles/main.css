@@ -39,7 +39,7 @@ body {
   background-color: #000000;
   color: #ffffff;
   line-height: 1.6;
-  font-size: 0.85rem;
+  font-size: 0.5rem;
 }
 
 .fixed-header {
@@ -73,13 +73,11 @@ body {
 
 .fixed-header-left {
   color: #ffffff;
-  font-size: 0.85rem;
   font-weight: 400;
   padding-top: 20px;
 }
 
 .fixed-header .read-me-link {
-  font-size: 0.85rem;
   padding-top: 20px;
 }
 
@@ -127,7 +125,6 @@ header {
 .read-me-link {
   color: #999999;
   text-decoration: none;
-  font-size: 0.85rem;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -158,7 +155,6 @@ h1 {
 }
 
 .unit-option {
-  font-size: 0.85rem;
   font-weight: 500;
   min-width: 2rem;
   text-align: center;
@@ -253,7 +249,6 @@ h1 {
 .unit-description {
   margin: var(--spacing-xs) 0 var(--spacing-sm) 0;
   color: #666666;
-  font-size: 0.85rem;
   text-align: left;
   line-height: 1.4;
 }
@@ -261,7 +256,6 @@ h1 {
 .subtitle {
   margin: 0;
   color: #999999;
-  font-size: 0.85rem;
   text-align: left;
 }
 
@@ -307,7 +301,6 @@ h2 {
 
 .page-label {
   font-weight: 500;
-  font-size: 0.85rem;
   color: #ffffff;
   margin-bottom: var(--spacing-xs);
   display: block;
@@ -377,7 +370,6 @@ label {
   display: block;
   margin-bottom: var(--spacing-xs);
   font-weight: 500;
-  font-size: 0.85rem;
   font-family: var(--font-family);
   color: #ffffff;
 }
@@ -389,7 +381,6 @@ textarea {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid #333333;
   border-radius: var(--border-radius-sm);
-  font-size: 0.85rem;
   font-family: var(--font-family);
   color: #ffffff;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -437,7 +428,6 @@ select option {
 .helper-text {
   display: block;
   margin-top: var(--spacing-xs);
-  font-size: 0.85rem;
   color: #999999;
   font-style: italic;
 }
@@ -508,14 +498,12 @@ select option {
 
 .text-action-separator {
   color: var(--color-text-light);
-  font-size: 0.85rem;
 }
 
 .btn-link {
   background: none;
   border: none;
   color: var(--color-primary);
-  font-size: 0.85rem;
   padding: 0;
   cursor: pointer;
   text-decoration: underline;
@@ -543,7 +531,6 @@ button {
   background-color: var(--color-primary);
   color: white;
   padding: var(--spacing-md) var(--spacing-xl);
-  font-size: 0.85rem;
   width: 100%;
 }
 
@@ -594,7 +581,6 @@ button {
   color: white;
   border: none;
   border-radius: var(--border-radius-sm);
-  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -635,7 +621,6 @@ button {
 
 .layer-checkbox span {
   font-weight: 500;
-  font-size: 0.85rem;
 }
 
 .column-span-checkboxes {
@@ -686,7 +671,6 @@ button {
   min-width: 2rem;
   text-align: center;
   color: #ffffff;
-  font-size: 0.85rem;
   font-weight: 400;
 }
 
@@ -788,7 +772,6 @@ button {
 
 .spec-group h4 {
   margin: 0 0 var(--spacing-xs) 0;
-  font-size: 0.85rem;
   font-weight: 600;
   font-family: var(--font-family);
   text-transform: uppercase;
@@ -1041,13 +1024,11 @@ button {
 .modal-section-text {
   margin: 0 0 var(--spacing-sm) 0;
   color: #cccccc;
-  font-size: 0.85rem;
   line-height: 1.6;
 }
 
 .modal-section-links {
   margin: 0;
-  font-size: 0.85rem;
   line-height: 1.6;
 }
 
@@ -1080,7 +1061,6 @@ button {
 .grep-label {
   display: block;
   margin-bottom: var(--spacing-sm);
-  font-size: 0.85rem;
   color: #999999;
 }
 
@@ -1104,7 +1084,6 @@ button {
   border: 1px solid #555555;
   border-radius: var(--border-radius-sm);
   font-family: var(--font-family);
-  font-size: 0.85rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -1172,7 +1151,6 @@ button {
 
 .syntax-description {
   padding: var(--spacing-xs) 0;
-  font-size: 0.85rem;
   color: #cccccc;
   line-height: 1.6;
   vertical-align: top;
