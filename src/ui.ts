@@ -35,11 +35,27 @@ function getColumnSpan(): { start: number; end: number } | null {
 }
 
 /**
- * Gets text columns from checkboxes
+ * Gets text columns from slider - returns array starting from slider value through span
  */
 function getTextColumns(): number[] {
-  const checkboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]:checked') as NodeListOf<HTMLInputElement>;
-  return Array.from(checkboxes).map(cb => parseInt(cb.value, 10)).sort((a, b) => a - b);
+  const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
+  if (!textStartSlider) return [1];
+  
+  const textStart = parseInt(textStartSlider.value, 10) || 1;
+  const columnSpan = getColumnSpan();
+  
+  if (columnSpan) {
+    // Return columns from textStart through the span end
+    const start = Math.max(textStart, columnSpan.start);
+    const end = columnSpan.end;
+    const columns: number[] = [];
+    for (let i = start; i <= end; i++) {
+      columns.push(i);
+    }
+    return columns.length > 0 ? columns : [textStart];
+  }
+  
+  return [textStart];
 }
 
 function getFormInputs(): LayoutInputs {
@@ -431,7 +447,8 @@ function updateSpecification(): void {
       html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
     }
     if (textColumns && textColumns.length > 0) {
-      html += `<tr><td class="spec-label">Text appears in:</td><td class="spec-value">Columns ${textColumns.join(', ')}</td></tr>`;
+      const textStart = Math.min(...textColumns);
+      html += `<tr><td class="spec-label">Text starts:</td><td class="spec-value">Column ${textStart}</td></tr>`;
     }
     
     // Words per line
@@ -484,57 +501,41 @@ function updateColumnSpanSlider(): void {
   }
   
   // Update text column checkboxes when span changes
-  updateTextColumnCheckboxes();
+  updateTextStartSlider();
 }
 
 /**
- * Updates text column checkboxes - shows all available columns
+ * Updates text start slider - sets max to numCols and updates value display
  */
-function updateTextColumnCheckboxes(): void {
-  const container = document.getElementById('textColumnCheckboxes');
-  if (!container) return;
+function updateTextStartSlider(): void {
+  const slider = document.getElementById('textStartSlider') as HTMLInputElement;
+  const valueDisplay = document.getElementById('textStartValue');
+  if (!slider) return;
   
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10) || 1;
   const columnSpan = getColumnSpan();
   
-  // Clear existing checkboxes
-  container.innerHTML = '';
+  // Set max to number of columns
+  slider.max = numCols.toString();
   
-  // Show checkboxes for ALL available columns, not just within span
-  // This allows selecting any column as starting column regardless of span
-  for (let i = 1; i <= numCols; i++) {
-    const label = document.createElement('label');
-    label.className = 'layer-checkbox';
-    
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = i.toString();
-    
-    // Default: select columns within span if span exists, otherwise select first column
+  // Ensure value doesn't exceed max
+  const currentValue = parseInt(slider.value, 10) || 1;
+  if (currentValue > numCols) {
+    slider.value = numCols.toString();
+  }
+  
+  // Default to span start if span exists, otherwise 1
+  if (!slider.value || slider.value === '0') {
     if (columnSpan) {
-      checkbox.checked = i >= columnSpan.start && i <= columnSpan.end;
+      slider.value = columnSpan.start.toString();
     } else {
-      checkbox.checked = i === 1; // Default to first column if no span
+      slider.value = '1';
     }
-    
-    checkbox.id = `textColumn${i}`;
-    
-    checkbox.addEventListener('change', () => {
-      // Ensure at least one column is selected
-      const checked = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]:checked');
-      if (checked.length === 0) {
-        checkbox.checked = true;
-      }
-      updateVisualizationOnInputChange();
-      saveSettings();
-    });
-    
-    const span = document.createElement('span');
-    span.textContent = i.toString();
-    
-    label.appendChild(checkbox);
-    label.appendChild(span);
-    container.appendChild(label);
+  }
+  
+  // Update display
+  if (valueDisplay) {
+    valueDisplay.textContent = slider.value;
   }
 }
 
@@ -1026,7 +1027,7 @@ function exportVisualizationAsHTML(): void {
         <p><strong>Gutter Width:</strong> ${formatValue(convertFromMM(inputs.gutterWidth, GUTTER_UNIT, inputs.typeSize), GUTTER_UNIT, 3)}</p>
         <p><strong>Margins:</strong> Top: ${formatValue(inputs.topMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Bottom: ${formatValue(inputs.bottomMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Left: ${formatValue(inputs.leftMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}, Right: ${formatValue(inputs.rightMargin, PAGE_UNIT, inputs.typeSize)} ${PAGE_UNIT}</p>
         ${inputs.columnSpanStart && inputs.columnSpanEnd ? `<p><strong>Column Span:</strong> Columns ${inputs.columnSpanStart} to ${inputs.columnSpanEnd}</p>` : ''}
-        ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text Columns:</strong> ${inputs.textColumns.join(', ')}</p>` : ''}
+        ${inputs.textColumns && inputs.textColumns.length > 0 ? `<p><strong>Text starts:</strong> Column ${Math.min(...inputs.textColumns)}</p>` : ''}
         <p><strong>Scale:</strong> 1:1 (Actual size)</p>
       </div>
     </div>
@@ -1052,7 +1053,7 @@ function exportVisualizationAsHTML(): void {
  */
 function saveSettings(): void {
   try {
-    const settings: Record<string, string | boolean | number[]> = {};
+    const settings: Record<string, string | boolean | number | number[]> = {};
     
     // Page dimensions
     const pageWidth = (document.getElementById('pageWidth') as HTMLInputElement)?.value || '';
@@ -1103,15 +1104,11 @@ function saveSettings(): void {
       settings.columnSpanValue = columnSpanSlider.value;
     }
     
-    // Text column checkboxes
-    const textColumnCheckboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
-    const textColumnValues: number[] = [];
-    textColumnCheckboxes.forEach(cb => {
-      if (cb.checked) {
-        textColumnValues.push(parseInt(cb.value, 10));
-      }
-    });
-    settings.textColumns = textColumnValues;
+    // Text start slider
+    const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
+    if (textStartSlider) {
+      settings.textStartColumn = parseInt(textStartSlider.value, 10) || 1;
+    }
     
     // Typography
     const typeSize = (document.getElementById('typeSize') as HTMLInputElement)?.value || '';
@@ -1318,18 +1315,21 @@ function loadSettings(): void {
       }
     }
     
-    // Restore text column checkboxes (need to wait for them to be created)
-    if (settings.textColumns && Array.isArray(settings.textColumns)) {
-      setTimeout(() => {
-        const textColumnCheckboxes = document.querySelectorAll('#textColumnCheckboxes input[type="checkbox"]') as NodeListOf<HTMLInputElement>;
-        textColumnCheckboxes.forEach(cb => {
-          if (settings.textColumns.includes(parseInt(cb.value, 10))) {
-            cb.checked = true;
-          }
-        });
-        // Trigger visualization update after restoring checkboxes
-        updateVisualizationOnInputChange();
-      }, 150);
+    // Restore text start slider
+    const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
+    if (textStartSlider) {
+      // Support both old textColumns array and new textStartColumn value
+      if (settings.textStartColumn !== undefined) {
+        textStartSlider.value = settings.textStartColumn.toString();
+      } else if (settings.textColumns && Array.isArray(settings.textColumns) && settings.textColumns.length > 0) {
+        // Migrate from old checkbox system - use first column
+        textStartSlider.value = Math.min(...settings.textColumns).toString();
+      }
+      const textStartValue = document.getElementById('textStartValue');
+      if (textStartValue) {
+        textStartValue.textContent = textStartSlider.value;
+      }
+      updateTextStartSlider(); // Update max and validate
     }
     
     // Trigger visualization update after all settings are loaded
@@ -1749,12 +1749,35 @@ export function initializeCalculator(): void {
       if (columnSpanValue) {
         columnSpanValue.textContent = columnSpanSlider.value;
       }
-      updateTextColumnCheckboxes();
+      updateTextStartSlider();
       updateVisualizationOnInputChange();
       saveSettings();
     });
     columnSpanSlider.addEventListener('change', () => {
-      updateTextColumnCheckboxes();
+      updateTextStartSlider();
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+  }
+  
+  // Initialize text start slider
+  updateTextStartSlider();
+  
+  // Handle text start slider
+  const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
+  if (textStartSlider) {
+    const textStartValue = document.getElementById('textStartValue');
+    textStartSlider.addEventListener('input', () => {
+      if (textStartValue) {
+        textStartValue.textContent = textStartSlider.value;
+      }
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    textStartSlider.addEventListener('change', () => {
+      if (textStartValue) {
+        textStartValue.textContent = textStartSlider.value;
+      }
       updateVisualizationOnInputChange();
       saveSettings();
     });
@@ -1765,6 +1788,7 @@ export function initializeCalculator(): void {
   if (numColsInput) {
     numColsInput.addEventListener('change', () => {
       updateColumnSpanSlider();
+      updateTextStartSlider();
       updateVisualizationOnInputChange();
       saveSettings();
     });
