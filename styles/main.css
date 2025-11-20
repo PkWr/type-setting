@@ -955,9 +955,10 @@ button {
     margin: 0;
     position: sticky;
     top: var(--spacing-lg); /* Sticky positioning from top */
-    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height to enable scroll */
+    height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Fixed height to enable scroll */
+    max-height: calc(100vh - var(--spacing-lg) * 2 - 60px); /* Max height constraint */
     overflow-y: auto !important; /* Force scroll on container */
-    overflow-x: visible;
+    overflow-x: visible !important;
     padding: 0;
     padding-right: 100px;
   }
