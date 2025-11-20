@@ -806,7 +806,7 @@ button {
   margin-top: 0;
   padding: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 2px solid #333333;
+  border-top: none;
   background-color: transparent;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
@@ -1070,6 +1070,10 @@ button {
   .preview-wrapper {
     width: 100%;
     max-width: 100%;
+  }
+
+  .visualization-section {
+    border-top: 2px solid #333333;
   }
 }
 
