@@ -281,7 +281,7 @@ function updateGrepPattern(): void {
         break;
         
       case 'enclosed':
-        instructionsTable += `
+          instructionsTable += `
           <tr>
             <td class="syntax-code"><strong>Start marker</strong></td>
             <td class="syntax-description">Enter the character(s) that mark the beginning of the content you want to match. Can be a single character like "(" or "[", or multiple characters like "{{" or "<!--". Special characters are automatically escaped.</td>
@@ -301,6 +301,18 @@ function updateGrepPattern(): void {
         `;
         break;
     }
+    
+    // Add Options instructions for all search types
+    instructionsTable += `
+      <tr>
+        <td class="syntax-code"><strong>Case sensitive</strong></td>
+        <td class="syntax-description">When checked: matches exact capitalization (e.g., "Hello" won't match "hello"). When unchecked: adds (?i) flag to ignore case, so "Hello", "hello", and "HELLO" all match the same way.</td>
+      </tr>
+      <tr>
+        <td class="syntax-code"><strong>Whole word only</strong></td>
+        <td class="syntax-description">When checked: matches complete words only using word boundaries (\\b). For example, "cat" won't match "category" or "scatter". When unchecked: matches the word anywhere it appears, even as part of other words.</td>
+      </tr>
+    `;
     
     instructionsTable += '</table>';
     output.innerHTML = instructionsTable;
