@@ -284,6 +284,15 @@ export function initializeGrep(): void {
     }, 100);
   }
   
+  // Event listener for "About GREP" link
+  const grepInfoLink = document.getElementById('grepInfoLink');
+  if (grepInfoLink) {
+    grepInfoLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      showGrepModal();
+    });
+  }
+  
   // Modal close button
   const modalClose = document.getElementById('grepModalClose');
   if (modalClose) {
