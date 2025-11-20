@@ -1336,6 +1336,14 @@ function loadSettings(): void {
       updateTextStartSlider(); // Update max and validate
     }
     
+    // Restore sparkle toggle
+    if (settings.sparkleEnabled !== undefined) {
+      const sparkleToggle = document.getElementById('sparkleToggle') as HTMLInputElement;
+      if (sparkleToggle) {
+        sparkleToggle.checked = settings.sparkleEnabled;
+      }
+    }
+    
     // Trigger visualization update after all settings are loaded
     setTimeout(() => {
       updateVisualizationOnInputChange();
@@ -1702,6 +1710,13 @@ export function initializeCalculator(): void {
   if (gutterWidthInput) {
     gutterWidthInput.addEventListener('input', () => {
       updateMarginLabels();
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
+    gutterWidthInput.addEventListener('change', () => {
+      updateMarginLabels();
+      updateVisualizationOnInputChange();
+      saveSettings();
     });
   }
   
@@ -1722,6 +1737,13 @@ export function initializeCalculator(): void {
     if (input) {
       input.addEventListener('input', () => {
         updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
+      });
+      input.addEventListener('change', () => {
+        updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
       });
     }
   });
@@ -1747,8 +1769,16 @@ export function initializeCalculator(): void {
   facingPagesMarginInputs.forEach(id => {
     const input = document.getElementById(id) as HTMLInputElement;
     if (input) {
-      input.addEventListener('input', updateVisualizationOnInputChange);
-      input.addEventListener('change', updateVisualizationOnInputChange);
+      input.addEventListener('input', () => {
+        updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
+      });
+      input.addEventListener('change', () => {
+        updateMarginLabels();
+        updateVisualizationOnInputChange();
+        saveSettings();
+      });
     }
   });
 
@@ -1851,6 +1881,12 @@ export function initializeCalculator(): void {
   // Handle number of columns change
   const numColsInput = document.getElementById('numCols') as HTMLInputElement;
   if (numColsInput) {
+    numColsInput.addEventListener('input', () => {
+      updateColumnSpanSlider();
+      updateTextStartSlider();
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
     numColsInput.addEventListener('change', () => {
       updateColumnSpanSlider();
       updateTextStartSlider();
@@ -1914,12 +1950,27 @@ export function initializeCalculator(): void {
     paperSizeSelect.addEventListener('change', (e) => {
       const target = e.target as HTMLSelectElement;
       if (target.value) {
-        applyPaperSize(target.value);
+        applyPaperSize(target.value); // applyPaperSize already calls saveSettings
       } else {
         updateVisualizationOnInputChange();
         saveSettings();
       }
     });
+  }
+  
+  // Handle custom page width/height inputs
+  const pageWidthInput = document.getElementById('pageWidth') as HTMLInputElement;
+  const pageHeightInput = document.getElementById('pageHeight') as HTMLInputElement;
+  if (pageWidthInput && pageHeightInput) {
+    const updateCustomSize = () => {
+      if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
+      updateVisualizationOnInputChange();
+      saveSettings();
+    };
+    pageWidthInput.addEventListener('input', updateCustomSize);
+    pageWidthInput.addEventListener('change', updateCustomSize);
+    pageHeightInput.addEventListener('input', updateCustomSize);
+    pageHeightInput.addEventListener('change', updateCustomSize);
   }
 
   // Handle orientation toggle change
@@ -1952,7 +2003,10 @@ export function initializeCalculator(): void {
   // Handle font family change
   const fontFamilySelect = document.getElementById('fontFamily') as HTMLSelectElement;
   if (fontFamilySelect) {
-    fontFamilySelect.addEventListener('change', updateVisualizationOnInputChange);
+    fontFamilySelect.addEventListener('change', () => {
+      updateVisualizationOnInputChange();
+      saveSettings();
+    });
   }
 
   // Handle hyphenation checkbox
