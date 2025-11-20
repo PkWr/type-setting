@@ -977,39 +977,42 @@ button {
 
 /* Large desktop layout - fixed preview on right */
 @media (min-width: 1200px) {
+  * {
+    box-sizing: border-box;
+  }
+  
   html {
     height: 100%;
     overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
   
   body {
     margin: 0;
     padding: 0;
     height: 100vh;
+    width: 100vw;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Add padding via wrapper */
-  body > .app-wrapper {
-    padding: var(--spacing-lg);
-    padding-top: var(--spacing-lg);
-    padding-bottom: calc(60px + var(--spacing-lg));
-    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
 
   .app-wrapper {
-    flex-direction: row;
-    align-items: stretch;
+    position: fixed;
+    top: var(--spacing-lg);
+    left: 0;
+    right: 0;
+    bottom: calc(60px + var(--spacing-lg));
     max-width: 1600px;
     margin: 0 auto;
-    gap: var(--spacing-xl);
-    flex: 1;
-    min-height: 0;
-    height: 100vh;
-    overflow: hidden;
+    padding: 0 var(--spacing-lg);
     display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--spacing-xl);
+    overflow: hidden;
   }
 
   .container {
