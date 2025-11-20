@@ -1239,3 +1239,42 @@ button {
 .btn-copy:active {
   background-color: #222222;
 }
+
+/* Syntax Explanation Styles */
+.syntax-explanation {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: #111111;
+  border: 1px solid #333333;
+  border-radius: var(--border-radius-sm);
+}
+
+.syntax-title {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1rem;
+  font-weight: 400;
+  font-family: var(--font-family);
+  color: #ffffff;
+}
+
+.syntax-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.syntax-item {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.6;
+}
+
+.syntax-item code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: #ffffff;
+  background-color: #000000;
+  padding: 2px 6px;
+  border-radius: 3px;
+}

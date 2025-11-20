@@ -148,6 +148,7 @@ function updateGrepPattern(): void {
   }
   
   const output = document.getElementById('grepOutput');
+  const syntaxExplanation = document.getElementById('syntaxExplanation');
   if (!output) return;
   
   if (pattern) {
@@ -165,8 +166,17 @@ function updateGrepPattern(): void {
       ${caseNote}
       ${options.wholeWord ? '<p class="helper-text"><strong>Note:</strong> Pattern includes word boundaries (\\b) for whole word matching</p>' : ''}
     `;
+    
+    // Show syntax explanation when pattern is generated
+    if (syntaxExplanation) {
+      syntaxExplanation.style.display = 'block';
+    }
   } else {
     output.innerHTML = `<p class="helper-text">${description}</p>`;
+    // Hide syntax explanation when no pattern
+    if (syntaxExplanation) {
+      syntaxExplanation.style.display = 'none';
+    }
   }
 }
 
