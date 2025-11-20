@@ -160,18 +160,18 @@
         <div id="syntaxExplanation" class="syntax-explanation" style="display: none;">
           <h3 class="syntax-title">Pattern Syntax</h3>
           <div class="syntax-content">
-            <p class="syntax-item"><code>\\d</code> - Matches any digit (0-9)</p>
-            <p class="syntax-item"><code>\\b</code> - Word boundary (matches start/end of words)</p>
-            <p class="syntax-item"><code>|</code> - OR operator (matches one pattern or another)</p>
-            <p class="syntax-item"><code>()</code> - Capturing group (groups patterns together)</p>
-            <p class="syntax-item"><code>[]</code> - Character class (matches any character inside brackets)</p>
-            <p class="syntax-item"><code>\\</code> - Escape character (makes special characters literal)</p>
-            <p class="syntax-item"><code>*</code> - Zero or more of preceding element</p>
-            <p class="syntax-item"><code>?</code> - Zero or one of preceding element (non-greedy)</p>
-            <p class="syntax-item"><code>{n}</code> - Exactly n occurrences (where n is a number, e.g., <code>{3}</code> means exactly 3)</p>
-            <p class="syntax-item"><code>{n,m}</code> - Between n and m occurrences (where n and m are numbers, e.g., <code>{2,5}</code> means 2 to 5)</p>
-            <p class="syntax-item"><code>^</code> - Negation in character class (matches anything NOT in brackets)</p>
-            <p class="syntax-item"><code>(?i)</code> - Case-insensitive flag (makes pattern match regardless of uppercase/lowercase)</p>
+            <p class="syntax-item"><code>\\d</code> - Finds any number from 0 to 9</p>
+            <p class="syntax-item"><code>\\b</code> - Matches the start or end of a word (not in the middle)</p>
+            <p class="syntax-item"><code>|</code> - Means "OR" - matches this pattern OR that pattern</p>
+            <p class="syntax-item"><code>()</code> - Groups things together so you can apply rules to the whole group</p>
+            <p class="syntax-item"><code>[]</code> - Matches any single character that appears inside these brackets</p>
+            <p class="syntax-item"><code>\\</code> - Makes special characters work as normal text (like finding a period instead of using it as a rule)</p>
+            <p class="syntax-item"><code>*</code> - The thing before this can appear zero times or many times</p>
+            <p class="syntax-item"><code>?</code> - The thing before this can appear zero times or once</p>
+            <p class="syntax-item"><code>{n}</code> - The thing before this must appear exactly n times (e.g., <code>{3}</code> means exactly 3 times)</p>
+            <p class="syntax-item"><code>{n,m}</code> - The thing before this must appear between n and m times (e.g., <code>{2,5}</code> means 2, 3, 4, or 5 times)</p>
+            <p class="syntax-item"><code>^</code> - When inside brackets, means "NOT" - matches anything that is NOT in the brackets</p>
+            <p class="syntax-item"><code>(?i)</code> - Ignores capital letters (matches "Hello", "hello", and "HELLO" the same way)</p>
           </div>
         </div>
       </section>
