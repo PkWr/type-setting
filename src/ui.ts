@@ -1184,11 +1184,15 @@ function loadSettings(): void {
       if (orientationToggle) orientationToggle.checked = settings.orientationToggle;
     }
     
-    // Margin unit - only load saved setting if it's explicitly true, otherwise default to em
+    // Margin unit - default to em (checked) unless explicitly saved as false
     if (marginUnitToggle) {
-      // Only use saved setting if it's explicitly set to true (em)
+      // Only use saved setting if it's explicitly set to false (mm)
       // Default to em (checked) for all other cases
-      marginUnitToggle.checked = settings.marginUnitToggle === true;
+      if (settings.marginUnitToggle === false) {
+        marginUnitToggle.checked = false; // User explicitly saved as mm
+      } else {
+        marginUnitToggle.checked = true; // Default to em
+      }
     }
     
     // Margins
