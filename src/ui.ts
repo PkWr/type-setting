@@ -1048,24 +1048,45 @@ async function exportVisualizationAsPDF(): Promise<void> {
           svgEl.setAttribute('stroke', '#000000');
         }
       } else if (fill && fill !== 'none' && fill !== 'transparent') {
+        // Text background rectangles - remove them or make transparent
+      } else if (fill === '#ffffff' || fill === 'white') {
+        // Check if this is inside a foreignObject (text background)
+        const parent = svgEl.parentElement;
+        if (parent && parent.tagName.toLowerCase() === 'foreignobject') {
+          svgEl.setAttribute('fill', 'transparent');
+        } else {
+          // Keep white for page backgrounds
+          svgEl.setAttribute('fill', '#ffffff');
+        }
+      } else {
         // Other fills (margins, columns) - convert to black stroke only, no fill
         svgEl.setAttribute('fill', 'none');
         svgEl.setAttribute('stroke', '#000000');
         svgEl.setAttribute('stroke-width', '0.5');
-      } else {
-        // Elements with no fill - ensure black stroke
-        if (stroke && stroke !== 'none' && stroke !== 'transparent') {
-          svgEl.setAttribute('stroke', '#000000');
-        }
+      }
+    } else {
+      // Elements with no fill - ensure black stroke
+      const stroke = svgEl.getAttribute('stroke');
+      if (stroke && stroke !== 'none' && stroke !== 'transparent') {
+        svgEl.setAttribute('stroke', '#000000');
       }
     }
     
     // Text elements: convert to black
     if (tagName === 'text' || tagName === 'tspan') {
       const fill = svgEl.getAttribute('fill');
-      if (fill && fill !== 'none' && fill !== 'transparent') {
-        svgEl.setAttribute('fill', '#000000');
-      }
+      // Always set text to black, even if it was white
+      svgEl.setAttribute('fill', '#000000');
+    }
+    
+    // foreignObject elements (contain HTML text): ensure text is black
+    if (tagName === 'foreignobject') {
+      const divs = svgEl.querySelectorAll('div');
+      divs.forEach((div: Element) => {
+        const htmlDiv = div as HTMLElement;
+        htmlDiv.style.color = '#000000';
+        htmlDiv.style.backgroundColor = 'transparent';
+      });
     }
     
     // Groups: ensure they don't override colors
@@ -1079,6 +1100,24 @@ async function exportVisualizationAsPDF(): Promise<void> {
     if (stroke && stroke !== 'none' && stroke !== 'transparent' && stroke !== '#ffffff' && stroke !== 'white') {
       svgEl.setAttribute('stroke', '#000000');
     }
+  });
+  
+  // Also process foreignObject elements separately to ensure text color is set
+  const foreignObjects = svgClone.querySelectorAll('foreignObject');
+  foreignObjects.forEach((fo: Element) => {
+    const foreignObj = fo as SVGForeignObjectElement;
+    const divs = foreignObj.querySelectorAll('div');
+    divs.forEach((div: Element) => {
+      const htmlDiv = div as HTMLElement;
+      htmlDiv.style.color = '#000000';
+      htmlDiv.style.backgroundColor = 'transparent';
+      // Also check for any nested elements
+      const nestedElements = htmlDiv.querySelectorAll('*');
+      nestedElements.forEach((nested: Element) => {
+        const nestedEl = nested as HTMLElement;
+        nestedEl.style.color = '#000000';
+      });
+    });
   });
   
   // Calculate scale to fit SVG to content area (maintaining aspect ratio)
