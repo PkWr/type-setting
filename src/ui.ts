@@ -936,9 +936,28 @@ async function exportVisualizationAsPDF(): Promise<void> {
     return;
   }
 
-  // Import jsPDF dynamically
-  const { jsPDF } = await import('jspdf');
-  const html2canvas = (await import('html2canvas')).default;
+  // Import jsPDF and html2canvas dynamically
+  let jsPDF: any;
+  let html2canvas: any;
+  
+  try {
+    const jsPDFModule = await import('jspdf');
+    // jsPDF v3 exports as default
+    jsPDF = jsPDFModule.default || (jsPDFModule as any).jsPDF;
+    
+    const html2canvasModule = await import('html2canvas');
+    html2canvas = html2canvasModule.default || html2canvasModule;
+  } catch (importError) {
+    console.error('Error importing PDF libraries:', importError);
+    alert('Error loading PDF libraries. Please refresh the page and try again.');
+    return;
+  }
+  
+  if (!jsPDF || !html2canvas) {
+    console.error('PDF libraries not available');
+    alert('PDF libraries not available. Please refresh the page and try again.');
+    return;
+  }
 
   // Get current inputs
   const inputs = getFormInputs();
@@ -1095,10 +1114,15 @@ async function exportVisualizationAsPDF(): Promise<void> {
         tempTableContainer.appendChild(tableClone);
         document.body.appendChild(tempTableContainer);
         
+        // Wait a moment for the DOM to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const tableCanvas = await html2canvas(tempTableContainer, {
           backgroundColor: '#ffffff',
           scale: 2,
-          logging: false
+          logging: false,
+          useCORS: true,
+          allowTaint: false
         });
         
         const tableImgData = tableCanvas.toDataURL('image/png');
@@ -1118,10 +1142,21 @@ async function exportVisualizationAsPDF(): Promise<void> {
     pdf.save(`typography-layout-${Date.now()}.pdf`);
   } catch (error) {
     console.error('Error exporting PDF:', error);
-    alert('Error exporting PDF. Please try again.');
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    // Clean up any temporary containers
     if (document.body.contains(tempContainer)) {
       document.body.removeChild(tempContainer);
     }
+    const tempTableContainer = document.querySelector('div[style*="-9999px"]');
+    if (tempTableContainer && document.body.contains(tempTableContainer)) {
+      document.body.removeChild(tempTableContainer);
+    }
+    
+    alert(`Error exporting PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for details.`);
   }
 }
 
