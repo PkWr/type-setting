@@ -1555,10 +1555,56 @@ export function initializeCalculator(): void {
   // Initialize orientation toggle state
   updateOrientationToggleState();
   
-  // Add letterpress decorations
-  setTimeout(() => {
-    addLetterpressDecorations();
-  }, 100);
+  // Add letterpress decorations (only if sparkle is enabled)
+  const sparkleToggle = document.getElementById('sparkleToggle') as HTMLInputElement;
+  if (sparkleToggle) {
+    // Load saved sparkle setting
+    const savedSettings = localStorage.getItem('compositorSettings');
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings);
+        if (settings.sparkleEnabled !== undefined) {
+          sparkleToggle.checked = settings.sparkleEnabled;
+        } else {
+          sparkleToggle.checked = true; // Default to enabled
+        }
+      } catch (e) {
+        sparkleToggle.checked = true; // Default to enabled
+      }
+    } else {
+      sparkleToggle.checked = true; // Default to enabled
+    }
+    
+    // Add decorations if enabled
+    if (sparkleToggle.checked) {
+      setTimeout(() => {
+        addLetterpressDecorations();
+      }, 100);
+    }
+    
+    // Handle toggle change
+    sparkleToggle.addEventListener('change', () => {
+      saveSettings();
+      // If enabling, add decorations; if disabling, remove them
+      if (sparkleToggle.checked) {
+        setTimeout(() => {
+          addLetterpressDecorations();
+        }, 100);
+      } else {
+        const container = document.getElementById('visualizationContainer');
+        if (container) {
+          const decorations = container.querySelectorAll('.letterpress-decoration');
+          decorations.forEach(decoration => decoration.remove());
+          decorationsInitialized = false; // Reset flag so decorations can be re-added if toggled back on
+        }
+      }
+    });
+  } else {
+    // If toggle doesn't exist, add decorations by default
+    setTimeout(() => {
+      addLetterpressDecorations();
+    }, 100);
+  }
   
   // Initialize modal
   const modal = document.getElementById('introModal');
