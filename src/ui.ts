@@ -1493,6 +1493,15 @@ function addLetterpressDecorations(): void {
 }
 
 export function initializeCalculator(): void {
+  // Initialize footer menu toggle
+  const footerMenuToggle = document.getElementById('footerMenuToggle');
+  const footer = document.getElementById('footer');
+  if (footerMenuToggle && footer) {
+    footerMenuToggle.addEventListener('click', () => {
+      footer.classList.toggle('expanded');
+    });
+  }
+
   // Load saved settings first
   loadSettings();
   

@@ -366,6 +366,14 @@ function hideGrepModal(): void {
  * Initializes the grep generator
  */
 export function initializeGrep(): void {
+  // Initialize footer menu toggle
+  const footerMenuToggle = document.getElementById('footerMenuToggle');
+  const footer = document.getElementById('footer');
+  if (footerMenuToggle && footer) {
+    footerMenuToggle.addEventListener('click', () => {
+      footer.classList.toggle('expanded');
+    });
+  }
   // Check if modal has been shown before
   const hasSeenModal = localStorage.getItem('grepModalShown');
   
