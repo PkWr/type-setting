@@ -156,16 +156,47 @@ function updateGrepPattern(): void {
       ? '<p class="helper-text"><strong>Note:</strong> Enable "Case Sensitive" checkbox in InDesign paragraph style GREP Style settings</p>'
       : '<p class="helper-text"><strong>Note:</strong> Case insensitive (uncheck "Case Sensitive" in InDesign paragraph style GREP Style settings)</p>';
     
-    output.innerHTML = `
-      <div class="grep-pattern">
-        <label class="grep-label">Pattern:</label>
-        <code class="grep-code">${escapeHtml(pattern)}</code>
-        <button class="btn-copy" onclick="navigator.clipboard.writeText('${pattern.replace(/'/g, "\\'")}')">Copy</button>
-      </div>
-      <p class="helper-text">${description}</p>
-      ${caseNote}
-      ${options.wholeWord ? '<p class="helper-text"><strong>Note:</strong> Pattern includes word boundaries (\\b) for whole word matching</p>' : ''}
+    // Create copy button with proper escaping
+    const copyButton = document.createElement('button');
+    copyButton.className = 'btn-copy';
+    copyButton.textContent = 'Copy';
+    copyButton.addEventListener('click', () => {
+      navigator.clipboard.writeText(pattern).then(() => {
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+          copyButton.textContent = 'Copy';
+        }, 2000);
+      });
+    });
+    
+    const patternDiv = document.createElement('div');
+    patternDiv.className = 'grep-pattern';
+    patternDiv.innerHTML = `
+      <label class="grep-label">Pattern:</label>
+      <code class="grep-code">${escapeHtml(pattern)}</code>
     `;
+    patternDiv.appendChild(copyButton);
+    
+    output.innerHTML = '';
+    output.appendChild(patternDiv);
+    
+    // Add description and notes
+    const descriptionP = document.createElement('p');
+    descriptionP.className = 'helper-text';
+    descriptionP.textContent = description;
+    output.appendChild(descriptionP);
+    
+    const caseNoteP = document.createElement('p');
+    caseNoteP.className = 'helper-text';
+    caseNoteP.innerHTML = caseNote.replace(/<p class="helper-text">(.*?)<\/p>/, '$1');
+    output.appendChild(caseNoteP);
+    
+    if (options.wholeWord) {
+      const wholeWordP = document.createElement('p');
+      wholeWordP.className = 'helper-text';
+      wholeWordP.innerHTML = '<strong>Note:</strong> Pattern includes word boundaries (\\b) for whole word matching';
+      output.appendChild(wholeWordP);
+    }
     
     // Show syntax explanation when pattern is generated
     if (syntaxExplanation) {
