@@ -196,6 +196,16 @@ body {
   font-family: var(--font-family);
 }
 
+.footer-sparkle-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.footer-sparkle-control .unit-toggle-label {
+  justify-content: center;
+}
+
 .app-wrapper {
   display: flex;
   flex-direction: column;
