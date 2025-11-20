@@ -159,20 +159,56 @@
         </div>
         <div id="syntaxExplanation" class="syntax-explanation" style="display: none;">
           <h3 class="syntax-title">Pattern Syntax</h3>
-          <div class="syntax-content">
-            <p class="syntax-item"><code>\\d</code> Finds any number from 0 to 9</p>
-            <p class="syntax-item"><code>\\b</code> Matches the start or end of a word (not in the middle)</p>
-            <p class="syntax-item"><code>|</code> Means "OR" - matches this pattern OR that pattern</p>
-            <p class="syntax-item"><code>()</code> Groups things together so you can apply rules to the whole group</p>
-            <p class="syntax-item"><code>[]</code> Matches any single character that appears inside these brackets</p>
-            <p class="syntax-item"><code>\\</code> Makes special characters work as normal text (like finding a period instead of using it as a rule)</p>
-            <p class="syntax-item"><code>*</code> The thing before this can appear zero times or many times</p>
-            <p class="syntax-item"><code>?</code> The thing before this can appear zero times or once</p>
-            <p class="syntax-item"><code>{n}</code> The thing before this must appear exactly n times (e.g., <code>{3}</code> means exactly 3 times)</p>
-            <p class="syntax-item"><code>{n,m}</code> The thing before this must appear between n and m times (e.g., <code>{2,5}</code> means 2, 3, 4, or 5 times)</p>
-            <p class="syntax-item"><code>^</code> When inside brackets, means "NOT" - matches anything that is NOT in the brackets</p>
-            <p class="syntax-item"><code>(?i)</code> Ignores capital letters (matches "Hello", "hello", and "HELLO" the same way)</p>
-          </div>
+          <table class="syntax-table">
+            <tr>
+              <td class="syntax-code"><code>\\d</code></td>
+              <td class="syntax-description">Finds any number from 0 to 9</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>\\b</code></td>
+              <td class="syntax-description">Matches the start or end of a word (not in the middle)</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>|</code></td>
+              <td class="syntax-description">Means "OR" - matches this pattern OR that pattern</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>()</code></td>
+              <td class="syntax-description">Groups things together so you can apply rules to the whole group</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>[]</code></td>
+              <td class="syntax-description">Matches any single character that appears inside these brackets</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>\\</code></td>
+              <td class="syntax-description">Makes special characters work as normal text (like finding a period instead of using it as a rule)</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>*</code></td>
+              <td class="syntax-description">The thing before this can appear zero times or many times</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>?</code></td>
+              <td class="syntax-description">The thing before this can appear zero times or once</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>{n}</code></td>
+              <td class="syntax-description">The thing before this must appear exactly n times (e.g., <code>{3}</code> means exactly 3 times)</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>{n,m}</code></td>
+              <td class="syntax-description">The thing before this must appear between n and m times (e.g., <code>{2,5}</code> means 2, 3, 4, or 5 times)</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>^</code></td>
+              <td class="syntax-description">When inside brackets, means "NOT" - matches anything that is NOT in the brackets</td>
+            </tr>
+            <tr>
+              <td class="syntax-code"><code>(?i)</code></td>
+              <td class="syntax-description">Ignores capital letters (matches "Hello", "hello", and "HELLO" the same way)</td>
+            </tr>
+          </table>
         </div>
       </section>
     </div>
