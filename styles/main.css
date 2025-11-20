@@ -86,17 +86,17 @@ body {
 .app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--spacing-md);
   max-width: 100%;
 }
 
 .container {
-  max-width: 33.333%;
+  max-width: 100%;
   margin: 0 auto;
   background-color: #000000;
   padding: 0;
-  padding-right: 100px;
-  width: 33.333%;
+  padding-right: 0;
+  width: 100%;
   color: #ffffff;
 }
 
