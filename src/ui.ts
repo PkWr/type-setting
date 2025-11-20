@@ -1524,6 +1524,21 @@ export function initializeCalculator(): void {
     });
   }
 
+  // Prevent scroll propagation from container to body
+  const container = document.querySelector('.container') as HTMLElement;
+  if (container) {
+    container.addEventListener('wheel', (e: Event) => {
+      const wheelEvent = e as WheelEvent;
+      const target = wheelEvent.target as HTMLElement;
+      
+      // Only prevent propagation if scrolling inside the container
+      if (container.contains(target)) {
+        // Allow the container to scroll, but prevent event from reaching body
+        wheelEvent.stopPropagation();
+      }
+    }, { passive: true });
+  }
+
   // Load saved settings first
   loadSettings();
   
