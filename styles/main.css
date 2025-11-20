@@ -682,7 +682,7 @@ button {
 }
 
 .scale-indicator {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   color: var(--color-text-light);
   font-weight: 500;
 }
@@ -694,6 +694,7 @@ button {
   border: none;
   border-radius: var(--border-radius-sm);
   font-weight: 500;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
