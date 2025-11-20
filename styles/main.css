@@ -359,6 +359,19 @@ h1 {
   left: 22px;
 }
 
+/* When checked, mm option should be dimmed */
+.unit-toggle-label:has(.unit-toggle-input:checked) .unit-option-mm {
+  color: #999999;
+  font-weight: 500;
+}
+
+/* When checked, em option should be highlighted */
+.unit-toggle-label:has(.unit-toggle-input:checked) .unit-option-em {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Fallback for browsers that don't support :has() */
 .unit-toggle-input:checked ~ .unit-toggle-slider ~ .unit-option-mm {
   color: #999999;
   font-weight: 500;
