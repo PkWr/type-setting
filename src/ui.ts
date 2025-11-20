@@ -972,58 +972,109 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const svgWidth = viewBoxValues[2] || 400;
   const svgHeight = viewBoxValues[3] || 400;
   
-  // Set white background rect
+  // Set white background rect (behind everything)
   const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bgRect.setAttribute('x', viewBoxValues[0].toString());
   bgRect.setAttribute('y', viewBoxValues[1].toString());
   bgRect.setAttribute('width', svgWidth.toString());
   bgRect.setAttribute('height', svgHeight.toString());
   bgRect.setAttribute('fill', '#ffffff');
+  bgRect.setAttribute('id', 'pdf-background');
   svgClone.insertBefore(bgRect, svgClone.firstChild);
   
   // Remove any existing background/style elements
   svgClone.removeAttribute('style');
+  svgClone.setAttribute('style', 'background-color: #ffffff;');
   
-  // Change all colors to black (except background)
+  // Process all elements to ensure proper colors for PDF
   const allElements = svgClone.querySelectorAll('*');
   allElements.forEach((el: Element) => {
     const svgEl = el as SVGElement;
+    const tagName = svgEl.tagName.toLowerCase();
+    
     // Skip the background rect we just added
-    if (svgEl === bgRect) return;
+    if (svgEl === bgRect || svgEl.id === 'pdf-background') return;
     
     // Remove inline styles that might override colors
     svgEl.removeAttribute('style');
     
-    if (svgEl.hasAttribute('fill') && svgEl.getAttribute('fill') !== 'none' && svgEl.getAttribute('fill') !== 'transparent') {
-      svgEl.setAttribute('fill', '#000000');
+    // Page rectangles: keep white fill, ensure black stroke
+    if (tagName === 'rect') {
+      const fill = svgEl.getAttribute('fill');
+      const stroke = svgEl.getAttribute('stroke');
+      
+      // If it's a page background (white fill), keep it white
+      if (fill === '#ffffff' || fill === 'white') {
+        svgEl.setAttribute('fill', '#ffffff');
+        // Ensure it has a black stroke for visibility
+        if (!stroke || stroke === 'none' || stroke === 'transparent') {
+          svgEl.setAttribute('stroke', '#000000');
+          svgEl.setAttribute('stroke-width', '1');
+        } else {
+          svgEl.setAttribute('stroke', '#000000');
+        }
+      } else if (fill && fill !== 'none' && fill !== 'transparent') {
+        // Other fills (margins, columns) - convert to black stroke only, no fill
+        svgEl.setAttribute('fill', 'none');
+        svgEl.setAttribute('stroke', '#000000');
+        svgEl.setAttribute('stroke-width', '0.5');
+      } else {
+        // Elements with no fill - ensure black stroke
+        if (stroke && stroke !== 'none' && stroke !== 'transparent') {
+          svgEl.setAttribute('stroke', '#000000');
+        }
+      }
     }
-    if (svgEl.hasAttribute('stroke') && svgEl.getAttribute('stroke') !== 'none' && svgEl.getAttribute('stroke') !== 'transparent') {
+    
+    // Text elements: convert to black
+    if (tagName === 'text' || tagName === 'tspan') {
+      const fill = svgEl.getAttribute('fill');
+      if (fill && fill !== 'none' && fill !== 'transparent') {
+        svgEl.setAttribute('fill', '#000000');
+      }
+    }
+    
+    // Groups: ensure they don't override colors
+    if (tagName === 'g') {
+      svgEl.removeAttribute('fill');
+      svgEl.removeAttribute('stroke');
+    }
+    
+    // Ensure all strokes are black (except none/transparent)
+    const stroke = svgEl.getAttribute('stroke');
+    if (stroke && stroke !== 'none' && stroke !== 'transparent' && stroke !== '#ffffff' && stroke !== 'white') {
       svgEl.setAttribute('stroke', '#000000');
     }
   });
   
   // Calculate scale to fit SVG to content area (maintaining aspect ratio)
+  // Use mm dimensions for accurate scaling
   const scaleX = contentWidth / svgWidth;
   const scaleY = contentHeight / svgHeight;
-  const scale = Math.min(scaleX, scaleY);
+  const scale = Math.min(scaleX, scaleY) * 0.95; // 95% to add some padding
   
-  const scaledWidth = svgWidth * scale;
-  const scaledHeight = svgHeight * scale;
+  const scaledWidthMM = svgWidth * scale;
+  const scaledHeightMM = svgHeight * scale;
+  
+  // Convert mm to pixels for html2canvas (96 DPI = 3.779527559 pixels per mm)
+  const PX_PER_MM = 96 / 25.4;
+  const scaledWidthPx = scaledWidthMM * PX_PER_MM;
+  const scaledHeightPx = scaledHeightMM * PX_PER_MM;
   
   // Create a temporary container for the SVG
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
   tempContainer.style.left = '-9999px';
-  tempContainer.style.width = `${scaledWidth}px`;
-  tempContainer.style.height = `${scaledHeight}px`;
+  tempContainer.style.width = `${scaledWidthPx}px`;
+  tempContainer.style.height = `${scaledHeightPx}px`;
   tempContainer.style.backgroundColor = '#ffffff';
   tempContainer.style.display = 'flex';
   tempContainer.style.alignItems = 'center';
   tempContainer.style.justifyContent = 'center';
   
-  // Set SVG size
-  svgClone.setAttribute('width', `${scaledWidth}px`);
-  svgClone.setAttribute('height', `${scaledHeight}px`);
+  // Set SVG size to match container
+  svgClone.setAttribute('width', `${scaledWidthPx}px`);
+  svgClone.setAttribute('height', `${scaledHeightPx}px`);
   svgClone.setAttribute('viewBox', svgViewBox);
   svgClone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   
@@ -1031,14 +1082,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
   document.body.appendChild(tempContainer);
   
   // Wait a moment for the DOM to update
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 200));
   
   try {
     // Convert SVG to canvas/image for page 1
     const canvas = await html2canvas(tempContainer, {
       backgroundColor: '#ffffff',
-      width: scaledWidth,
-      height: scaledHeight,
+      width: scaledWidthPx,
+      height: scaledHeightPx,
       scale: 2, // Higher quality
       logging: false,
       useCORS: true,
@@ -1046,15 +1097,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
     });
     
     const imgData = canvas.toDataURL('image/png');
-    const imgWidthMM = scaledWidth / (96 / 25.4); // Convert pixels to mm
-    const imgHeightMM = scaledHeight / (96 / 25.4);
     
+    // Use the calculated mm dimensions for PDF
     // Center the image on the page
-    const imgX = margin + (contentWidth - imgWidthMM) / 2;
-    const imgY = margin + (contentHeight - imgHeightMM) / 2;
+    const imgX = margin + (contentWidth - scaledWidthMM) / 2;
+    const imgY = margin + (contentHeight - scaledHeightMM) / 2;
     
     // Page 1: Visualization
-    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidthMM, imgHeightMM);
+    pdf.addImage(imgData, 'PNG', imgX, imgY, scaledWidthMM, scaledHeightMM);
     
     // Page 2: Specification table
     pdf.addPage();
