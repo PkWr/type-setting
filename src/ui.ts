@@ -287,34 +287,7 @@ function updateWordsPerLine(): void {
     const results = calculateLayout(inputs);
     // Use textBoxWidth (which accounts for column span) instead of columnWidth
     // This gives accurate words per line for the actual text box width
-    const wordsPerLine = calculateWordsPerLine(results.textBoxWidth, inputs.typeSize);
-    
-    // Bringhurst's ideal line length: ~66 characters per line
-    // Average word length is ~5 characters (including space), so ideal is ~13 words
-    const BRINGHURST_IDEAL_WORDS = 13;
-    const BRINGHURST_MIN_WORDS = 9; // ~45 characters (acceptable minimum)
-    const BRINGHURST_MAX_WORDS = 17; // ~85 characters (acceptable maximum)
-    
-    const wordsPerLineElement = document.getElementById('wordsPerLine');
-    const wordsPerLineContainer = wordsPerLineElement?.closest('.form-group');
-    const helperTextElement = wordsPerLineContainer?.querySelector('.helper-text') as HTMLElement;
-    
-    if (wordsPerLineElement) {
-      wordsPerLineElement.textContent = wordsPerLine.toString();
-    }
-    
-    // Update helper text with Bringhurst's guidance
-    if (helperTextElement) {
-      let guidance = '';
-      if (wordsPerLine >= BRINGHURST_MIN_WORDS && wordsPerLine <= BRINGHURST_MAX_WORDS) {
-        guidance = `Ideal range: ${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words (Bringhurst: ~66 characters)`;
-      } else if (wordsPerLine < BRINGHURST_MIN_WORDS) {
-        guidance = `Below ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
-      } else {
-        guidance = `Above ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
-      }
-      helperTextElement.textContent = guidance;
-    }
+    updateBringhurstSection(results.textBoxWidth, inputs.typeSize);
   } catch (e) {
     const wordsPerLineElement = document.getElementById('wordsPerLine');
     if (wordsPerLineElement) {
@@ -468,12 +441,37 @@ function updateSpecification(): void {
 function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
   try {
     const wordsPerLine = calculateWordsPerLine(textBoxWidth, typeSize);
-    const bringhurstDisplay = document.getElementById('bringhurstWordsPerLine');
-    if (bringhurstDisplay) {
-      bringhurstDisplay.textContent = `Words per line: ${wordsPerLine}`;
+    
+    // Bringhurst's ideal line length: ~66 characters per line
+    // Average word length is ~5 characters (including space), so ideal is ~13 words
+    const BRINGHURST_IDEAL_WORDS = 13;
+    const BRINGHURST_MIN_WORDS = 9; // ~45 characters (acceptable minimum)
+    const BRINGHURST_MAX_WORDS = 17; // ~85 characters (acceptable maximum)
+    
+    const wordsPerLineElement = document.getElementById('wordsPerLine');
+    const guidanceElement = document.getElementById('bringhurstGuidance');
+    
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = wordsPerLine.toString();
+    }
+    
+    // Update guidance text with Bringhurst's guidance
+    if (guidanceElement) {
+      let guidance = '';
+      if (wordsPerLine >= BRINGHURST_MIN_WORDS && wordsPerLine <= BRINGHURST_MAX_WORDS) {
+        guidance = `Ideal range: ${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words (Bringhurst: ~66 characters)`;
+      } else if (wordsPerLine < BRINGHURST_MIN_WORDS) {
+        guidance = `Below ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
+      } else {
+        guidance = `Above ideal (${BRINGHURST_MIN_WORDS}-${BRINGHURST_MAX_WORDS} words). Bringhurst recommends ~66 characters (~${BRINGHURST_IDEAL_WORDS} words)`;
+      }
+      guidanceElement.textContent = guidance;
     }
   } catch (e) {
-    // Silently fail if inputs are invalid
+    const wordsPerLineElement = document.getElementById('wordsPerLine');
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = '—';
+    }
   }
 }
 
