@@ -1154,11 +1154,15 @@ async function exportVisualizationAsPDF(): Promise<void> {
   tempContainer.appendChild(svgClone);
   document.body.appendChild(tempContainer);
   
-  // Wait a moment for the DOM to update
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Wait a moment for the DOM to update and styles to apply
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  // Force a reflow to ensure styles are applied
+  tempContainer.offsetHeight;
   
   try {
     // Convert SVG to canvas/image for page 1
+    // Use onclone to ensure text colors are correct
     const canvas = await html2canvas(tempContainer, {
       backgroundColor: '#ffffff',
       width: scaledWidthPx,
@@ -1166,7 +1170,29 @@ async function exportVisualizationAsPDF(): Promise<void> {
       scale: 2, // Higher quality
       logging: false,
       useCORS: true,
-      allowTaint: false
+      allowTaint: false,
+      onclone: (clonedDoc: Document) => {
+        // Ensure all text in cloned document is black
+        const clonedForeignObjects = clonedDoc.querySelectorAll('foreignObject');
+        clonedForeignObjects.forEach((fo: Element) => {
+          const divs = fo.querySelectorAll('div');
+          divs.forEach((div: Element) => {
+            const htmlDiv = div as HTMLElement;
+            htmlDiv.style.setProperty('color', '#000000', 'important');
+            htmlDiv.style.setProperty('backgroundColor', 'transparent', 'important');
+            const nested = htmlDiv.querySelectorAll('*');
+            nested.forEach((nestedEl: Element) => {
+              (nestedEl as HTMLElement).style.setProperty('color', '#000000', 'important');
+            });
+          });
+        });
+        
+        // Ensure all SVG text elements are black
+        const textElements = clonedDoc.querySelectorAll('text, tspan');
+        textElements.forEach((textEl: Element) => {
+          (textEl as SVGElement).setAttribute('fill', '#000000');
+        });
+      }
     });
     
     const imgData = canvas.toDataURL('image/png');
