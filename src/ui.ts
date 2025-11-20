@@ -1172,12 +1172,39 @@ async function exportVisualizationAsPDF(): Promise<void> {
       useCORS: true,
       allowTaint: false,
       onclone: (clonedDoc: Document) => {
+        // Add a style element to force all text to black
+        const style = clonedDoc.createElement('style');
+        style.textContent = `
+          foreignObject div,
+          foreignObject div *,
+          foreignObject * {
+            color: #000000 !important;
+            background-color: transparent !important;
+          }
+          text, tspan {
+            fill: #000000 !important;
+          }
+        `;
+        clonedDoc.head.appendChild(style);
+        
         // Ensure all text in cloned document is black
         const clonedForeignObjects = clonedDoc.querySelectorAll('foreignObject');
         clonedForeignObjects.forEach((fo: Element) => {
+          // Remove white background rectangles
+          const bgRects = fo.querySelectorAll('rect');
+          bgRects.forEach((rect: Element) => {
+            const rectEl = rect as SVGRectElement;
+            const fill = rectEl.getAttribute('fill');
+            if (fill === '#ffffff' || fill === 'white') {
+              rectEl.setAttribute('fill', 'transparent');
+            }
+          });
+          
           const divs = fo.querySelectorAll('div');
           divs.forEach((div: Element) => {
             const htmlDiv = div as HTMLElement;
+            // Remove existing style and force black
+            htmlDiv.setAttribute('style', htmlDiv.getAttribute('style')?.replace(/color\s*:\s*[^;]+;?/gi, '') || '');
             htmlDiv.style.setProperty('color', '#000000', 'important');
             htmlDiv.style.setProperty('backgroundColor', 'transparent', 'important');
             const nested = htmlDiv.querySelectorAll('*');
