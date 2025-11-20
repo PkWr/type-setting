@@ -1006,7 +1006,8 @@ button {
     max-width: 33.333%;
     margin: 0;
     padding: 0;
-    padding-right: 100px;
+    padding-right: 0;
+    border-right: 1px solid #555555;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
