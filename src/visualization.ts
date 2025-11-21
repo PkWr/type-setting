@@ -111,8 +111,12 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const svg = textGroup.ownerSVGElement;
   if (!svg) return;
   
-  // Clear any existing ragged edge groups for this text group
-  const existingGroups = svg.querySelectorAll('.ragged-edge-group');
+  // Use a unique identifier for this text group's ragged edge
+  const textGroupId = textGroup.getAttribute('data-text-group-id') || `text-group-${Date.now()}-${Math.random()}`;
+  textGroup.setAttribute('data-text-group-id', textGroupId);
+  
+  // Clear any existing ragged edge groups for THIS specific text group
+  const existingGroups = svg.querySelectorAll(`.ragged-edge-group[data-text-group-id="${textGroupId}"]`);
   existingGroups.forEach(group => group.remove());
   
   // Get the position of the textGroup in SVG coordinates
@@ -122,6 +126,7 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   // Create a group for ragged edge rectangles
   const raggedGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   raggedGroup.setAttribute('class', 'ragged-edge-group');
+  raggedGroup.setAttribute('data-text-group-id', textGroupId);
   
   // Draw rectangles for each line
   lineEnds.forEach((lineEnd, index) => {
@@ -358,8 +363,10 @@ function drawPage(
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               // Double RAF ensures layout is complete
+              // Verify the SVG is still the current one in the container
+              const container = document.getElementById('visualizationContainer');
               const svg = textGroup.ownerSVGElement;
-              if (svg && svg.contains(textGroup) && textGroup.contains(textDiv)) {
+              if (container && svg && container.contains(svg) && svg.contains(textGroup) && textGroup.contains(textDiv)) {
                 drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding);
               }
             });
@@ -519,11 +526,11 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Store decorations before clearing
   const decorations = Array.from(container.querySelectorAll('.letterpress-decoration'));
   
-  // Clear container and add new SVG
+  // Clear container (this removes all ragged edge groups from previous render)
   container.innerHTML = '';
-  container.appendChild(svg);
   
-  // Note: Ragged edge groups will be cleared by drawRaggedEdge function when it runs
+  // Add new SVG
+  container.appendChild(svg);
   
   // Re-add decorations after SVG (they'll fade out on their own timers)
   decorations.forEach(decoration => {
