@@ -2481,14 +2481,14 @@ export function initializeCalculator(): void {
         updateWordsPerLine();
         updateMarginLabels();
         updateVisualizationOnInputChange();
-        saveSettings();
+        saveSettings(true); // Save immediately for type size
       },
       onChange: () => {
         updateColumnWidthDisplay();
         updateWordsPerLine();
         updateMarginLabels();
         updateVisualizationOnInputChange();
-        saveSettings();
+        saveSettings(true); // Save immediately for type size
       }
     });
   }
@@ -2497,7 +2497,7 @@ export function initializeCalculator(): void {
   addInputChangeListeners('leading', {
     onBoth: () => {
       updateVisualizationOnInputChange();
-      saveSettings();
+      saveSettings(true); // Save immediately for leading
     }
   });
 
