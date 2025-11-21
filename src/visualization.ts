@@ -443,13 +443,17 @@ function drawPage(
           // Store RAF IDs so they can be cancelled if visualization updates
           const rafIds: number[] = [];
           
+          // Store reference to the SVG for later verification
+          const parentSvg = svg;
+          
           const rafId1 = requestAnimationFrame(() => {
             const rafId2 = requestAnimationFrame(() => {
               // Double RAF ensures layout is complete
               // Verify the SVG is still the current one in the container
               const container = document.getElementById('visualizationContainer');
-              const svg = textGroup.ownerSVGElement;
-              if (container && svg && container.contains(svg) && svg.contains(textGroup) && textGroup.contains(textDiv)) {
+              const currentSvg = textGroup.ownerSVGElement;
+              // Check if SVG exists and is in container, and matches the parent SVG
+              if (container && currentSvg && currentSvg === parentSvg && container.contains(currentSvg) && currentSvg.contains(textGroup) && textGroup.contains(textDiv)) {
                 drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding, inputs.justifyText || false);
               }
             });
