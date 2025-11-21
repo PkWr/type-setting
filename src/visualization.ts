@@ -494,8 +494,11 @@ function drawPage(
         // Draw ragged edge highlight if enabled
         if (layerVisibility.raggedEdge && sampleText && sampleText.trim().length > 0) {
           // Use requestAnimationFrame to ensure text is fully rendered before measuring
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
+          // Store RAF IDs so they can be cancelled if visualization updates
+          const rafIds: number[] = [];
+          
+          const rafId1 = requestAnimationFrame(() => {
+            const rafId2 = requestAnimationFrame(() => {
               // Double RAF ensures layout is complete
               // Verify the SVG is still the current one in the container
               const container = document.getElementById('visualizationContainer');
@@ -504,7 +507,12 @@ function drawPage(
                 drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding, inputs.justifyText || false);
               }
             });
+            rafIds.push(rafId2);
           });
+          rafIds.push(rafId1);
+          
+          // Store RAF IDs on the textGroup for potential cleanup
+          (textGroup as any).__rafIds = rafIds;
         }
       }
     }
@@ -658,6 +666,18 @@ export function updateVisualization(inputs: LayoutInputs): void {
 
 
   // Clear container (this removes all ragged edge groups from previous render)
+  // Cancel any pending requestAnimationFrame callbacks before clearing
+  const oldSvg = container.querySelector('svg');
+  if (oldSvg) {
+    const foreignObjects = oldSvg.querySelectorAll('foreignObject');
+    foreignObjects.forEach((fo: Element) => {
+      const rafIds = (fo as any).__rafIds;
+      if (rafIds && Array.isArray(rafIds)) {
+        rafIds.forEach((id: number) => cancelAnimationFrame(id));
+      }
+    });
+  }
+  
   container.innerHTML = '';
   
   // Add new SVG

@@ -2091,8 +2091,8 @@ function addLetterpressDecorations(): void {
       element.style.opacity = '0';
       pageContainer.appendChild(element);
       
-      // Fade in after a brief moment
-      setTimeout(() => {
+      // Store timeout IDs for cleanup
+      const fadeInTimeout = setTimeout(() => {
         element.style.transition = 'opacity 0.3s ease-in';
         element.style.opacity = '1';
       }, 50);
@@ -2100,12 +2100,15 @@ function addLetterpressDecorations(): void {
       // Random display duration between 2-4 seconds after appearance
       const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
       
-      setTimeout(() => {
+      const removeTimeout = setTimeout(() => {
         if (element.parentNode && element.parentNode === pageContainer) {
           // Remove instantly without fade-out
           element.remove();
         }
       }, displayDuration);
+      
+      // Store timeout IDs on element for potential cleanup
+      (element as any).__timeoutIds = [fadeInTimeout, removeTimeout];
     }, appearanceDelay);
   });
   
