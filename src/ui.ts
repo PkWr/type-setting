@@ -1800,14 +1800,15 @@ let decorationsInitialized = false;
  * Adds random letterpress decoration images to the visualization container
  */
 function addLetterpressDecorations(): void {
-  const container = document.getElementById('visualizationContainer');
-  if (!container) return;
+  // Use app-wrapper to cover the whole page
+  const pageContainer = document.querySelector('.app-wrapper') as HTMLElement;
+  if (!pageContainer) return;
   
   // Only add decorations once on page load
   if (decorationsInitialized) return;
   
   // Check if decorations already exist
-  if (container.querySelector('.letterpress-decoration')) {
+  if (pageContainer.querySelector('.letterpress-decoration')) {
     decorationsInitialized = true;
     return;
   }
@@ -1855,9 +1856,9 @@ function addLetterpressDecorations(): void {
     const appearanceDelay = index * 1000;
     
     setTimeout(() => {
-      const containerRect = container.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const containerHeight = containerRect.height;
+      const containerRect = pageContainer.getBoundingClientRect();
+      const pageWidth = containerRect.width;
+      const pageHeight = containerRect.height;
       
       let element: HTMLElement;
       
@@ -1887,24 +1888,31 @@ function addLetterpressDecorations(): void {
         element = img;
       }
       
-      // Random position anywhere in the container
+      // Random position anywhere on the whole page
       const imageSize = decoration.type === 'emoji' ? 200 : 500;
       const padding = 50; // Padding from edges
       
       // Calculate available area for positioning
-      const maxX = containerWidth - imageSize - padding;
-      const maxY = containerHeight - imageSize - padding;
+      const maxX = pageWidth - imageSize - padding;
+      const maxY = pageHeight - imageSize - padding;
       
       // Random position within available bounds
       let x = padding + Math.random() * Math.max(0, maxX - padding);
       let y = padding + Math.random() * Math.max(0, maxY - padding);
       
       // Ensure values are valid
-      x = Math.max(padding, Math.min(x, containerWidth - imageSize - padding));
-      y = Math.max(padding, Math.min(y, containerHeight - imageSize - padding));
+      x = Math.max(padding, Math.min(x, pageWidth - imageSize - padding));
+      y = Math.max(padding, Math.min(y, pageHeight - imageSize - padding));
       
-      element.style.left = `${x}px`;
-      element.style.top = `${y}px`;
+      // Position relative to page container (using fixed positioning)
+      // Calculate position relative to viewport based on app-wrapper position
+      const viewportX = containerRect.left + x;
+      const viewportY = containerRect.top + y;
+      
+      element.style.position = 'fixed';
+      element.style.left = `${viewportX}px`;
+      element.style.top = `${viewportY}px`;
+      element.style.zIndex = '10000'; // Ensure it appears above everything
       
       // Random rotation between -15 and 15 degrees (only for images)
       if (decoration.type === 'image') {
@@ -1914,7 +1922,7 @@ function addLetterpressDecorations(): void {
       
       // Start with opacity 0 and fade in
       element.style.opacity = '0';
-      container.appendChild(element);
+      pageContainer.appendChild(element);
       
       // Fade in after a brief moment
       setTimeout(() => {
@@ -1926,7 +1934,7 @@ function addLetterpressDecorations(): void {
       const displayDuration = 2000 + Math.random() * 2000; // 2000-4000ms
       
       setTimeout(() => {
-        if (element.parentNode && element.parentNode === container) {
+        if (element.parentNode && element.parentNode === pageContainer) {
           // Remove instantly without fade-out
           element.remove();
         }
@@ -2002,9 +2010,9 @@ export function initializeCalculator(): void {
           addLetterpressDecorations();
         }, 100);
       } else {
-        const container = document.getElementById('visualizationContainer');
-        if (container) {
-          const decorations = container.querySelectorAll('.letterpress-decoration');
+        const pageContainer = document.querySelector('.app-wrapper') as HTMLElement;
+        if (pageContainer) {
+          const decorations = pageContainer.querySelectorAll('.letterpress-decoration');
           decorations.forEach(decoration => decoration.remove());
           decorationsInitialized = false; // Reset flag so decorations can be re-added if toggled back on
         }
