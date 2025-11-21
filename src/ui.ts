@@ -2530,7 +2530,7 @@ export function initializeCalculator(): void {
   const updateCustomSize = () => {
     if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
     updateVisualizationOnInputChange();
-    saveSettings();
+    saveSettings(true); // Save immediately for page dimensions
   };
   addInputChangeListeners('pageWidth', { onBoth: updateCustomSize });
   addInputChangeListeners('pageHeight', { onBoth: updateCustomSize });
