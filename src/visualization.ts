@@ -40,7 +40,7 @@ function isFacingPages(): boolean {
 }
 
 /**
- * Draws rivers - vertical white space alignments in justified text
+ * Draws rivers - highlights spaces that are bigger than a normal space in justified text
  */
 function drawRivers(
   textDiv: HTMLDivElement,
@@ -59,16 +59,23 @@ function drawRivers(
   const textNode = textDiv.firstChild;
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
   
-  // Measure word boundaries (spaces) in each line
-  const lineData: Array<{ y: number; spacePositions: number[] }> = [];
+  // Get computed font size to calculate normal space width
+  const computedStyle = window.getComputedStyle(textDiv);
+  const fontSize = parseFloat(computedStyle.fontSize);
   
+  // Normal space width is approximately 0.25-0.3 times the font size
+  // In justified text, spaces can be stretched, so we'll use 0.3 * fontSize as baseline
+  const normalSpaceWidth = fontSize * 0.3;
+  const riverThreshold = normalSpaceWidth * 1.5; // Spaces 50% larger than normal are rivers
+  
+  const range = document.createRange();
+  
+  // Find and highlight oversized spaces in each line
   for (let i = 0; i < lineRects.length; i++) {
     const lineRect = lineRects[i];
     const lineTopRelative = lineRect.top - textDivRect.top;
     const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
-    
-    const spacePositions: number[] = [];
-    const range = document.createRange();
+    const lineHeight = lineHeightValue * scaleY;
     
     // Find all spaces in the text and check if they're on this line
     for (let charIdx = 0; charIdx < textContent.length; charIdx++) {
@@ -80,89 +87,28 @@ function drawRivers(
           
           // Check if this space is on the current line
           if (spaceRect.top >= lineRect.top - 1 && spaceRect.top < lineRect.bottom + 1) {
-            const spaceXRelative = spaceRect.left - textDivRect.left;
-            const spaceX = textGroupX + paddingValue + (spaceXRelative * scaleX);
-            spacePositions.push(spaceX);
+            const spaceWidth = spaceRect.width;
+            
+            // If space is bigger than threshold, highlight it as a river
+            if (spaceWidth > riverThreshold) {
+              const spaceXRelative = spaceRect.left - textDivRect.left;
+              const spaceX = textGroupX + paddingValue + (spaceXRelative * scaleX);
+              const spaceWidthSVG = spaceWidth * scaleX;
+              
+              // Draw a rectangle highlighting the oversized space
+              const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              rect.setAttribute('x', spaceX.toString());
+              rect.setAttribute('y', lineY.toString());
+              rect.setAttribute('width', spaceWidthSVG.toString());
+              rect.setAttribute('height', lineHeight.toString());
+              rect.setAttribute('fill', '#ff0000'); // Red for visibility
+              rect.setAttribute('opacity', '0.3'); // Semi-transparent
+              raggedGroup.appendChild(rect);
+            }
           }
         } catch (e) {
           // Skip if range is invalid
         }
-      }
-    }
-    
-    lineData.push({ y: lineY, spacePositions });
-  }
-  
-  // Find vertical alignments (rivers) - spaces that align across multiple consecutive lines
-  const riverTolerance = 3 * scaleX; // Tolerance for vertical alignment (3px scaled)
-  const minRiverLines = 2; // Minimum number of consecutive lines for a river
-  
-  // Group space positions by X coordinate (within tolerance) and track which lines they appear on
-  const riverCandidates: Map<number, Set<number>> = new Map();
-  
-  for (const line of lineData) {
-    for (const spaceX of line.spacePositions) {
-      // Find existing river candidate within tolerance
-      let foundCandidate = false;
-      for (const [candidateX, lines] of riverCandidates.entries()) {
-        if (Math.abs(spaceX - candidateX) <= riverTolerance) {
-          lines.add(line.y);
-          foundCandidate = true;
-          break;
-        }
-      }
-      
-      if (!foundCandidate) {
-        riverCandidates.set(spaceX, new Set([line.y]));
-      }
-    }
-  }
-  
-  // Draw rivers - vertical lines where spaces align across consecutive lines
-  for (const [x, yPositions] of riverCandidates.entries()) {
-    const sortedY = Array.from(yPositions).sort((a, b) => a - b);
-    
-    if (sortedY.length >= minRiverLines) {
-      // Find consecutive line groups
-      let riverStart = sortedY[0];
-      let riverEnd = sortedY[0];
-      
-      for (let i = 1; i < sortedY.length; i++) {
-        const expectedNext = riverEnd + (lineHeightValue * scaleY);
-        const actualDiff = sortedY[i] - riverEnd;
-        
-        // Check if this is a consecutive line (within reasonable distance)
-        if (actualDiff <= lineHeightValue * scaleY * 1.2 && actualDiff >= lineHeightValue * scaleY * 0.8) {
-          riverEnd = sortedY[i];
-        } else {
-          // Break in river - draw what we have if it's long enough
-          if (riverEnd - riverStart >= lineHeightValue * scaleY * (minRiverLines - 1)) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x.toString());
-            line.setAttribute('y1', riverStart.toString());
-            line.setAttribute('x2', x.toString());
-            line.setAttribute('y2', riverEnd.toString());
-            line.setAttribute('stroke', '#ff0000'); // Red for visibility
-            line.setAttribute('stroke-width', '2'); // Thicker line
-            line.setAttribute('opacity', '0.8'); // More opaque
-            raggedGroup.appendChild(line);
-          }
-          riverStart = sortedY[i];
-          riverEnd = sortedY[i];
-        }
-      }
-      
-      // Draw final river segment if long enough
-      if (riverEnd - riverStart >= lineHeightValue * scaleY * (minRiverLines - 1)) {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', x.toString());
-        line.setAttribute('y1', riverStart.toString());
-        line.setAttribute('x2', x.toString());
-        line.setAttribute('y2', riverEnd.toString());
-        line.setAttribute('stroke', '#ff0000'); // Red for visibility
-        line.setAttribute('stroke-width', '2'); // Thicker line
-        line.setAttribute('opacity', '0.8'); // More opaque
-        raggedGroup.appendChild(line);
       }
     }
   }
