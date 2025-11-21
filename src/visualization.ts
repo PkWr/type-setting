@@ -45,67 +45,34 @@ function isFacingPages(): boolean {
 function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElement, spanWidth: number, lineHeight: number, padding: number): void {
   // Get the computed style to measure text properly
   const computedStyle = window.getComputedStyle(textDiv);
-  const fontSize = parseFloat(computedStyle.fontSize);
   const lineHeightValue = parseFloat(computedStyle.lineHeight);
   const paddingValue = padding;
-  const textWidth = spanWidth - (paddingValue * 2);
   
-  // Create a range to measure text lines
-  const range = document.createRange();
+  // Get the actual rendered width of the text div (accounting for padding and box-sizing)
+  const textDivRect = textDiv.getBoundingClientRect();
+  const textWidth = textDivRect.width - (paddingValue * 2);
+  
+  // Use Range API with getClientRects to get actual rendered line positions
   const textNode = textDiv.firstChild;
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
   
-  const text = textNode.textContent || '';
-  if (!text) return;
+  const range = document.createRange();
+  range.selectNodeContents(textDiv);
   
-  // Split text into words and measure lines
-  const words = text.split(/\s+/);
-  let currentLine = '';
-  let currentLineWidth = 0;
-  let lineIndex = 0;
+  // getClientRects returns one rect per line
+  const lineRects = range.getClientRects();
   const lineEnds: number[] = [];
   
-  // Create a temporary span to measure text width
-  const measureSpan = document.createElement('span');
-  measureSpan.style.position = 'absolute';
-  measureSpan.style.visibility = 'hidden';
-  measureSpan.style.whiteSpace = 'nowrap';
-  measureSpan.style.fontSize = computedStyle.fontSize;
-  measureSpan.style.fontFamily = computedStyle.fontFamily;
-  measureSpan.style.fontWeight = computedStyle.fontWeight;
-  measureSpan.style.fontStyle = computedStyle.fontStyle;
-  document.body.appendChild(measureSpan);
+  // Get the left edge of the text div (accounting for padding)
+  const textDivLeft = textDivRect.left + paddingValue;
   
-  // Measure each word and build lines
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    measureSpan.textContent = testLine;
-    const testWidth = measureSpan.offsetWidth;
-    
-    if (testWidth > textWidth && currentLine) {
-      // Current line is full, measure its width
-      measureSpan.textContent = currentLine;
-      const lineWidth = measureSpan.offsetWidth;
-      lineEnds.push(lineWidth);
-      currentLine = word;
-      measureSpan.textContent = word;
-      currentLineWidth = measureSpan.offsetWidth;
-      lineIndex++;
-    } else {
-      currentLine = testLine;
-      currentLineWidth = testWidth;
-    }
+  // Measure each line's width
+  for (let i = 0; i < lineRects.length; i++) {
+    const lineRect = lineRects[i];
+    // Calculate line width relative to text div (not viewport)
+    const lineWidth = lineRect.width;
+    lineEnds.push(lineWidth);
   }
-  
-  // Add the last line
-  if (currentLine) {
-    measureSpan.textContent = currentLine;
-    lineEnds.push(measureSpan.offsetWidth);
-  }
-  
-  // Clean up
-  document.body.removeChild(measureSpan);
   
   // Draw black rectangles for ragged edge
   const svg = textGroup.ownerSVGElement;
