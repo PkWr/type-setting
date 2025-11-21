@@ -354,10 +354,16 @@ function drawPage(
         
         // Draw ragged edge highlight if enabled
         if (layerVisibility.raggedEdge && sampleText && sampleText.trim().length > 0) {
-          // Use setTimeout to measure after text is rendered
-          setTimeout(() => {
-            drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding);
-          }, 0);
+          // Use requestAnimationFrame to ensure text is fully rendered before measuring
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              // Double RAF ensures layout is complete
+              const svg = textGroup.ownerSVGElement;
+              if (svg && svg.contains(textGroup) && textGroup.contains(textDiv)) {
+                drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding);
+              }
+            });
+          });
         }
       }
     }
@@ -517,9 +523,7 @@ export function updateVisualization(inputs: LayoutInputs): void {
   container.innerHTML = '';
   container.appendChild(svg);
   
-  // Clear any existing ragged edge groups from previous renders
-  const existingRaggedGroups = svg.querySelectorAll('.ragged-edge-group');
-  existingRaggedGroups.forEach(group => group.remove());
+  // Note: Ragged edge groups will be cleared by drawRaggedEdge function when it runs
   
   // Re-add decorations after SVG (they'll fade out on their own timers)
   decorations.forEach(decoration => {
