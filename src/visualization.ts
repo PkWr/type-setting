@@ -59,18 +59,46 @@ function drawRivers(
   const textNode = textDiv.firstChild;
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
   
-  // Get computed font size to calculate normal space width
-  const computedStyle = window.getComputedStyle(textDiv);
-  const fontSize = parseFloat(computedStyle.fontSize);
-  
-  // Normal space width is approximately 0.25-0.3 times the font size
-  // In justified text, spaces can be stretched, so we'll use 0.3 * fontSize as baseline
-  const normalSpaceWidth = fontSize * 0.3;
-  const riverThreshold = normalSpaceWidth * 1.5; // Spaces 50% larger than normal are rivers
-  
   const range = document.createRange();
   
-  // Find and highlight oversized spaces in each line
+  // First pass: measure all space widths to determine normal space width
+  const spaceWidths: number[] = [];
+  
+  for (let i = 0; i < lineRects.length; i++) {
+    const lineRect = lineRects[i];
+    
+    // Find all spaces in the text and check if they're on this line
+    for (let charIdx = 0; charIdx < textContent.length; charIdx++) {
+      if (textContent[charIdx] === ' ') {
+        try {
+          range.setStart(textNode, Math.min(charIdx, textNode.textContent?.length || 0));
+          range.setEnd(textNode, Math.min(charIdx + 1, textNode.textContent?.length || 0));
+          const spaceRect = range.getBoundingClientRect();
+          
+          // Check if this space is on the current line
+          if (spaceRect.top >= lineRect.top - 1 && spaceRect.top < lineRect.bottom + 1) {
+            spaceWidths.push(spaceRect.width);
+          }
+        } catch (e) {
+          // Skip if range is invalid
+        }
+      }
+    }
+  }
+  
+  if (spaceWidths.length === 0) return;
+  
+  // Calculate normal space width (median or average of measured spaces)
+  // Sort widths and use median to avoid outliers
+  const sortedWidths = [...spaceWidths].sort((a, b) => a - b);
+  const medianIndex = Math.floor(sortedWidths.length / 2);
+  const normalSpaceWidth = sortedWidths[medianIndex];
+  
+  // River threshold: spaces that are 20% larger than median are rivers
+  // This is more sensitive than before to catch more rivers
+  const riverThreshold = normalSpaceWidth * 1.2;
+  
+  // Second pass: highlight oversized spaces
   for (let i = 0; i < lineRects.length; i++) {
     const lineRect = lineRects[i];
     const lineTopRelative = lineRect.top - textDivRect.top;
@@ -102,7 +130,7 @@ function drawRivers(
               rect.setAttribute('width', spaceWidthSVG.toString());
               rect.setAttribute('height', lineHeight.toString());
               rect.setAttribute('fill', '#ff0000'); // Red for visibility
-              rect.setAttribute('opacity', '0.3'); // Semi-transparent
+              rect.setAttribute('opacity', '0.5'); // More visible
               raggedGroup.appendChild(rect);
             }
           }
