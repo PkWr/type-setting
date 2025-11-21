@@ -394,6 +394,9 @@ function drawPage(
       const lineHeight = leadingMM * scaleY;
       const padding = fontSizeSVG * 0.5;
       
+      // Store reference to the parent SVG for RAF callbacks (needed for facing pages)
+      const parentSvg = svg;
+      
       // Create text boxes for each span repetition
       for (let spanIndex = 0; spanIndex < numberOfSpans; spanIndex++) {
         const spanStartIndex = textStartIndex + (spanIndex * spanCols);
@@ -435,16 +438,13 @@ function drawPage(
         textDiv.textContent = sampleText;
         
         textGroup.appendChild(textDiv);
-        svg.appendChild(textGroup);
+        parentSvg.appendChild(textGroup);
         
         // Draw ragged edge highlight if enabled
         if (layerVisibility.raggedEdge && sampleText && sampleText.trim().length > 0) {
           // Use requestAnimationFrame to ensure text is fully rendered before measuring
           // Store RAF IDs so they can be cancelled if visualization updates
           const rafIds: number[] = [];
-          
-          // Store reference to the SVG for later verification
-          const parentSvg = svg;
           
           const rafId1 = requestAnimationFrame(() => {
             const rafId2 = requestAnimationFrame(() => {
