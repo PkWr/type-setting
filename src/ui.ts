@@ -1444,11 +1444,35 @@ async function exportVisualizationAsPDF(): Promise<void> {
   }
 }
 
+// Debounce timer for saveSettings
+let saveSettingsTimer: number | null = null;
+
 /**
- * Saves all form settings to localStorage
+ * Saves all form settings to localStorage with debouncing
  */
 function saveSettings(): void {
+  // Clear existing timer
+  if (saveSettingsTimer !== null) {
+    clearTimeout(saveSettingsTimer);
+  }
+  
+  // Debounce: wait 300ms before saving to avoid excessive writes
+  saveSettingsTimer = window.setTimeout(() => {
+    saveSettingsImmediate();
+  }, 300);
+}
+
+/**
+ * Immediately saves all form settings to localStorage
+ */
+function saveSettingsImmediate(): void {
   try {
+    // Check if localStorage is available
+    if (typeof Storage === 'undefined' || !localStorage) {
+      console.warn('localStorage is not available');
+      return;
+    }
+    
     const settings: Record<string, string | boolean | number | number[]> = {};
     
     // Page dimensions
@@ -1538,10 +1562,34 @@ function saveSettings(): void {
     const sparkleToggle = (document.getElementById('sparkleToggle') as HTMLInputElement)?.checked ?? true;
     settings.sparkleEnabled = sparkleToggle;
     
-    localStorage.setItem('compositorSettings', JSON.stringify(settings));
+    const settingsJson = JSON.stringify(settings);
+    
+    // Try to save with error handling
+    try {
+      localStorage.setItem('compositorSettings', settingsJson);
+      
+      // Verify the save worked
+      const verify = localStorage.getItem('compositorSettings');
+      if (verify !== settingsJson) {
+        console.warn('Settings save verification failed - data may not have been saved correctly');
+      }
+    } catch (e) {
+      // Handle quota exceeded or other errors
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded - cannot save settings');
+      } else {
+        console.error('Failed to save settings:', e);
+      }
+      // Try to clear old data and retry once
+      try {
+        localStorage.removeItem('compositorSettings');
+        localStorage.setItem('compositorSettings', settingsJson);
+      } catch (retryError) {
+        console.error('Failed to save settings after retry:', retryError);
+      }
+    }
   } catch (e) {
-    // Silently fail if localStorage is not available
-    console.error('Failed to save settings:', e);
+    console.error('Failed to prepare settings for save:', e);
   }
 }
 
@@ -1550,6 +1598,12 @@ function saveSettings(): void {
  */
 function loadSettings(): void {
   try {
+    // Check if localStorage is available
+    if (typeof Storage === 'undefined' || !localStorage) {
+      console.warn('localStorage is not available - using defaults');
+      return;
+    }
+    
     const savedSettings = localStorage.getItem('compositorSettings');
     const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
     
@@ -1563,7 +1617,25 @@ function loadSettings(): void {
     
     if (!savedSettings) return;
     
-    const settings = JSON.parse(savedSettings);
+    let settings: Record<string, any>;
+    try {
+      settings = JSON.parse(savedSettings);
+    } catch (parseError) {
+      console.error('Failed to parse saved settings:', parseError);
+      // Clear corrupted data
+      try {
+        localStorage.removeItem('compositorSettings');
+      } catch (e) {
+        console.error('Failed to clear corrupted settings:', e);
+      }
+      return;
+    }
+    
+    // Validate settings object
+    if (typeof settings !== 'object' || settings === null) {
+      console.error('Invalid settings format');
+      return;
+    }
     
     // Page dimensions
     if (settings.pageWidth) {
@@ -1946,6 +2018,28 @@ function addLetterpressDecorations(): void {
 }
 
 export function initializeCalculator(): void {
+  // Save settings before page unload as backup
+  window.addEventListener('beforeunload', () => {
+    // Clear any pending debounced save and save immediately
+    if (saveSettingsTimer !== null) {
+      clearTimeout(saveSettingsTimer);
+      saveSettingsTimer = null;
+    }
+    saveSettingsImmediate();
+  });
+  
+  // Also save on visibility change (when tab becomes hidden)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // Clear any pending debounced save and save immediately
+      if (saveSettingsTimer !== null) {
+        clearTimeout(saveSettingsTimer);
+        saveSettingsTimer = null;
+      }
+      saveSettingsImmediate();
+    }
+  });
+  
   // Initialize footer menu toggle
   const footerMenuToggle = document.getElementById('footerMenuToggle');
   const footer = document.getElementById('footer');
