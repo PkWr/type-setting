@@ -48,83 +48,60 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const lineHeightValue = parseFloat(computedStyle.lineHeight);
   const paddingValue = padding;
   
-  // Get the actual rendered width of the text div (accounting for padding and box-sizing)
+  // Get bounding rects for coordinate conversion
   const textDivRect = textDiv.getBoundingClientRect();
-  const textWidth = textDivRect.width - (paddingValue * 2);
+  const textGroupRect = textGroup.getBoundingClientRect();
   
-  // Use Range API to measure each line by finding line breaks
+  // Use Range API with getClientRects to get actual rendered line positions
   const textNode = textDiv.firstChild;
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
   
-  const text = textNode.textContent || '';
-  if (!text) return;
-  
   const range = document.createRange();
-  const lineEnds: number[] = [];
-  const textLength = text.length;
+  range.selectNodeContents(textDiv);
   
-  // Find line breaks by detecting Y position changes
-  let lineStart = 0;
-  let previousY: number | null = null;
+  // getClientRects returns one rect per rendered line
+  const lineRects = range.getClientRects();
   
-  // Sample every few characters to find line breaks efficiently
-  const sampleStep = Math.max(1, Math.floor(textLength / 100)); // Sample ~100 points
+  if (lineRects.length === 0) return;
   
-  for (let i = 0; i <= textLength; i += sampleStep) {
-    const pos = Math.min(i, textLength - 1);
-    try {
-      range.setStart(textNode, pos);
-      range.setEnd(textNode, pos + 1);
-      const charRect = range.getBoundingClientRect();
-      const charY = charRect.top;
-      
-      if (previousY === null) {
-        previousY = charY;
-      } else if (Math.abs(charY - previousY) > lineHeightValue * 0.4) {
-        // Line break detected - measure the previous line
-        if (lineStart < pos) {
-          range.setStart(textNode, lineStart);
-          range.setEnd(textNode, pos);
-          const lineRect = range.getBoundingClientRect();
-          // Measure width relative to text div left edge
-          const lineLeft = lineRect.left - textDivRect.left;
-          const lineWidth = lineRect.width;
-          lineEnds.push(lineWidth);
-        }
-        lineStart = pos;
-        previousY = charY;
-      }
-    } catch (e) {
-      break;
-    }
-  }
-  
-  // Measure the last line
-  if (lineStart < textLength) {
-    try {
-      range.setStart(textNode, lineStart);
-      range.setEnd(textNode, textLength);
-      const lineRect = range.getBoundingClientRect();
-      const lineWidth = lineRect.width;
-      lineEnds.push(lineWidth);
-    } catch (e) {
-      // If measurement fails, skip
-    }
-  }
-  
-  // If we didn't get any measurements, fall back to simpler method
-  if (lineEnds.length === 0) {
-    // Use getClientRects as fallback
-    range.selectNodeContents(textDiv);
-    const rects = range.getClientRects();
-    for (let i = 0; i < rects.length; i++) {
-      lineEnds.push(rects[i].width);
-    }
-  }
-  
-  // Draw black rectangles for ragged edge
+  // Get SVG and textGroup positions for coordinate conversion
   const svg = textGroup.ownerSVGElement;
   if (!svg) return;
+  
+  const textGroupX = parseFloat(textGroup.getAttribute('x') || '0');
+  const textGroupY = parseFloat(textGroup.getAttribute('y') || '0');
+  
+  // Calculate scale factor: SVG coordinates vs viewport coordinates
+  // The foreignObject width/height in SVG vs actual rendered size
+  const foreignObjectWidth = parseFloat(textGroup.getAttribute('width') || '0');
+  const foreignObjectHeight = parseFloat(textGroup.getAttribute('height') || '0');
+  const scaleX = foreignObjectWidth / textGroupRect.width;
+  const scaleY = foreignObjectHeight / textGroupRect.height;
+  
+  // Store line end positions in SVG coordinates
+  const lineEnds: { x: number; y: number; width: number }[] = [];
+  
+  // Process each line rect
+  for (let i = 0; i < lineRects.length; i++) {
+    const lineRect = lineRects[i];
+    
+    // Convert viewport coordinates to coordinates relative to textDiv
+    const lineLeftRelative = lineRect.left - textDivRect.left;
+    const lineRightRelative = lineRect.right - textDivRect.left;
+    const lineTopRelative = lineRect.top - textDivRect.top;
+    
+    // Convert to SVG coordinates
+    // Account for padding in the textDiv
+    const lineEndX = textGroupX + paddingValue + (lineRightRelative * scaleX);
+    const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
+    const lineWidth = (lineRightRelative - lineLeftRelative) * scaleX;
+    
+    lineEnds.push({
+      x: lineEndX,
+      y: lineY,
+      width: lineWidth
+    });
+  }
   
   // Use a unique identifier for this text group's ragged edge
   const textGroupId = textGroup.getAttribute('data-text-group-id') || `text-group-${Date.now()}-${Math.random()}`;
@@ -134,54 +111,32 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const existingGroups = svg.querySelectorAll(`.ragged-edge-group[data-text-group-id="${textGroupId}"]`);
   existingGroups.forEach(group => group.remove());
   
-  // Get the position of the textGroup in SVG coordinates
-  const textGroupX = parseFloat(textGroup.getAttribute('x') || '0');
-  const textGroupY = parseFloat(textGroup.getAttribute('y') || '0');
-  
   // Create a group for ragged edge rectangles
   const raggedGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   raggedGroup.setAttribute('class', 'ragged-edge-group');
   raggedGroup.setAttribute('data-text-group-id', textGroupId);
   
-  // Draw rectangles for each line
-  // Get actual line positions using getClientRects for accurate Y positions
-  const lineRange = document.createRange();
-  lineRange.selectNodeContents(textDiv);
-  const lineRects = lineRange.getClientRects();
-  const divRect = textDiv.getBoundingClientRect();
+  // Calculate the right edge of the text box in SVG coordinates
+  const textBoxRightEdge = textGroupX + spanWidth - paddingValue;
   
-  // Use actual line count from getClientRects
-  const actualLineCount = Math.max(lineRects.length, lineEnds.length);
-  
-  for (let index = 0; index < actualLineCount; index++) {
-    const lineWidth = index < lineEnds.length ? lineEnds[index] : textWidth;
+  // Draw rectangles for each line - from end of text to right edge
+  lineEnds.forEach((lineInfo) => {
+    const x = lineInfo.x; // End of text line in SVG coordinates
+    const y = lineInfo.y; // Y position of line in SVG coordinates
+    const width = textBoxRightEdge - x; // Width from end of text to right edge
+    const height = lineHeightValue * 0.8 * scaleY; // Scaled line height
     
-    // Use actual Y position from getClientRects if available
-    let lineY: number;
-    if (index < lineRects.length) {
-      const lineRect = lineRects[index];
-      // Convert from viewport coordinates to SVG coordinates
-      lineY = textGroupY + (lineRect.top - divRect.top);
-    } else {
-      // Fallback to calculated position
-      lineY = textGroupY + paddingValue + (index * lineHeightValue);
-    }
-    
-    const x = textGroupX + paddingValue + lineWidth;
-    const width = textWidth - lineWidth;
-    const height = lineHeightValue * 0.8;
-    
-    if (width > 0 && lineWidth > 0) {
+    if (width > 0 && x < textBoxRightEdge) {
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttribute('x', x.toString());
-      rect.setAttribute('y', lineY.toString());
+      rect.setAttribute('y', y.toString());
       rect.setAttribute('width', width.toString());
       rect.setAttribute('height', height.toString());
       rect.setAttribute('fill', '#000000');
       rect.setAttribute('opacity', '0.3');
       raggedGroup.appendChild(rect);
     }
-  }
+  });
   
   svg.appendChild(raggedGroup);
 }
