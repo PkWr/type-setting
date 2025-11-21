@@ -1735,19 +1735,19 @@ function loadSettings(): void {
     }
     
     // Margins
-    if (settings.topMargin) {
+    if (settings.topMargin !== undefined) {
       const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
       if (topMarginInput) topMarginInput.value = settings.topMargin;
     }
-    if (settings.bottomMargin) {
+    if (settings.bottomMargin !== undefined) {
       const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
       if (bottomMarginInput) bottomMarginInput.value = settings.bottomMargin;
     }
-    if (settings.leftMargin) {
+    if (settings.leftMargin !== undefined) {
       const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
       if (leftMarginInput) leftMarginInput.value = settings.leftMargin;
     }
-    if (settings.rightMargin) {
+    if (settings.rightMargin !== undefined) {
       const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
       if (rightMarginInput) rightMarginInput.value = settings.rightMargin;
     }
@@ -1760,19 +1760,19 @@ function loadSettings(): void {
         updateMarginInputs();
         // Now load facing pages margins after inputs are visible
         if (settings.facingPages) {
-          if (settings.innerMarginLeft) {
+          if (settings.innerMarginLeft !== undefined) {
             const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
             if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
           }
-          if (settings.innerMarginRight) {
+          if (settings.innerMarginRight !== undefined) {
             const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
             if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
           }
-          if (settings.outerMarginLeft) {
+          if (settings.outerMarginLeft !== undefined) {
             const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
             if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
           }
-          if (settings.outerMarginRight) {
+          if (settings.outerMarginRight !== undefined) {
             const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
             if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
           }
