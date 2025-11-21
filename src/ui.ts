@@ -1812,7 +1812,9 @@ function loadSettings(): void {
     }
     if (settings.justifyText !== undefined) {
       const justifyTextCheckbox = document.getElementById('justifyText') as HTMLInputElement;
-      if (justifyTextCheckbox) justifyTextCheckbox.checked = settings.justifyText;
+      if (justifyTextCheckbox) {
+        justifyTextCheckbox.checked = settings.justifyText;
+      }
     }
     
     // Sample text
@@ -2546,10 +2548,31 @@ export function initializeCalculator(): void {
     onChange: updateVisualizationOnInputChange
   });
   
+  // Function to update ragged edge label based on justify text state
+  function updateRaggedEdgeLabel(): void {
+    const justifyTextCheckbox = document.getElementById('justifyText') as HTMLInputElement;
+    // Find the span inside the label that contains the showRaggedEdge checkbox
+    const raggedEdgeCheckbox = document.getElementById('showRaggedEdge');
+    const raggedEdgeLabel = raggedEdgeCheckbox?.closest('label')?.querySelector('span') as HTMLElement;
+    if (raggedEdgeLabel && justifyTextCheckbox) {
+      if (justifyTextCheckbox.checked) {
+        raggedEdgeLabel.textContent = 'Rivers';
+      } else {
+        raggedEdgeLabel.textContent = 'Ragged edge';
+      }
+    }
+  }
+  
   // Handle justify text checkbox
   addInputChangeListeners('justifyText', {
-    onChange: updateVisualizationOnInputChange
+    onChange: () => {
+      updateRaggedEdgeLabel();
+      updateVisualizationOnInputChange();
+    }
   });
+  
+  // Update label on initialization and after settings load
+  updateRaggedEdgeLabel();
 
   // Initial visualization and words per line
   // Note: loadSettings() already triggers visualization updates after loading settings
