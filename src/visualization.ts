@@ -40,9 +40,139 @@ function isFacingPages(): boolean {
 }
 
 /**
- * Draws ragged edge highlight - black rectangles showing where each line ends
+ * Draws rivers - vertical white space alignments in justified text
  */
-function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElement, spanWidth: number, lineHeight: number, padding: number): void {
+function drawRivers(
+  textDiv: HTMLDivElement,
+  textGroup: SVGForeignObjectElement,
+  lineRects: DOMRectList,
+  textDivRect: DOMRect,
+  textGroupX: number,
+  textGroupY: number,
+  paddingValue: number,
+  scaleX: number,
+  scaleY: number,
+  lineHeightValue: number,
+  raggedGroup: SVGGElement
+): void {
+  const textContent = textDiv.textContent || '';
+  const textNode = textDiv.firstChild;
+  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+  
+  // Measure word boundaries (spaces) in each line
+  const lineData: Array<{ y: number; spacePositions: number[] }> = [];
+  
+  for (let i = 0; i < lineRects.length; i++) {
+    const lineRect = lineRects[i];
+    const lineTopRelative = lineRect.top - textDivRect.top;
+    const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
+    
+    const spacePositions: number[] = [];
+    const range = document.createRange();
+    
+    // Find all spaces in the text and check if they're on this line
+    for (let charIdx = 0; charIdx < textContent.length; charIdx++) {
+      if (textContent[charIdx] === ' ') {
+        try {
+          range.setStart(textNode, Math.min(charIdx, textNode.textContent?.length || 0));
+          range.setEnd(textNode, Math.min(charIdx + 1, textNode.textContent?.length || 0));
+          const spaceRect = range.getBoundingClientRect();
+          
+          // Check if this space is on the current line
+          if (spaceRect.top >= lineRect.top - 1 && spaceRect.top < lineRect.bottom + 1) {
+            const spaceXRelative = spaceRect.left - textDivRect.left;
+            const spaceX = textGroupX + paddingValue + (spaceXRelative * scaleX);
+            spacePositions.push(spaceX);
+          }
+        } catch (e) {
+          // Skip if range is invalid
+        }
+      }
+    }
+    
+    lineData.push({ y: lineY, spacePositions });
+  }
+  
+  // Find vertical alignments (rivers) - spaces that align across multiple consecutive lines
+  const riverTolerance = 3 * scaleX; // Tolerance for vertical alignment (3px scaled)
+  const minRiverLines = 2; // Minimum number of consecutive lines for a river
+  
+  // Group space positions by X coordinate (within tolerance) and track which lines they appear on
+  const riverCandidates: Map<number, Set<number>> = new Map();
+  
+  for (const line of lineData) {
+    for (const spaceX of line.spacePositions) {
+      // Find existing river candidate within tolerance
+      let foundCandidate = false;
+      for (const [candidateX, lines] of riverCandidates.entries()) {
+        if (Math.abs(spaceX - candidateX) <= riverTolerance) {
+          lines.add(line.y);
+          foundCandidate = true;
+          break;
+        }
+      }
+      
+      if (!foundCandidate) {
+        riverCandidates.set(spaceX, new Set([line.y]));
+      }
+    }
+  }
+  
+  // Draw rivers - vertical lines where spaces align across consecutive lines
+  for (const [x, yPositions] of riverCandidates.entries()) {
+    const sortedY = Array.from(yPositions).sort((a, b) => a - b);
+    
+    if (sortedY.length >= minRiverLines) {
+      // Find consecutive line groups
+      let riverStart = sortedY[0];
+      let riverEnd = sortedY[0];
+      
+      for (let i = 1; i < sortedY.length; i++) {
+        const expectedNext = riverEnd + (lineHeightValue * scaleY);
+        const actualDiff = sortedY[i] - riverEnd;
+        
+        // Check if this is a consecutive line (within reasonable distance)
+        if (actualDiff <= lineHeightValue * scaleY * 1.2 && actualDiff >= lineHeightValue * scaleY * 0.8) {
+          riverEnd = sortedY[i];
+        } else {
+          // Break in river - draw what we have if it's long enough
+          if (riverEnd - riverStart >= lineHeightValue * scaleY * (minRiverLines - 1)) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x.toString());
+            line.setAttribute('y1', riverStart.toString());
+            line.setAttribute('x2', x.toString());
+            line.setAttribute('y2', riverEnd.toString());
+            line.setAttribute('stroke', '#000000');
+            line.setAttribute('stroke-width', '1');
+            line.setAttribute('opacity', '0.5');
+            raggedGroup.appendChild(line);
+          }
+          riverStart = sortedY[i];
+          riverEnd = sortedY[i];
+        }
+      }
+      
+      // Draw final river segment if long enough
+      if (riverEnd - riverStart >= lineHeightValue * scaleY * (minRiverLines - 1)) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x.toString());
+        line.setAttribute('y1', riverStart.toString());
+        line.setAttribute('x2', x.toString());
+        line.setAttribute('y2', riverEnd.toString());
+        line.setAttribute('stroke', '#000000');
+        line.setAttribute('stroke-width', '1');
+        line.setAttribute('opacity', '0.5');
+        raggedGroup.appendChild(line);
+      }
+    }
+  }
+}
+
+/**
+ * Draws ragged edge highlight - black rectangles showing where each line ends
+ * When justifyText is enabled, draws rivers (vertical white space alignments) instead
+ */
+function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElement, spanWidth: number, lineHeight: number, padding: number, justifyText: boolean = false): void {
   // Get the computed style to measure text properly
   const computedStyle = window.getComputedStyle(textDiv);
   const lineHeightValue = parseFloat(computedStyle.lineHeight);
@@ -78,31 +208,6 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const scaleX = foreignObjectWidth / textGroupRect.width;
   const scaleY = foreignObjectHeight / textGroupRect.height;
   
-  // Store line end positions in SVG coordinates
-  const lineEnds: { x: number; y: number; width: number }[] = [];
-  
-  // Process each line rect
-  for (let i = 0; i < lineRects.length; i++) {
-    const lineRect = lineRects[i];
-    
-    // Convert viewport coordinates to coordinates relative to textDiv
-    const lineLeftRelative = lineRect.left - textDivRect.left;
-    const lineRightRelative = lineRect.right - textDivRect.left;
-    const lineTopRelative = lineRect.top - textDivRect.top;
-    
-    // Convert to SVG coordinates
-    // Account for padding in the textDiv
-    const lineEndX = textGroupX + paddingValue + (lineRightRelative * scaleX);
-    const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
-    const lineWidth = (lineRightRelative - lineLeftRelative) * scaleX;
-    
-    lineEnds.push({
-      x: lineEndX,
-      y: lineY,
-      width: lineWidth
-    });
-  }
-  
   // Use a unique identifier for this text group's ragged edge
   const textGroupId = textGroup.getAttribute('data-text-group-id') || `text-group-${Date.now()}-${Math.random()}`;
   textGroup.setAttribute('data-text-group-id', textGroupId);
@@ -111,32 +216,62 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const existingGroups = svg.querySelectorAll(`.ragged-edge-group[data-text-group-id="${textGroupId}"]`);
   existingGroups.forEach(group => group.remove());
   
-  // Create a group for ragged edge rectangles
+  // Create a group for ragged edge/rivers
   const raggedGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   raggedGroup.setAttribute('class', 'ragged-edge-group');
   raggedGroup.setAttribute('data-text-group-id', textGroupId);
   
-  // Calculate the right edge of the text box in SVG coordinates
-  const textBoxRightEdge = textGroupX + spanWidth - paddingValue;
-  
-  // Draw rectangles for each line - from end of text to right edge
-  lineEnds.forEach((lineInfo) => {
-    const x = lineInfo.x; // End of text line in SVG coordinates
-    const y = lineInfo.y; // Y position of line in SVG coordinates
-    const width = textBoxRightEdge - x; // Width from end of text to right edge
-    const height = lineHeightValue * 0.8 * scaleY; // Scaled line height
+  if (justifyText) {
+    // Draw rivers - vertical white space alignments in justified text
+    drawRivers(textDiv, textGroup, lineRects, textDivRect, textGroupX, textGroupY, paddingValue, scaleX, scaleY, lineHeightValue, raggedGroup);
+  } else {
+    // Draw ragged edge - rectangles showing where each line ends
+    const lineEnds: { x: number; y: number; width: number }[] = [];
     
-    if (width > 0 && x < textBoxRightEdge) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', x.toString());
-      rect.setAttribute('y', y.toString());
-      rect.setAttribute('width', width.toString());
-      rect.setAttribute('height', height.toString());
-      rect.setAttribute('fill', '#000000');
-      rect.setAttribute('opacity', '0.3');
-      raggedGroup.appendChild(rect);
+    // Process each line rect
+    for (let i = 0; i < lineRects.length; i++) {
+      const lineRect = lineRects[i];
+      
+      // Convert viewport coordinates to coordinates relative to textDiv
+      const lineLeftRelative = lineRect.left - textDivRect.left;
+      const lineRightRelative = lineRect.right - textDivRect.left;
+      const lineTopRelative = lineRect.top - textDivRect.top;
+      
+      // Convert to SVG coordinates
+      // Account for padding in the textDiv
+      const lineEndX = textGroupX + paddingValue + (lineRightRelative * scaleX);
+      const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
+      const lineWidth = (lineRightRelative - lineLeftRelative) * scaleX;
+      
+      lineEnds.push({
+        x: lineEndX,
+        y: lineY,
+        width: lineWidth
+      });
     }
-  });
+    
+    // Calculate the right edge of the text box in SVG coordinates
+    const textBoxRightEdge = textGroupX + spanWidth - paddingValue;
+    
+    // Draw rectangles for each line - from end of text to right edge
+    lineEnds.forEach((lineInfo) => {
+      const x = lineInfo.x; // End of text line in SVG coordinates
+      const y = lineInfo.y; // Y position of line in SVG coordinates
+      const width = textBoxRightEdge - x; // Width from end of text to right edge
+      const height = lineHeightValue * 0.8 * scaleY; // Scaled line height
+      
+      if (width > 0 && x < textBoxRightEdge) {
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x.toString());
+        rect.setAttribute('y', y.toString());
+        rect.setAttribute('width', width.toString());
+        rect.setAttribute('height', height.toString());
+        rect.setAttribute('fill', '#000000');
+        rect.setAttribute('opacity', '0.3');
+        raggedGroup.appendChild(rect);
+      }
+    });
+  }
   
   svg.appendChild(raggedGroup);
 }
@@ -359,7 +494,7 @@ function drawPage(
               const container = document.getElementById('visualizationContainer');
               const svg = textGroup.ownerSVGElement;
               if (container && svg && container.contains(svg) && svg.contains(textGroup) && textGroup.contains(textDiv)) {
-                drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding);
+                drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding, inputs.justifyText || false);
               }
             });
           });
