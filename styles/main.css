@@ -290,6 +290,9 @@ h1 {
   border-bottom: 1px solid #555555;
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-md);
+  margin-left: calc(-1 * var(--spacing-md));
+  margin-right: calc(-1 * var(--spacing-md));
+  width: calc(100% + (2 * var(--spacing-md)));
 }
 
 .unit-toggle-label {
