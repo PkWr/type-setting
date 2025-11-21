@@ -21,7 +21,8 @@ function getLayerVisibility() {
   const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
   const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
   const solidFills = (document.getElementById('solidFills') as HTMLInputElement)?.checked ?? false;
-  return { margins: showMargins, columns: showColumns, text: showText, solidFills };
+  const showRaggedEdge = (document.getElementById('showRaggedEdge') as HTMLInputElement)?.checked ?? false;
+  return { margins: showMargins, columns: showColumns, text: showText, solidFills, raggedEdge: showRaggedEdge };
 }
 
 // Page dimensions and margins are always in mm, gutter is always in em
@@ -36,6 +37,112 @@ const MIN_MARGIN_VISUAL = 2; // Minimum margin size in pixels for visibility
 function isFacingPages(): boolean {
   const checkbox = document.getElementById('facingPages') as HTMLInputElement;
   return checkbox?.checked || false;
+}
+
+/**
+ * Draws ragged edge highlight - black rectangles showing where each line ends
+ */
+function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElement, spanWidth: number, lineHeight: number, padding: number): void {
+  // Get the computed style to measure text properly
+  const computedStyle = window.getComputedStyle(textDiv);
+  const fontSize = parseFloat(computedStyle.fontSize);
+  const lineHeightValue = parseFloat(computedStyle.lineHeight);
+  const paddingValue = padding;
+  const textWidth = spanWidth - (paddingValue * 2);
+  
+  // Create a range to measure text lines
+  const range = document.createRange();
+  const textNode = textDiv.firstChild;
+  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+  
+  const text = textNode.textContent || '';
+  if (!text) return;
+  
+  // Split text into words and measure lines
+  const words = text.split(/\s+/);
+  let currentLine = '';
+  let currentLineWidth = 0;
+  let lineIndex = 0;
+  const lineEnds: number[] = [];
+  
+  // Create a temporary span to measure text width
+  const measureSpan = document.createElement('span');
+  measureSpan.style.position = 'absolute';
+  measureSpan.style.visibility = 'hidden';
+  measureSpan.style.whiteSpace = 'nowrap';
+  measureSpan.style.fontSize = computedStyle.fontSize;
+  measureSpan.style.fontFamily = computedStyle.fontFamily;
+  measureSpan.style.fontWeight = computedStyle.fontWeight;
+  measureSpan.style.fontStyle = computedStyle.fontStyle;
+  document.body.appendChild(measureSpan);
+  
+  // Measure each word and build lines
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    measureSpan.textContent = testLine;
+    const testWidth = measureSpan.offsetWidth;
+    
+    if (testWidth > textWidth && currentLine) {
+      // Current line is full, measure its width
+      measureSpan.textContent = currentLine;
+      const lineWidth = measureSpan.offsetWidth;
+      lineEnds.push(lineWidth);
+      currentLine = word;
+      measureSpan.textContent = word;
+      currentLineWidth = measureSpan.offsetWidth;
+      lineIndex++;
+    } else {
+      currentLine = testLine;
+      currentLineWidth = testWidth;
+    }
+  }
+  
+  // Add the last line
+  if (currentLine) {
+    measureSpan.textContent = currentLine;
+    lineEnds.push(measureSpan.offsetWidth);
+  }
+  
+  // Clean up
+  document.body.removeChild(measureSpan);
+  
+  // Draw black rectangles for ragged edge
+  const svg = textGroup.ownerSVGElement;
+  if (!svg) return;
+  
+  // Clear any existing ragged edge groups for this text group
+  const existingGroups = svg.querySelectorAll('.ragged-edge-group');
+  existingGroups.forEach(group => group.remove());
+  
+  // Get the position of the textGroup in SVG coordinates
+  const textGroupX = parseFloat(textGroup.getAttribute('x') || '0');
+  const textGroupY = parseFloat(textGroup.getAttribute('y') || '0');
+  
+  // Create a group for ragged edge rectangles
+  const raggedGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  raggedGroup.setAttribute('class', 'ragged-edge-group');
+  
+  // Draw rectangles for each line
+  lineEnds.forEach((lineEnd, index) => {
+    const x = textGroupX + paddingValue + lineEnd;
+    const y = textGroupY + paddingValue + (index * lineHeightValue);
+    const width = textWidth - lineEnd;
+    const height = lineHeightValue * 0.8; // Slightly smaller than line height
+    
+    if (width > 0) {
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x.toString());
+      rect.setAttribute('y', y.toString());
+      rect.setAttribute('width', width.toString());
+      rect.setAttribute('height', height.toString());
+      rect.setAttribute('fill', '#000000');
+      rect.setAttribute('opacity', '0.3');
+      raggedGroup.appendChild(rect);
+    }
+  });
+  
+  svg.appendChild(raggedGroup);
 }
 
 /**
@@ -54,7 +161,7 @@ function drawPage(
   bottomMargin: number,
   scaleX: number,
   scaleY: number,
-  layerVisibility: { margins: boolean; columns: boolean; text: boolean; solidFills: boolean }
+  layerVisibility: { margins: boolean; columns: boolean; text: boolean; solidFills: boolean; raggedEdge: boolean }
 ): void {
   // Draw page background
   const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -244,6 +351,14 @@ function drawPage(
         
         textGroup.appendChild(textDiv);
         svg.appendChild(textGroup);
+        
+        // Draw ragged edge highlight if enabled
+        if (layerVisibility.raggedEdge && sampleText && sampleText.trim().length > 0) {
+          // Use setTimeout to measure after text is rendered
+          setTimeout(() => {
+            drawRaggedEdge(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding);
+          }, 0);
+        }
       }
     }
   }
@@ -401,6 +516,10 @@ export function updateVisualization(inputs: LayoutInputs): void {
   // Clear container and add new SVG
   container.innerHTML = '';
   container.appendChild(svg);
+  
+  // Clear any existing ragged edge groups from previous renders
+  const existingRaggedGroups = svg.querySelectorAll('.ragged-edge-group');
+  existingRaggedGroups.forEach(group => group.remove());
   
   // Re-add decorations after SVG (they'll fade out on their own timers)
   decorations.forEach(decoration => {

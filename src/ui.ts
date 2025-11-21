@@ -1512,11 +1512,13 @@ function saveSettings(): void {
     const showColumns = (document.getElementById('showColumns') as HTMLInputElement)?.checked ?? true;
     const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
     const solidFills = (document.getElementById('solidFills') as HTMLInputElement)?.checked ?? false;
+    const showRaggedEdge = (document.getElementById('showRaggedEdge') as HTMLInputElement)?.checked ?? false;
     
     settings.showMargins = showMargins;
     settings.showColumns = showColumns;
     settings.showText = showText;
     settings.solidFills = solidFills;
+    settings.showRaggedEdge = showRaggedEdge;
     
     // Sparkle toggle
     const sparkleToggle = (document.getElementById('sparkleToggle') as HTMLInputElement)?.checked ?? true;
@@ -1677,6 +1679,10 @@ function loadSettings(): void {
     if (settings.solidFills !== undefined) {
       const solidFillsCheckbox = document.getElementById('solidFills') as HTMLInputElement;
       if (solidFillsCheckbox) solidFillsCheckbox.checked = settings.solidFills;
+    }
+    if (settings.showRaggedEdge !== undefined) {
+      const showRaggedEdgeCheckbox = document.getElementById('showRaggedEdge') as HTMLInputElement;
+      if (showRaggedEdgeCheckbox) showRaggedEdgeCheckbox.checked = settings.showRaggedEdge;
     }
     
     // Update margin labels and inputs visibility after loading
@@ -2144,7 +2150,7 @@ export function initializeCalculator(): void {
   });
 
   // Handle layer visibility checkboxes
-  const layerCheckboxes = ['showMargins', 'showColumns', 'showText', 'solidFills'];
+  const layerCheckboxes = ['showMargins', 'showColumns', 'showText', 'solidFills', 'showRaggedEdge'];
   layerCheckboxes.forEach(id => {
     addInputChangeListeners(id, {
       onChange: () => {
