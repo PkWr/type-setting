@@ -1223,6 +1223,54 @@ async function exportVisualizationAsPDF(): Promise<void> {
   tempContainer.style.alignItems = 'center';
   tempContainer.style.justifyContent = 'center';
   
+  // Calculate the scale factor for font sizes
+  // The SVG is being scaled, so we need to scale font sizes in foreignObjects proportionally
+  // Font sizes are set in CSS pixels, which don't automatically scale with SVG viewBox
+  // We need to scale them by the same factor that the SVG is being scaled
+  // scaledWidthPx is the pixel width we're rendering at, svgWidth is the viewBox width
+  const fontScaleFactor = scaledWidthPx / svgWidth;
+  
+  // Scale font sizes in all foreignObjects to match SVG scaling
+  const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
+  foreignObjectsToScale.forEach((fo: Element) => {
+    const foreignObj = fo as SVGForeignObjectElement;
+    const divs = foreignObj.querySelectorAll('div');
+    divs.forEach((div: Element) => {
+      const htmlDiv = div as HTMLElement;
+      const currentFontSize = htmlDiv.style.fontSize;
+      if (currentFontSize) {
+        const fontSizeMatch = currentFontSize.match(/([\d.]+)px/);
+        if (fontSizeMatch) {
+          const originalFontSize = parseFloat(fontSizeMatch[1]);
+          const scaledFontSize = originalFontSize * fontScaleFactor;
+          htmlDiv.style.fontSize = `${scaledFontSize}px`;
+          
+          // Also scale line height proportionally
+          const currentLineHeight = htmlDiv.style.lineHeight;
+          if (currentLineHeight) {
+            const lineHeightMatch = currentLineHeight.match(/([\d.]+)px/);
+            if (lineHeightMatch) {
+              const originalLineHeight = parseFloat(lineHeightMatch[1]);
+              const scaledLineHeight = originalLineHeight * fontScaleFactor;
+              htmlDiv.style.lineHeight = `${scaledLineHeight}px`;
+            }
+          }
+          
+          // Scale padding proportionally
+          const currentPadding = htmlDiv.style.padding;
+          if (currentPadding) {
+            const paddingMatch = currentPadding.match(/([\d.]+)px/);
+            if (paddingMatch) {
+              const originalPadding = parseFloat(paddingMatch[1]);
+              const scaledPadding = originalPadding * fontScaleFactor;
+              htmlDiv.style.padding = `${scaledPadding}px`;
+            }
+          }
+        }
+      }
+    });
+  });
+  
   // Set SVG size to match container
   svgClone.setAttribute('width', `${scaledWidthPx}px`);
   svgClone.setAttribute('height', `${scaledHeightPx}px`);
