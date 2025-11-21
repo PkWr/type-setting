@@ -1250,21 +1250,23 @@ async function exportVisualizationAsPDF(): Promise<void> {
       useCORS: true,
       allowTaint: false,
       onclone: (clonedDoc: Document) => {
-        // Add a style element to force all text to black
+        // Add a style element to force all text to black - use very specific selectors
         const style = clonedDoc.createElement('style');
         style.textContent = `
+          svg foreignObject,
+          svg foreignObject *,
+          foreignObject,
+          foreignObject *,
           foreignObject div,
           foreignObject div *,
-          foreignObject *,
-          foreignObject {
+          foreignObject span,
+          foreignObject p {
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
             background-color: transparent !important;
           }
           text, tspan {
             fill: #000000 !important;
-            color: #000000 !important;
-          }
-          svg foreignObject div {
             color: #000000 !important;
           }
         `;
@@ -1273,39 +1275,51 @@ async function exportVisualizationAsPDF(): Promise<void> {
         // Ensure all text in cloned document is black
         const clonedForeignObjects = clonedDoc.querySelectorAll('foreignObject');
         clonedForeignObjects.forEach((fo: Element) => {
-          // Remove white background rectangles
-          const bgRects = fo.querySelectorAll('rect');
-          bgRects.forEach((rect: Element) => {
-            const rectEl = rect as SVGRectElement;
-            const fill = rectEl.getAttribute('fill');
-            if (fill === '#ffffff' || fill === 'white') {
-              rectEl.setAttribute('fill', 'transparent');
-            }
-          });
+          // Keep white background rectangles for readability
+          // Don't remove them - they help with contrast
           
           const divs = fo.querySelectorAll('div');
           divs.forEach((div: Element) => {
             const htmlDiv = div as HTMLElement;
-            // Force black text - remove any existing color styles first
-            const currentStyle = htmlDiv.getAttribute('style') || '';
-            // Remove color-related styles
-            const cleanedStyle = currentStyle
-              .replace(/color\s*:\s*[^;]+;?/gi, '')
-              .replace(/background-color\s*:\s*[^;]+;?/gi, '');
-            htmlDiv.setAttribute('style', cleanedStyle);
-            // Set black color with !important
+            // Completely replace style attribute to force black
+            const baseStyles = htmlDiv.getAttribute('style') || '';
+            // Extract non-color styles
+            const nonColorStyles = baseStyles
+              .split(';')
+              .filter(s => {
+                const trimmed = s.trim().toLowerCase();
+                return !trimmed.startsWith('color') && 
+                       !trimmed.startsWith('background-color') &&
+                       !trimmed.startsWith('-webkit-text-fill-color');
+              })
+              .join(';');
+            
+            // Set new style with black text
+            htmlDiv.setAttribute('style', `${nonColorStyles}; color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, ''));
+            
+            // Also set via style object
             htmlDiv.style.setProperty('color', '#000000', 'important');
+            htmlDiv.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
             htmlDiv.style.setProperty('background-color', 'transparent', 'important');
-            // Also set directly on element
-            htmlDiv.style.color = '#000000';
-            htmlDiv.style.backgroundColor = 'transparent';
+            
             // Force all nested elements to black
             const nested = htmlDiv.querySelectorAll('*');
             nested.forEach((nestedEl: Element) => {
               const nestedHtml = nestedEl as HTMLElement;
               nestedHtml.style.setProperty('color', '#000000', 'important');
-              nestedHtml.style.color = '#000000';
+              nestedHtml.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
             });
+            
+            // Also set on text nodes if possible
+            const walker = clonedDoc.createTreeWalker(htmlDiv, NodeFilter.SHOW_TEXT);
+            let textNode;
+            while (textNode = walker.nextNode()) {
+              const parent = textNode.parentElement;
+              if (parent) {
+                parent.style.setProperty('color', '#000000', 'important');
+                parent.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+              }
+            }
           });
         });
         
