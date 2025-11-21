@@ -188,6 +188,7 @@ function getFormInputs(): LayoutInputs {
   const numCols = parseInt((document.getElementById('numCols') as HTMLInputElement).value, 10);
   const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement).value;
   const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? false;
+  const justifyText = (document.getElementById('justifyText') as HTMLInputElement)?.checked ?? false;
   const columnSpan = getColumnSpan();
   const textColumns = getTextColumns();
   
@@ -204,6 +205,7 @@ function getFormInputs(): LayoutInputs {
     numCols,
     gutterWidth: gutterWidthMM, // Already converted to mm
     hyphenation, // Hyphenation enabled/disabled
+    justifyText, // Text justification enabled/disabled
   };
   
   // Add facing pages specific margins if in facing pages mode (already converted to mm above)
@@ -1590,11 +1592,13 @@ function saveSettingsImmediate(): void {
     const leading = (document.getElementById('leading') as HTMLInputElement)?.value || '';
     const fontFamily = (document.getElementById('fontFamily') as HTMLSelectElement)?.value || '';
     const hyphenation = (document.getElementById('hyphenation') as HTMLInputElement)?.checked ?? false;
+    const justifyText = (document.getElementById('justifyText') as HTMLInputElement)?.checked ?? false;
     
     settings.typeSize = typeSize;
     settings.leading = leading;
     settings.fontFamily = fontFamily;
     settings.hyphenation = hyphenation;
+    settings.justifyText = justifyText;
     
     // Sample text
     const sampleText = (document.getElementById('sampleText') as HTMLTextAreaElement)?.value || '';
@@ -1796,6 +1800,10 @@ function loadSettings(): void {
     if (settings.hyphenation !== undefined) {
       const hyphenationCheckbox = document.getElementById('hyphenation') as HTMLInputElement;
       if (hyphenationCheckbox) hyphenationCheckbox.checked = settings.hyphenation;
+    }
+    if (settings.justifyText !== undefined) {
+      const justifyTextCheckbox = document.getElementById('justifyText') as HTMLInputElement;
+      if (justifyTextCheckbox) justifyTextCheckbox.checked = settings.justifyText;
     }
     
     // Sample text
@@ -2526,6 +2534,11 @@ export function initializeCalculator(): void {
 
   // Handle hyphenation checkbox
   addInputChangeListeners('hyphenation', {
+    onChange: updateVisualizationOnInputChange
+  });
+  
+  // Handle justify text checkbox
+  addInputChangeListeners('justifyText', {
     onChange: updateVisualizationOnInputChange
   });
 

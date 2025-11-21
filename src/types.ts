@@ -15,6 +15,7 @@ export interface LayoutInputs {
   numCols: number;
   gutterWidth: number;
   hyphenation?: boolean; // Enable/disable hyphenation
+  justifyText?: boolean; // Enable/disable text justification
   columnSpanStart?: number; // First column in span (1-indexed)
   columnSpanEnd?: number; // Last column in span (1-indexed)
   textColumns?: number[]; // Array of column indices where text appears (1-indexed)

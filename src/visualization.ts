@@ -343,6 +343,7 @@ function drawPage(
         textDiv.style.wordWrap = 'break-word';
         textDiv.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and wrap text
         textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
+        textDiv.style.textAlign = inputs.justifyText ? 'justify' : 'left';
         textDiv.textContent = sampleText;
         
         textGroup.appendChild(textDiv);
