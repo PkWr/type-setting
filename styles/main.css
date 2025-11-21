@@ -1007,7 +1007,6 @@ button {
     margin: 0;
     padding: 0;
     padding-right: var(--spacing-xl);
-    border-right: 1px solid #ff0000;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
