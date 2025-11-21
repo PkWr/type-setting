@@ -142,9 +142,9 @@ function drawRivers(
             line.setAttribute('y1', riverStart.toString());
             line.setAttribute('x2', x.toString());
             line.setAttribute('y2', riverEnd.toString());
-            line.setAttribute('stroke', '#000000');
-            line.setAttribute('stroke-width', '1');
-            line.setAttribute('opacity', '0.5');
+            line.setAttribute('stroke', '#ff0000'); // Red for visibility
+            line.setAttribute('stroke-width', '2'); // Thicker line
+            line.setAttribute('opacity', '0.8'); // More opaque
             raggedGroup.appendChild(line);
           }
           riverStart = sortedY[i];
@@ -159,9 +159,9 @@ function drawRivers(
         line.setAttribute('y1', riverStart.toString());
         line.setAttribute('x2', x.toString());
         line.setAttribute('y2', riverEnd.toString());
-        line.setAttribute('stroke', '#000000');
-        line.setAttribute('stroke-width', '1');
-        line.setAttribute('opacity', '0.5');
+        line.setAttribute('stroke', '#ff0000'); // Red for visibility
+        line.setAttribute('stroke-width', '2'); // Thicker line
+        line.setAttribute('opacity', '0.8'); // More opaque
         raggedGroup.appendChild(line);
       }
     }
@@ -273,7 +273,14 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
     });
   }
   
-  svg.appendChild(raggedGroup);
+  // Append ragged group AFTER text group to ensure it appears on top
+  // Find the text group's position and insert after it, or append to end
+  const textGroupIndex = Array.from(svg.children).indexOf(textGroup);
+  if (textGroupIndex >= 0 && textGroupIndex < svg.children.length - 1) {
+    svg.insertBefore(raggedGroup, svg.children[textGroupIndex + 1]);
+  } else {
+    svg.appendChild(raggedGroup);
+  }
 }
 
 /**
