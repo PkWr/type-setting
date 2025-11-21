@@ -1006,6 +1006,7 @@ button {
     max-width: 33.333%;
     margin: 0;
     padding: 0;
+    padding-left: var(--spacing-xl);
     padding-right: var(--spacing-xl);
     min-height: 0;
     overflow-y: auto;
