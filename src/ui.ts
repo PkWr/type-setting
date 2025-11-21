@@ -1515,17 +1515,25 @@ let saveSettingsTimer: number | null = null;
 
 /**
  * Saves all form settings to localStorage with debouncing
+ * For critical settings (like margins), saves immediately
  */
-function saveSettings(): void {
+function saveSettings(immediate: boolean = false): void {
+  if (immediate) {
+    // Save immediately for critical settings
+    saveSettingsImmediate();
+    return;
+  }
+  
   // Clear existing timer
   if (saveSettingsTimer !== null) {
     clearTimeout(saveSettingsTimer);
   }
   
-  // Debounce: wait 300ms before saving to avoid excessive writes
+  // Debounce: wait 200ms before saving to avoid excessive writes (reduced from 300ms)
   saveSettingsTimer = window.setTimeout(() => {
     saveSettingsImmediate();
-  }, 300);
+    saveSettingsTimer = null;
+  }, 200);
 }
 
 /**
@@ -1640,6 +1648,19 @@ function saveSettingsImmediate(): void {
       const verify = localStorage.getItem('compositorSettings');
       if (verify !== settingsJson) {
         console.warn('Settings save verification failed - data may not have been saved correctly');
+        // Try one more time with a small delay
+        setTimeout(() => {
+          try {
+            localStorage.removeItem('compositorSettings');
+            localStorage.setItem('compositorSettings', settingsJson);
+            const verify2 = localStorage.getItem('compositorSettings');
+            if (verify2 !== settingsJson) {
+              console.error('Settings still not saved after retry');
+            }
+          } catch (retryError) {
+            console.error('Failed to retry save:', retryError);
+          }
+        }, 50);
       }
     } catch (e) {
       // Handle quota exceeded or other errors
@@ -2307,7 +2328,7 @@ export function initializeCalculator(): void {
       onBoth: () => {
         updateMarginLabels();
         updateVisualizationOnInputChange();
-        saveSettings();
+        saveSettings(true); // Save immediately for margins
       }
     });
   });
