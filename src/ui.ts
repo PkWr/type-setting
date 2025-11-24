@@ -1564,23 +1564,25 @@ function saveSettingsImmediate(): void {
     const marginUnitToggle = (document.getElementById('marginUnitToggle') as HTMLInputElement)?.checked ?? false;
     settings.marginUnitToggle = marginUnitToggle;
     
-    const topMargin = (document.getElementById('topMargin') as HTMLInputElement)?.value || '';
-    const bottomMargin = (document.getElementById('bottomMargin') as HTMLInputElement)?.value || '';
-    const leftMargin = (document.getElementById('leftMargin') as HTMLInputElement)?.value || '';
-    const rightMargin = (document.getElementById('rightMargin') as HTMLInputElement)?.value || '';
-    const innerMarginLeft = (document.getElementById('innerMarginLeft') as HTMLInputElement)?.value || '';
-    const innerMarginRight = (document.getElementById('innerMarginRight') as HTMLInputElement)?.value || '';
-    const outerMarginLeft = (document.getElementById('outerMarginLeft') as HTMLInputElement)?.value || '';
-    const outerMarginRight = (document.getElementById('outerMarginRight') as HTMLInputElement)?.value || '';
+    // Get margin values - use empty string if input doesn't exist or is empty
+    const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
+    const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
+    const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+    const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+    const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+    const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+    const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+    const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
     
-    settings.topMargin = topMargin;
-    settings.bottomMargin = bottomMargin;
-    settings.leftMargin = leftMargin;
-    settings.rightMargin = rightMargin;
-    settings.innerMarginLeft = innerMarginLeft;
-    settings.innerMarginRight = innerMarginRight;
-    settings.outerMarginLeft = outerMarginLeft;
-    settings.outerMarginRight = outerMarginRight;
+    // Always save margin values, even if empty (to preserve user's cleared inputs)
+    settings.topMargin = topMarginInput?.value ?? '';
+    settings.bottomMargin = bottomMarginInput?.value ?? '';
+    settings.leftMargin = leftMarginInput?.value ?? '';
+    settings.rightMargin = rightMarginInput?.value ?? '';
+    settings.innerMarginLeft = innerMarginLeftInput?.value ?? '';
+    settings.innerMarginRight = innerMarginRightInput?.value ?? '';
+    settings.outerMarginLeft = outerMarginLeftInput?.value ?? '';
+    settings.outerMarginRight = outerMarginRightInput?.value ?? '';
     
     // Facing pages
     const facingPages = (document.getElementById('facingPages') as HTMLInputElement)?.checked ?? false;
@@ -1755,7 +1757,32 @@ function loadSettings(): void {
       }
     }
     
-    // Margins
+    // Facing pages - load this FIRST so we can show/hide the correct inputs
+    // and prevent sync logic from overwriting loaded margins
+    const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
+    const facingPages = settings.facingPages !== undefined ? settings.facingPages : false;
+    
+    if (facingPagesCheckbox) {
+      facingPagesCheckbox.checked = facingPages;
+      // Update margin inputs visibility based on facing pages state
+      updateMarginInputs();
+    } else {
+      // If no facing pages checkbox, ensure margin inputs are updated
+      updateMarginInputs();
+    }
+    
+    // Set sync flags BEFORE loading margins to prevent updateMarginInputs() from overwriting them
+    const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+    const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+    if (facingPages) {
+      // In facing pages mode, set sync flag on inner margins to prevent overwriting
+      if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = 'loading';
+    } else {
+      // In single page mode, set sync flag on left/right margins to prevent overwriting
+      if (leftMarginInput) leftMarginInput.dataset.synced = 'loading';
+    }
+    
+    // Now load margins AFTER sync flags are set
     if (settings.topMargin !== undefined) {
       const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
       if (topMarginInput) topMarginInput.value = settings.topMargin;
@@ -1764,44 +1791,37 @@ function loadSettings(): void {
       const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
       if (bottomMarginInput) bottomMarginInput.value = settings.bottomMargin;
     }
-    if (settings.leftMargin !== undefined) {
-      const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
-      if (leftMarginInput) leftMarginInput.value = settings.leftMargin;
-    }
-    if (settings.rightMargin !== undefined) {
-      const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
-      if (rightMarginInput) rightMarginInput.value = settings.rightMargin;
-    }
-    // Facing pages - load this FIRST so we can show/hide the correct inputs
-    if (settings.facingPages !== undefined) {
-      const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
-      if (facingPagesCheckbox) {
-        facingPagesCheckbox.checked = settings.facingPages;
-        // Update margin inputs visibility based on facing pages state
-        updateMarginInputs();
-        // Now load facing pages margins after inputs are visible
-        if (settings.facingPages) {
-          if (settings.innerMarginLeft !== undefined) {
-            const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
-            if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
-          }
-          if (settings.innerMarginRight !== undefined) {
-            const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
-            if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
-          }
-          if (settings.outerMarginLeft !== undefined) {
-            const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
-            if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
-          }
-          if (settings.outerMarginRight !== undefined) {
-            const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
-            if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
-          }
-        }
+    
+    if (facingPages) {
+      // Load facing pages margins
+      if (settings.innerMarginLeft !== undefined) {
+        if (innerMarginLeftInput) innerMarginLeftInput.value = settings.innerMarginLeft;
       }
+      if (settings.innerMarginRight !== undefined) {
+        const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+        if (innerMarginRightInput) innerMarginRightInput.value = settings.innerMarginRight;
+      }
+      if (settings.outerMarginLeft !== undefined) {
+        const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+        if (outerMarginLeftInput) outerMarginLeftInput.value = settings.outerMarginLeft;
+      }
+      if (settings.outerMarginRight !== undefined) {
+        const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+        if (outerMarginRightInput) outerMarginRightInput.value = settings.outerMarginRight;
+      }
+      // Clear sync flag after loading
+      if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
     } else {
-      // If no facing pages setting, ensure margin inputs are updated
-      updateMarginInputs();
+      // Load single page margins
+      if (settings.leftMargin !== undefined) {
+        if (leftMarginInput) leftMarginInput.value = settings.leftMargin;
+      }
+      if (settings.rightMargin !== undefined) {
+        const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+        if (rightMarginInput) rightMarginInput.value = settings.rightMargin;
+      }
+      // Clear sync flag after loading
+      if (leftMarginInput) leftMarginInput.dataset.synced = '';
     }
     
     // Columns
