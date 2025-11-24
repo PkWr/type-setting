@@ -1300,17 +1300,10 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const containerRect = container.getBoundingClientRect();
   const containerWidth = containerRect.width;
   
-  // Calculate scale factors:
-  // Preview scale: containerWidth / svgWidth (in mm, converted to px)
-  // PDF scale: scaledWidthPx / svgWidth (in mm, converted to px)
-  // Font scale factor: PDF scale / Preview scale = scaledWidthPx / containerWidth
-  // This ensures fonts scale proportionally with the SVG
-  const PX_PER_MM = 96 / 25.4;
-  const svgWidthPx = svgWidth * PX_PER_MM; // Convert SVG viewBox width (mm) to pixels
-  
-  // More accurate: use the actual scale ratio
+  // Calculate font scale factor:
   // Preview renders SVG at containerWidth, PDF renders at scaledWidthPx
   // Fonts need to scale by: scaledWidthPx / containerWidth
+  // This ensures fonts scale proportionally with the SVG
   const fontScaleFactor = containerWidth > 0 ? scaledWidthPx / containerWidth : scale;
   
   // Scale font sizes in all foreignObjects to match SVG scaling
