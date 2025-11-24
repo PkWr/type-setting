@@ -334,13 +334,23 @@ function drawPage(
         textGroup.setAttribute('width', spanWidth.toString());
         textGroup.setAttribute('height', textBoxHeight.toString());
         
-        // Add white background for text readability
+        // Determine visualization mode
+        const showRivers = layerVisibility.raggedEdge && inputs.justifyText;
+        const showRaggedEdge = layerVisibility.raggedEdge && !inputs.justifyText;
+        
+        // Set background color based on visualization mode
+        let textBgColor = '#ffffff'; // Default white background
+        if (showRivers || showRaggedEdge) {
+          textBgColor = '#000000'; // Black background for both rivers and ragged edge
+        }
+        
+        // Add background rectangle
         const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         textBgRect.setAttribute('x', '0');
         textBgRect.setAttribute('y', '0');
         textBgRect.setAttribute('width', spanWidth.toString());
         textBgRect.setAttribute('height', textBoxHeight.toString());
-        textBgRect.setAttribute('fill', '#ffffff');
+        textBgRect.setAttribute('fill', textBgColor);
         textGroup.appendChild(textBgRect);
         
         // Create text div
@@ -350,10 +360,6 @@ function drawPage(
         // Use selected font family or default to serif
         const fontFamily = inputs.fontFamily || 'serif';
         textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
-        
-        // Rivers visualization: wrap each word in a span with black background when rivers checkbox is checked and text is justified
-        // This shows rivers as white gaps between words
-        const showRivers = layerVisibility.raggedEdge && inputs.justifyText;
         
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
@@ -366,7 +372,7 @@ function drawPage(
         textDiv.style.textAlign = inputs.justifyText ? 'justify' : 'left';
         
         if (showRivers) {
-          // Wrap each word in a span with black background, leaving spaces unwrapped
+          // Rivers visualization: wrap each word in a span with black background
           // This creates white gaps (rivers) between words
           const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
           words.forEach(word => {
@@ -379,6 +385,23 @@ function drawPage(
               textDiv.appendChild(span);
             } else {
               // It's whitespace - add as text node (will show as white gap)
+              textDiv.appendChild(document.createTextNode(word));
+            }
+          });
+        } else if (showRaggedEdge) {
+          // Ragged edge visualization: wrap each word in a span with white background
+          // This creates black gaps (ragged edge) where text doesn't reach
+          const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
+          words.forEach(word => {
+            if (word.trim().length > 0) {
+              // It's a word - wrap in span with white background
+              const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+              span.style.backgroundColor = '#ffffff';
+              span.style.color = '#000000';
+              span.textContent = word;
+              textDiv.appendChild(span);
+            } else {
+              // It's whitespace - add as text node (will show as black gap)
               textDiv.appendChild(document.createTextNode(word));
             }
           });
