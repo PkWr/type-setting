@@ -1298,8 +1298,23 @@ async function exportVisualizationAsPDF(): Promise<void> {
   // Since fonts are set in pixels and scale with SVG width, use X scale
   const fontScaleFactor = previewScaleX > 0 ? pdfScaleX / previewScaleX : scale;
   
+  // Debug: log scaling values
+  console.log('PDF Font Scaling Debug:', {
+    svgWidth,
+    svgHeight,
+    previewRenderedWidth,
+    previewRenderedHeight,
+    scaledWidthPx,
+    scaledHeightPx,
+    previewScaleX,
+    pdfScaleX,
+    fontScaleFactor,
+    scale
+  });
+  
   // Scale font sizes in all foreignObjects to match SVG scaling
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
+  let fontScalingApplied = false;
   foreignObjectsToScale.forEach((fo: Element) => {
     const foreignObj = fo as SVGForeignObjectElement;
     const divs = foreignObj.querySelectorAll('div');
@@ -1312,6 +1327,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
           const originalFontSize = parseFloat(fontSizeMatch[1]);
           const scaledFontSize = originalFontSize * fontScaleFactor;
           htmlDiv.style.fontSize = `${scaledFontSize}px`;
+          if (!fontScalingApplied) {
+            console.log('Font scaling applied:', {
+              originalFontSize,
+              scaledFontSize,
+              fontScaleFactor
+            });
+            fontScalingApplied = true;
+          }
           
           // Also scale line height proportionally
           const currentLineHeight = htmlDiv.style.lineHeight;
