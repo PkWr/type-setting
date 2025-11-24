@@ -240,7 +240,7 @@ function drawPage(
       marginRect.setAttribute('width', (pageWidth - scaledLeftMargin - scaledRightMargin).toString());
       marginRect.setAttribute('height', (pageHeight - scaledTopMargin - scaledBottomMargin).toString());
       marginRect.setAttribute('fill', 'none');
-      marginRect.setAttribute('stroke', '#333333');
+      marginRect.setAttribute('stroke', '#888888');
       marginRect.setAttribute('stroke-width', '0.5');
       svg.appendChild(marginRect);
     }
@@ -270,7 +270,7 @@ function drawPage(
         colRect.setAttribute('stroke', 'none');
       } else {
         colRect.setAttribute('fill', 'none');
-        colRect.setAttribute('stroke', '#333333');
+        colRect.setAttribute('stroke', '#888888');
         colRect.setAttribute('stroke-width', '0.5');
       }
       svg.appendChild(colRect);
