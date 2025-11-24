@@ -1476,7 +1476,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
             const htmlDiv = div as HTMLElement;
             // Completely replace style attribute to force black
             const baseStyles = htmlDiv.getAttribute('style') || '';
-            // Extract non-color styles
+            // Extract non-color styles (preserve whiteSpace for line breaks)
             const nonColorStyles = baseStyles
               .split(';')
               .filter(s => {
@@ -1487,8 +1487,17 @@ async function exportVisualizationAsPDF(): Promise<void> {
               })
               .join(';');
             
-            // Set new style with black text
-            htmlDiv.setAttribute('style', `${nonColorStyles}; color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, ''));
+            // Ensure whiteSpace is preserved (for line breaks)
+            const hasWhiteSpace = baseStyles.toLowerCase().includes('white-space');
+            const whiteSpaceStyle = hasWhiteSpace ? '' : 'white-space: pre-wrap;';
+            
+            // Set new style with black text, preserving whiteSpace
+            htmlDiv.setAttribute('style', `${nonColorStyles}; ${whiteSpaceStyle} color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, '').replace(/;+/g, ';'));
+            
+            // Ensure whiteSpace is set via style object too
+            if (!htmlDiv.style.whiteSpace || htmlDiv.style.whiteSpace === '') {
+              htmlDiv.style.whiteSpace = 'pre-wrap';
+            }
             
             // Also set via style object
             htmlDiv.style.setProperty('color', '#000000', 'important');
