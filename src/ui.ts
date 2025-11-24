@@ -1298,12 +1298,13 @@ async function exportVisualizationAsPDF(): Promise<void> {
   
   // Font sizes in foreignObject are CSS pixels - they DON'T automatically scale with SVG viewBox
   // html2canvas uses scale: 2, which renders at 2x resolution
-  // This might be affecting font sizes - fonts appear 2x larger in PDF
+  // Fonts appear larger in PDF - need to scale them down
   //
-  // If PDF text is 2x too big (24pt instead of 12pt), we need to scale fonts DOWN by 0.5
-  // This compensates for html2canvas's scale factor
-  const html2canvasScale = 2; // html2canvas renders at 2x resolution
-  const fontScaleFactor = 1.0 / html2canvasScale; // Scale fonts DOWN to compensate
+  // Testing different scale factors:
+  // - 1.0: too big (2x - 24pt instead of 12pt)
+  // - 0.5: too small
+  // - 0.7: try middle ground
+  const fontScaleFactor = 0.7; // Scale fonts down to compensate for html2canvas scale
   
   // Debug: Check scaling calculation
   console.log('Font scaling decision:', {
