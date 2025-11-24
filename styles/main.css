@@ -965,7 +965,7 @@ button {
   * {
     box-sizing: border-box;
   }
-  
+
   html {
     height: 100% !important;
     overflow: hidden !important;
@@ -1088,17 +1088,6 @@ button {
     justify-content: flex-start;
     overflow: hidden;
   }
-}
-
-/* Widows and Orphans highlighting */
-.widow-highlight {
-  fill: #ff6b6b;
-  opacity: 0.3;
-}
-
-.orphan-highlight {
-  fill: #4ecdc4;
-  opacity: 0.3;
 }
 
 /* Mobile - stack vertically */

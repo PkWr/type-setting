@@ -22,8 +22,7 @@ function getLayerVisibility() {
   const showText = (document.getElementById('showText') as HTMLInputElement)?.checked ?? true;
   const solidFills = (document.getElementById('solidFills') as HTMLInputElement)?.checked ?? false;
   const showRaggedEdge = (document.getElementById('showRaggedEdge') as HTMLInputElement)?.checked ?? false;
-  const showWidowsOrphans = (document.getElementById('showWidowsOrphans') as HTMLInputElement)?.checked ?? false;
-  return { margins: showMargins, columns: showColumns, text: showText, solidFills, raggedEdge: showRaggedEdge, widowsOrphans: showWidowsOrphans };
+  return { margins: showMargins, columns: showColumns, text: showText, solidFills, raggedEdge: showRaggedEdge };
 }
 
 // Page dimensions and margins are always in mm, gutter is always in em
@@ -156,184 +155,6 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
 }
 
 /**
- * Detects and highlights widows and orphans in the text
- * Widow: Last line of a paragraph appearing alone at the top of a column/page
- * Orphan: First line of a paragraph appearing alone at the bottom of a column/page
- */
-function drawWidowsOrphans(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElement, spanWidth: number, lineHeight: number, padding: number, textBoxHeight: number): void {
-  // Get the computed style to measure text properly
-  const computedStyle = window.getComputedStyle(textDiv);
-  const lineHeightValue = parseFloat(computedStyle.lineHeight);
-  const paddingValue = padding;
-  
-  // Get bounding rects for coordinate conversion
-  const textDivRect = textDiv.getBoundingClientRect();
-  const textGroupRect = textGroup.getBoundingClientRect();
-  
-  // Use Range API with getClientRects to get actual rendered line positions
-  const textNode = textDiv.firstChild;
-  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
-  
-  const range = document.createRange();
-  range.selectNodeContents(textDiv);
-  
-  // getClientRects returns one rect per rendered line
-  const lineRects = range.getClientRects();
-  
-  if (lineRects.length === 0) return;
-  
-  // Get SVG and textGroup positions for coordinate conversion
-  const svg = textGroup.ownerSVGElement;
-  if (!svg) return;
-  
-  const textGroupX = parseFloat(textGroup.getAttribute('x') || '0');
-  const textGroupY = parseFloat(textGroup.getAttribute('y') || '0');
-  
-  // Calculate scale factor: SVG coordinates vs viewport coordinates
-  const foreignObjectWidth = parseFloat(textGroup.getAttribute('width') || '0');
-  const foreignObjectHeight = parseFloat(textGroup.getAttribute('height') || '0');
-  const scaleX = foreignObjectWidth / textGroupRect.width;
-  const scaleY = foreignObjectHeight / textGroupRect.height;
-  
-  // Use a unique identifier for this text group's widows/orphans
-  const textGroupId = textGroup.getAttribute('data-text-group-id') || `text-group-${Date.now()}-${Math.random()}`;
-  textGroup.setAttribute('data-text-group-id', textGroupId);
-  
-  // Clear any existing widows/orphans groups for THIS specific text group
-  const existingGroups = svg.querySelectorAll(`.widows-orphans-group[data-text-group-id="${textGroupId}"]`);
-  existingGroups.forEach(group => group.remove());
-  
-  // Create a group for widows/orphans highlights
-  const widowsOrphansGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  widowsOrphansGroup.setAttribute('class', 'widows-orphans-group');
-  widowsOrphansGroup.setAttribute('data-text-group-id', textGroupId);
-  
-  // Get the text content to detect paragraph breaks
-  const textContent = textDiv.textContent || '';
-  
-  // Split by double line breaks to get paragraphs
-  const paragraphs = textContent.split(/\n\n+/).filter(p => p.trim().length > 0);
-  
-  if (paragraphs.length === 0 || lineRects.length === 0) return;
-  
-  // Build a more accurate map of which lines belong to which paragraph
-  // We'll use character positions to map lines to paragraphs
-  const paragraphLineMap: Map<number, number> = new Map(); // line index -> paragraph index
-  
-  // Create ranges for each paragraph in the text
-  let charPos = 0;
-  const paraRanges: Array<{ start: number; end: number }> = [];
-  
-  for (const para of paragraphs) {
-    const start = charPos;
-    const end = charPos + para.length;
-    paraRanges.push({ start, end });
-    charPos = end + 2; // +2 for \n\n separator
-  }
-  
-  // For each line, determine which paragraph it belongs to by checking character positions
-  // We'll approximate by using line indices and total character count
-  const totalChars = textContent.length;
-  
-  for (let lineIdx = 0; lineIdx < lineRects.length; lineIdx++) {
-    // Estimate character position for this line based on its position in the line array
-    // This is approximate but should work reasonably well
-    const lineRatio = lineIdx / lineRects.length;
-    const estimatedCharPos = Math.floor(totalChars * lineRatio);
-    
-    // Find which paragraph this character position belongs to
-    for (let pIdx = 0; pIdx < paraRanges.length; pIdx++) {
-      const range = paraRanges[pIdx];
-      if (estimatedCharPos >= range.start && estimatedCharPos < range.end) {
-        paragraphLineMap.set(lineIdx, pIdx);
-        break;
-      }
-    }
-    
-    // Fallback: if no match found, assign to nearest paragraph
-    if (!paragraphLineMap.has(lineIdx)) {
-      let nearestPara = 0;
-      let minDist = Infinity;
-      for (let pIdx = 0; pIdx < paraRanges.length; pIdx++) {
-        const range = paraRanges[pIdx];
-        const paraMid = (range.start + range.end) / 2;
-        const dist = Math.abs(estimatedCharPos - paraMid);
-        if (dist < minDist) {
-          minDist = dist;
-          nearestPara = pIdx;
-        }
-      }
-      paragraphLineMap.set(lineIdx, nearestPara);
-    }
-  }
-  
-  // Threshold for detecting top/bottom of column (within 1.5 line heights)
-  const threshold = lineHeightValue * 1.5;
-  
-  // Detect widows and orphans
-  for (let i = 0; i < lineRects.length; i++) {
-    const lineRect = lineRects[i];
-    const paraIdx = paragraphLineMap.get(i) ?? 0;
-    
-    // Convert viewport coordinates to coordinates relative to textDiv
-    const lineTopRelative = lineRect.top - textDivRect.top;
-    const lineBottomRelative = lineRect.bottom - textDivRect.top;
-    
-    // Convert to SVG coordinates
-    const lineY = textGroupY + paddingValue + (lineTopRelative * scaleY);
-    const lineHeightSVG = (lineRect.bottom - lineRect.top) * scaleY;
-    
-    // Check if this is the last line of a paragraph (widow candidate)
-    const isLastLineOfPara = i === lineRects.length - 1 || paragraphLineMap.get(i + 1) !== paraIdx;
-    
-    // Check if this is the first line of a paragraph (orphan candidate)
-    const isFirstLineOfPara = i === 0 || paragraphLineMap.get(i - 1) !== paraIdx;
-    
-    // Check if line is near top of column (widow)
-    const isNearTop = lineTopRelative < threshold;
-    
-    // Check if line is near bottom of column (orphan)
-    const lineBottomSVG = textGroupY + paddingValue + (lineBottomRelative * scaleY);
-    const textBoxBottom = textGroupY + textBoxHeight;
-    const isNearBottom = (textBoxBottom - lineBottomSVG) < (threshold * scaleY);
-    
-    // Highlight widow: last line of paragraph at top of column
-    if (isLastLineOfPara && isNearTop && i > 0) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', textGroupX.toString());
-      rect.setAttribute('y', lineY.toString());
-      rect.setAttribute('width', spanWidth.toString());
-      rect.setAttribute('height', lineHeightSVG.toString());
-      rect.setAttribute('fill', '#ff6b6b'); // Red for widow
-      rect.setAttribute('opacity', '0.3');
-      rect.setAttribute('class', 'widow-highlight');
-      widowsOrphansGroup.appendChild(rect);
-    }
-    
-    // Highlight orphan: first line of paragraph at bottom of column
-    if (isFirstLineOfPara && isNearBottom && i < lineRects.length - 1) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', textGroupX.toString());
-      rect.setAttribute('y', lineY.toString());
-      rect.setAttribute('width', spanWidth.toString());
-      rect.setAttribute('height', lineHeightSVG.toString());
-      rect.setAttribute('fill', '#4ecdc4'); // Teal for orphan
-      rect.setAttribute('opacity', '0.3');
-      rect.setAttribute('class', 'orphan-highlight');
-      widowsOrphansGroup.appendChild(rect);
-    }
-  }
-  
-  // Append widows/orphans group AFTER text group
-  const textGroupIndex = Array.from(svg.children).indexOf(textGroup);
-  if (textGroupIndex >= 0 && textGroupIndex < svg.children.length - 1) {
-    svg.insertBefore(widowsOrphansGroup, svg.children[textGroupIndex + 1]);
-  } else {
-    svg.appendChild(widowsOrphansGroup);
-  }
-}
-
-/**
  * Draws a single page with margins, columns, and text
  */
 function drawPage(
@@ -349,7 +170,7 @@ function drawPage(
   bottomMargin: number,
   scaleX: number,
   scaleY: number,
-  layerVisibility: { margins: boolean; columns: boolean; text: boolean; solidFills: boolean; raggedEdge: boolean; widowsOrphans: boolean }
+  layerVisibility: { margins: boolean; columns: boolean; text: boolean; solidFills: boolean; raggedEdge: boolean }
 ): void {
   // Draw page background
   const pageRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -632,29 +453,6 @@ function drawPage(
           
           // Store RAF IDs on the textGroup for potential cleanup
           (textGroup as any).__rafIds = rafIds;
-        }
-        
-        // Draw widows/orphans highlight if enabled
-        if (layerVisibility.widowsOrphans && sampleText && sampleText.trim().length > 0) {
-          // Use requestAnimationFrame to ensure text is fully rendered before measuring
-          const rafIds: number[] = [];
-          
-          const rafId1 = requestAnimationFrame(() => {
-            const rafId2 = requestAnimationFrame(() => {
-              // Double RAF ensures layout is complete
-              const container = document.getElementById('visualizationContainer');
-              const currentSvg = textGroup.ownerSVGElement;
-              if (container && currentSvg && currentSvg === parentSvg && container.contains(currentSvg) && currentSvg.contains(textGroup) && textGroup.contains(textDiv)) {
-                drawWidowsOrphans(textDiv as HTMLDivElement, textGroup, spanWidth, lineHeight, padding, textBoxHeight);
-              }
-            });
-            rafIds.push(rafId2);
-          });
-          rafIds.push(rafId1);
-          
-          // Store RAF IDs on the textGroup for potential cleanup
-          const existingRafIds = (textGroup as any).__rafIds || [];
-          (textGroup as any).__rafIds = [...existingRafIds, ...rafIds];
         }
       }
     }
