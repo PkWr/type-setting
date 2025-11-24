@@ -313,9 +313,10 @@ function drawPage(
       // Calculate font size and line height
       const typeSizeMM = inputs.typeSize * 0.3528;
       const fontSizeSVG = typeSizeMM * scaleY;
-      // Space after return should be 1em (equal to font size)
-      // So line height = font size + 1em = 2 * font size
-      const lineHeight = fontSizeSVG * 2;
+      // Use leading if provided, otherwise default to type size + 2
+      const leadingPt = inputs.leading !== undefined ? inputs.leading : inputs.typeSize + 2;
+      const leadingMM = leadingPt * 0.3528;
+      const lineHeight = leadingMM * scaleY;
       const padding = 0; // Remove padding so text matches margins exactly
       
       // Store reference to the parent SVG for RAF callbacks (needed for facing pages)
