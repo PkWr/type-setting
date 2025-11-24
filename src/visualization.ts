@@ -371,6 +371,11 @@ function drawPage(
         textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
         textDiv.style.textAlign = inputs.justifyText ? 'justify' : 'left';
         
+        // Set textDiv background to transparent so the SVG rectangle shows through
+        if (showRivers || showRaggedEdge) {
+          textDiv.style.backgroundColor = 'transparent';
+        }
+        
         if (showRivers) {
           // Rivers visualization: wrap each word in a span with black background
           // This creates white gaps (rivers) between words
