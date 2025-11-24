@@ -1297,18 +1297,15 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const pdfScaleY = scaledHeightPx / svgHeight;
   
   // Font sizes in foreignObject are CSS pixels - they DON'T automatically scale with SVG viewBox
-  // The font sizes are calculated based on the SVG coordinate system (mm * scaleY)
-  // When SVG is rendered at different sizes, fonts need to scale proportionally
+  // When SVG is rendered larger in PDF, fonts stay the same pixel size
+  // This makes fonts appear smaller relative to the SVG
   //
-  // Key insight: Fonts are set in CSS pixels based on SVG coordinate scale
-  // Preview: fonts render at previewScaleX * originalFontSize
-  // PDF: fonts should render at pdfScaleX * originalFontSize
-  // So font scale factor = pdfScaleX / previewScaleX
-  //
-  // BUT: Since preview renders dynamically, we should use the SVG viewBox directly
-  // The font sizes in the SVG are already scaled for the preview, so we need to
-  // scale them for PDF: fontScaleFactor = pdfScaleX / previewScaleX
-  const fontScaleFactor = previewScaleX > 0 ? pdfScaleX / previewScaleX : scale;
+  // However, if PDF text is already too big, we should NOT scale fonts
+  // Fonts should render at their original size regardless of SVG scale
+  // 
+  // Try: Don't scale fonts at all (fontScaleFactor = 1.0)
+  // This keeps fonts at their original pixel size in both preview and PDF
+  const fontScaleFactor = 1.0; // Don't scale fonts - keep original size
   
   // Debug: Check scaling calculation
   console.log('Font scaling decision:', {
