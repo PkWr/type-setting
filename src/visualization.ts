@@ -422,9 +422,26 @@ function drawPage(
             }
           });
         } else {
-          // Normal text - no wrapping needed
+          // Normal text - wrap paragraphs to add 1em spacing after each
           textDiv.style.color = '#000000';
-          textDiv.textContent = sampleText;
+          
+          // Split text by double line breaks (paragraph breaks)
+          const paragraphs = sampleText.split(/\n\s*\n/);
+          
+          paragraphs.forEach((paragraph, index) => {
+            if (paragraph.trim()) {
+              const paraDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+              paraDiv.style.marginBottom = index < paragraphs.length - 1 ? '1em' : '0';
+              paraDiv.style.whiteSpace = 'pre-wrap';
+              paraDiv.textContent = paragraph;
+              textDiv.appendChild(paraDiv);
+            }
+          });
+          
+          // If no paragraphs found (single paragraph), just set text directly
+          if (paragraphs.length === 1) {
+            textDiv.textContent = sampleText;
+          }
         }
         
         textGroup.appendChild(textDiv);
