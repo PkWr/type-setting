@@ -1090,6 +1090,17 @@ button {
   }
 }
 
+/* Widows and Orphans highlighting */
+.widow-highlight {
+  fill: #ff6b6b;
+  opacity: 0.3;
+}
+
+.orphan-highlight {
+  fill: #4ecdc4;
+  opacity: 0.3;
+}
+
 /* Mobile - stack vertically */
 @media (max-width: 600px) {
   body {
