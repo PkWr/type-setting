@@ -367,7 +367,7 @@ function drawPage(
         if (showRivers || showRaggedEdge) {
           textDiv.style.backgroundColor = '#000000';
         } else {
-          textDiv.style.backgroundColor = '#ffffff';
+          textDiv.style.backgroundColor = 'transparent';
         }
         
         // Set text color for spaces (unwrapped text nodes)
