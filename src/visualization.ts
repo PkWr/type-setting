@@ -386,72 +386,45 @@ function drawPage(
         textBgRect.setAttribute('fill', textBgColor);
         textGroup.appendChild(textBgRect);
         
-        // Helper function to process text with paragraph spacing
-        const processTextWithParagraphs = (text: string, processWords: (paraText: string, paraDiv: HTMLElement) => void) => {
-          // Split text by double line breaks (paragraph breaks)
-          const paragraphs = text.split(/\n\s*\n/);
-          
-          paragraphs.forEach((paragraph, index) => {
-            if (paragraph.trim()) {
-              const paraDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-              paraDiv.style.marginBottom = index < paragraphs.length - 1 ? '1em' : '0';
-              paraDiv.style.whiteSpace = 'pre-wrap';
-              processWords(paragraph, paraDiv);
-              textDiv.appendChild(paraDiv);
-            }
-          });
-          
-          // If no paragraphs found (single paragraph), process directly in textDiv
-          if (paragraphs.length === 1) {
-            processWords(text, textDiv);
-          }
-        };
-        
         if (showRivers) {
           // Rivers visualization: wrap each word in a span with white background
           // This matches ragged edge style - white text on black background
           // Spaces show as black gaps (rivers) between words
-          processTextWithParagraphs(sampleText, (paraText, container) => {
-            const words = paraText.split(/(\s+)/); // Split on spaces but keep them
-            words.forEach(word => {
-              if (word.trim().length > 0) {
-                // It's a word - wrap in span with white background
-                const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-                span.style.backgroundColor = '#ffffff';
-                span.style.color = '#000000';
-                span.textContent = word;
-                container.appendChild(span);
-              } else {
-                // It's whitespace - add as text node (will show as black gap/river)
-                container.appendChild(document.createTextNode(word));
-              }
-            });
+          const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
+          words.forEach(word => {
+            if (word.trim().length > 0) {
+              // It's a word - wrap in span with white background
+              const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+              span.style.backgroundColor = '#ffffff';
+              span.style.color = '#000000';
+              span.textContent = word;
+              textDiv.appendChild(span);
+            } else {
+              // It's whitespace - add as text node (will show as black gap/river)
+              textDiv.appendChild(document.createTextNode(word));
+            }
           });
         } else if (showRaggedEdge) {
           // Ragged edge visualization: wrap each word in a span with white background
           // This creates black gaps (ragged edge) where text doesn't reach
-          processTextWithParagraphs(sampleText, (paraText, container) => {
-            const words = paraText.split(/(\s+)/); // Split on spaces but keep them
-            words.forEach(word => {
-              if (word.trim().length > 0) {
-                // It's a word - wrap in span with white background
-                const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-                span.style.backgroundColor = '#ffffff';
-                span.style.color = '#000000';
-                span.textContent = word;
-                container.appendChild(span);
-              } else {
-                // It's whitespace - add as text node (will show as black gap)
-                container.appendChild(document.createTextNode(word));
-              }
-            });
+          const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
+          words.forEach(word => {
+            if (word.trim().length > 0) {
+              // It's a word - wrap in span with white background
+              const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+              span.style.backgroundColor = '#ffffff';
+              span.style.color = '#000000';
+              span.textContent = word;
+              textDiv.appendChild(span);
+            } else {
+              // It's whitespace - add as text node (will show as black gap)
+              textDiv.appendChild(document.createTextNode(word));
+            }
           });
         } else {
-          // Normal text - wrap paragraphs to add 1em spacing after each
+          // Normal text - no wrapping needed
           textDiv.style.color = '#000000';
-          processTextWithParagraphs(sampleText, (paraText, container) => {
-            container.textContent = paraText;
-          });
+          textDiv.textContent = sampleText;
         }
         
         textGroup.appendChild(textDiv);
