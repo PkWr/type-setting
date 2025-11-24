@@ -1179,9 +1179,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
           svgEl.setAttribute('fill', '#ffffff');
         }
       } else {
-        // Other fills (margins, columns) - convert to black stroke only, no fill
+        // Other fills (margins, columns) - preserve mid grey stroke if present, otherwise black
         svgEl.setAttribute('fill', 'none');
-        svgEl.setAttribute('stroke', '#000000');
+        // Preserve mid grey (#888888) for margin/column borders, otherwise use black
+        if (stroke === '#888888') {
+          svgEl.setAttribute('stroke', '#888888');
+        } else {
+          svgEl.setAttribute('stroke', '#000000');
+        }
         svgEl.setAttribute('stroke-width', '0.5');
       }
     } else {
@@ -1226,9 +1231,10 @@ async function exportVisualizationAsPDF(): Promise<void> {
       svgEl.removeAttribute('stroke');
     }
     
-    // Ensure all strokes are black (except none/transparent)
+    // Ensure all strokes are black (except none/transparent/white/mid grey)
+    // Preserve mid grey (#888888) for margin/column borders
     const stroke = svgEl.getAttribute('stroke');
-    if (stroke && stroke !== 'none' && stroke !== 'transparent' && stroke !== '#ffffff' && stroke !== 'white') {
+    if (stroke && stroke !== 'none' && stroke !== 'transparent' && stroke !== '#ffffff' && stroke !== 'white' && stroke !== '#888888') {
       svgEl.setAttribute('stroke', '#000000');
     }
   });
