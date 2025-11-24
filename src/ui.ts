@@ -1000,11 +1000,22 @@ function updateMarginInputs(): void {
     if (facingPagesMargins) facingPagesMargins.style.display = 'none';
     
     // Sync values: average inner to leftMargin, average outer to rightMargin (only if not already synced)
+    // Also check that inner/outer margins actually have values before syncing
     if (innerMarginLeftInput && leftMarginInput && !leftMarginInput.dataset.synced) {
-      const avgInner = ((parseFloat(innerMarginLeftInput.value) + parseFloat(innerMarginRightInput.value)) / 2).toFixed(1);
-      leftMarginInput.value = avgInner;
-      const avgOuter = ((parseFloat(outerMarginLeftInput.value) + parseFloat(outerMarginRightInput.value)) / 2).toFixed(1);
-      rightMarginInput.value = avgOuter;
+      const innerLeftVal = parseFloat(innerMarginLeftInput.value);
+      const innerRightVal = parseFloat(innerMarginRightInput.value);
+      const outerLeftVal = parseFloat(outerMarginLeftInput.value);
+      const outerRightVal = parseFloat(outerMarginRightInput.value);
+      
+      // Only sync if inner/outer margins have valid values (not empty/NaN)
+      if (!isNaN(innerLeftVal) && !isNaN(innerRightVal) && innerMarginLeftInput.value !== '' && innerMarginRightInput.value !== '') {
+        const avgInner = ((innerLeftVal + innerRightVal) / 2).toFixed(1);
+        leftMarginInput.value = avgInner;
+      }
+      if (!isNaN(outerLeftVal) && !isNaN(outerRightVal) && outerMarginLeftInput.value !== '' && outerMarginRightInput.value !== '') {
+        const avgOuter = ((outerLeftVal + outerRightVal) / 2).toFixed(1);
+        rightMarginInput.value = avgOuter;
+      }
       leftMarginInput.dataset.synced = 'true';
       // Clear the other sync flag
       if (innerMarginLeftInput.dataset.synced) innerMarginLeftInput.dataset.synced = '';
@@ -1880,6 +1891,14 @@ function loadSettings(): void {
       if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
     } else {
       // Load single page margins - only if value exists and is not empty
+      // IMPORTANT: Clear inner/outer margin values first to prevent them from syncing to left/right
+      // These might have old values from a previous facing pages session
+      if (innerMarginLeftInput) innerMarginLeftInput.value = '';
+      if (innerMarginRightInput) innerMarginRightInput.value = '';
+      if (outerMarginLeftInput) outerMarginLeftInput.value = '';
+      if (outerMarginRightInput) outerMarginRightInput.value = '';
+      
+      // Now load the saved left/right margin values
       if (settings.leftMargin !== undefined && settings.leftMargin !== '') {
         if (leftMarginInput) leftMarginInput.value = String(settings.leftMargin);
       }
@@ -1887,6 +1906,7 @@ function loadSettings(): void {
         const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
         if (rightMarginInput) rightMarginInput.value = String(settings.rightMargin);
       }
+      
       // Clear sync flags after loading to allow manual updates
       if (leftMarginInput) leftMarginInput.dataset.synced = '';
       if (rightMarginInput) rightMarginInput.dataset.synced = '';
