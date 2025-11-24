@@ -1294,9 +1294,26 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const pdfScaleX = scaledWidthPx / svgWidth;
   const pdfScaleY = scaledHeightPx / svgHeight;
   
-  // Font sizes scale with the SVG, so use the same scale factor
-  // Since fonts are set in pixels and scale with SVG width, use X scale
+  // Font sizes in foreignObject are CSS pixels - they DON'T automatically scale with SVG viewBox
+  // When SVG is rendered larger, fonts stay same pixel size, appearing smaller relative to SVG
+  // To maintain same visual size, we need to scale fonts UP by the SVG scale ratio
+  // BUT: if fonts are already too big, maybe we should NOT scale them, or scale them DOWN
+  // 
+  // Current approach: Scale fonts by SVG scale ratio
+  // Alternative: Don't scale fonts at all (fontScaleFactor = 1.0)
+  // Or: Scale fonts DOWN if PDF SVG is larger (inverse scaling)
   const fontScaleFactor = previewScaleX > 0 ? pdfScaleX / previewScaleX : scale;
+  
+  // Debug: Check if we should NOT scale fonts
+  console.log('Font scaling decision:', {
+    previewRenderedWidth,
+    scaledWidthPx,
+    svgWidth,
+    previewScaleX,
+    pdfScaleX,
+    fontScaleFactor,
+    shouldScale: fontScaleFactor !== 1.0
+  });
   
   // Debug: log scaling values
   console.log('PDF Font Scaling Debug:', {
@@ -1375,6 +1392,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
             originalFontSize: originalSizes.fontSize,
             scaledFontSize,
             fontScaleFactor,
+            previewRenderedWidth,
+            scaledWidthPx,
+            ratio: scaledWidthPx / previewRenderedWidth,
             totalDivs,
             scaledDivs
           });
