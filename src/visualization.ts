@@ -344,16 +344,7 @@ function drawPage(
           textBgColor = '#000000'; // Black background for both rivers and ragged edge
         }
         
-        // Add background rectangle
-        const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        textBgRect.setAttribute('x', '0');
-        textBgRect.setAttribute('y', '0');
-        textBgRect.setAttribute('width', spanWidth.toString());
-        textBgRect.setAttribute('height', textBoxHeight.toString());
-        textBgRect.setAttribute('fill', textBgColor);
-        textGroup.appendChild(textBgRect);
-        
-        // Create text div
+        // Create text div first
         const textDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         textDiv.style.fontSize = `${fontSizeSVG}px`;
         textDiv.style.lineHeight = `${lineHeight}px`;
@@ -371,10 +362,22 @@ function drawPage(
         textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
         textDiv.style.textAlign = inputs.justifyText ? 'justify' : 'left';
         
-        // Set textDiv background to transparent so the SVG rectangle shows through
+        // Set background color on textDiv directly (not SVG rectangle)
+        // This ensures it shows through properly
         if (showRivers || showRaggedEdge) {
-          textDiv.style.backgroundColor = 'transparent';
+          textDiv.style.backgroundColor = '#000000';
+        } else {
+          textDiv.style.backgroundColor = '#ffffff';
         }
+        
+        // Add background rectangle behind textDiv (for cases where textDiv doesn't cover full area)
+        const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        textBgRect.setAttribute('x', '0');
+        textBgRect.setAttribute('y', '0');
+        textBgRect.setAttribute('width', spanWidth.toString());
+        textBgRect.setAttribute('height', textBoxHeight.toString());
+        textBgRect.setAttribute('fill', textBgColor);
+        textGroup.appendChild(textBgRect);
         
         if (showRivers) {
           // Rivers visualization: wrap each word in a span with black background
