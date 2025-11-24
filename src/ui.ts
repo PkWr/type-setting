@@ -1075,16 +1075,19 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const showMarginsCheckbox = document.getElementById('showMargins') as HTMLInputElement;
   const showColumnsCheckbox = document.getElementById('showColumns') as HTMLInputElement;
   const showTextCheckbox = document.getElementById('showText') as HTMLInputElement;
+  const showRaggedEdgeCheckbox = document.getElementById('showRaggedEdge') as HTMLInputElement;
   const originalMargins = showMarginsCheckbox?.checked ?? true;
   const originalColumns = showColumnsCheckbox?.checked ?? true;
   const originalText = showTextCheckbox?.checked ?? true;
+  const originalRaggedEdge = showRaggedEdgeCheckbox?.checked ?? false;
   
-  // Temporarily enable all layers
+  // Temporarily enable all layers BUT disable ragged edge (so text is black)
   if (showMarginsCheckbox) showMarginsCheckbox.checked = true;
   if (showColumnsCheckbox) showColumnsCheckbox.checked = true;
   if (showTextCheckbox) showTextCheckbox.checked = true;
+  if (showRaggedEdgeCheckbox) showRaggedEdgeCheckbox.checked = false; // Disable to get black text
   
-  // Re-render visualization with all layers visible
+  // Re-render visualization with all layers visible but ragged edge disabled
   updateVisualizationOnInputChange();
   
   // Wait for visualization to update and SVG to be sized
@@ -1148,36 +1151,78 @@ async function exportVisualizationAsPDF(): Promise<void> {
   }
   
   try {
+    // Debug: Check what color the text actually is
+    const debugForeignObjects = container.querySelectorAll('foreignObject');
+    debugForeignObjects.forEach((fo: Element, index: number) => {
+      const divs = fo.querySelectorAll('div');
+      divs.forEach((div: Element) => {
+        const htmlDiv = div as HTMLElement;
+        const computed = window.getComputedStyle(htmlDiv);
+        console.log(`ForeignObject ${index} div color:`, {
+          inline: htmlDiv.style.color,
+          computed: computed.color,
+          backgroundColor: computed.backgroundColor,
+          webkitTextFillColor: (computed as any).webkitTextFillColor
+        });
+      });
+    });
+    
     // Convert preview container directly to canvas/image
-    // This captures everything exactly as it appears in the preview
+    // html2canvas should capture what's actually rendered
     const canvas = await html2canvas(container, {
       backgroundColor: '#ffffff',
       width: containerWidth,
       height: containerHeight,
-      scale: 2, // Higher quality
-      logging: false,
+      scale: 2,
+      logging: true, // Enable logging to debug
       useCORS: true,
       allowTaint: false,
       onclone: (clonedDoc: Document) => {
-        // Ensure all text is black in the cloned document
+        // Add global style to force black text
         const style = clonedDoc.createElement('style');
         style.textContent = `
-          svg foreignObject,
-          svg foreignObject *,
+          * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+          }
           foreignObject,
           foreignObject *,
           foreignObject div,
           foreignObject div *,
           foreignObject span,
-          foreignObject p {
+          foreignObject span * {
             color: #000000 !important;
             -webkit-text-fill-color: #000000 !important;
+            background-color: transparent !important;
           }
           text, tspan {
             fill: #000000 !important;
           }
         `;
         clonedDoc.head.appendChild(style);
+        
+        // Directly modify all elements in cloned document
+        const clonedForeignObjects = clonedDoc.querySelectorAll('foreignObject');
+        clonedForeignObjects.forEach((fo: Element) => {
+          const allElements = fo.querySelectorAll('div, span, *');
+          allElements.forEach((el: Element) => {
+            const htmlEl = el as HTMLElement;
+            // Remove all color-related styles first
+            htmlEl.style.removeProperty('color');
+            htmlEl.style.removeProperty('-webkit-text-fill-color');
+            // Then set black
+            htmlEl.style.setProperty('color', '#000000', 'important');
+            htmlEl.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+            htmlEl.style.setProperty('background-color', 'transparent', 'important');
+            
+            // Debug: log what we're setting
+            console.log('Setting color on element:', {
+              tagName: htmlEl.tagName,
+              color: htmlEl.style.color,
+              computed: window.getComputedStyle(htmlEl).color
+            });
+          });
+        });
       }
     });
     
@@ -1257,7 +1302,9 @@ async function exportVisualizationAsPDF(): Promise<void> {
       }
     }
     
-    // No cleanup needed - we're using the actual container, not a temp one
+    // Restore original ragged edge state
+    if (showRaggedEdgeCheckbox) showRaggedEdgeCheckbox.checked = originalRaggedEdge;
+    updateVisualizationOnInputChange();
     
     // Save PDF
     pdf.save(`typography-layout-${Date.now()}.pdf`);
@@ -1278,6 +1325,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
     if (showMarginsCheckbox) showMarginsCheckbox.checked = originalMargins;
     if (showColumnsCheckbox) showColumnsCheckbox.checked = originalColumns;
     if (showTextCheckbox) showTextCheckbox.checked = originalText;
+    if (showRaggedEdgeCheckbox) showRaggedEdgeCheckbox.checked = originalRaggedEdge;
     updateVisualizationOnInputChange();
     
     alert(`Error exporting PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for details.`);
