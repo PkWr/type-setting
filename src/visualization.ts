@@ -317,7 +317,7 @@ function drawPage(
       const leadingPt = inputs.leading !== undefined ? inputs.leading : inputs.typeSize + 2;
       const leadingMM = leadingPt * 0.3528;
       const lineHeight = leadingMM * scaleY;
-      const padding = fontSizeSVG * 0.5;
+      const padding = 0; // Remove padding so text matches margins exactly
       
       // Store reference to the parent SVG for RAF callbacks (needed for facing pages)
       const parentSvg = svg;
