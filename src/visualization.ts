@@ -351,15 +351,9 @@ function drawPage(
         const fontFamily = inputs.fontFamily || 'serif';
         textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
         
-        // Rivers visualization: black background with white text when rivers checkbox is checked and text is justified
-        // This shows rivers as white gaps in the black background
+        // Rivers visualization: wrap each word in a span with black background when rivers checkbox is checked and text is justified
+        // This shows rivers as white gaps between words
         const showRivers = layerVisibility.raggedEdge && inputs.justifyText;
-        if (showRivers) {
-          textDiv.style.backgroundColor = '#000000';
-          textDiv.style.color = '#ffffff';
-        } else {
-          textDiv.style.color = '#000000';
-        }
         
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
@@ -370,7 +364,29 @@ function drawPage(
         textDiv.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and wrap text
         textDiv.style.hyphens = inputs.hyphenation !== false ? 'auto' : 'none';
         textDiv.style.textAlign = inputs.justifyText ? 'justify' : 'left';
-        textDiv.textContent = sampleText;
+        
+        if (showRivers) {
+          // Wrap each word in a span with black background, leaving spaces unwrapped
+          // This creates white gaps (rivers) between words
+          const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
+          words.forEach(word => {
+            if (word.trim().length > 0) {
+              // It's a word - wrap in span with black background
+              const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+              span.style.backgroundColor = '#000000';
+              span.style.color = '#ffffff';
+              span.textContent = word;
+              textDiv.appendChild(span);
+            } else {
+              // It's whitespace - add as text node (will show as white gap)
+              textDiv.appendChild(document.createTextNode(word));
+            }
+          });
+        } else {
+          // Normal text - no wrapping needed
+          textDiv.style.color = '#000000';
+          textDiv.textContent = sampleText;
+        }
         
         textGroup.appendChild(textDiv);
         parentSvg.appendChild(textGroup);
