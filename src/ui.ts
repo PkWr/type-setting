@@ -2419,7 +2419,10 @@ export function initializeCalculator(): void {
   // Allow independent scrolling in container - CSS overscroll-behavior handles scroll chaining
   // No JavaScript needed for independent scrolling with CSS overscroll-behavior: contain
 
-  // Load saved settings first
+  // Populate paper size dropdown FIRST (before loadSettings so dropdown is ready)
+  populatePaperSizeDropdown();
+  
+  // Load saved settings after dropdown is populated
   loadSettings();
   
   // Set em toggle default to checked after loading (will override if no saved setting)
@@ -2738,8 +2741,7 @@ export function initializeCalculator(): void {
     }
   });
 
-  // Populate paper size dropdown (before loadSettings so dropdown is ready)
-  populatePaperSizeDropdown();
+  // Paper size dropdown already populated above (before loadSettings)
 
   // Set gutter on load
   suggestGutter();
