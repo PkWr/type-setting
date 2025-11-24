@@ -529,11 +529,30 @@ function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
 function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
+    console.log('Updating visualization with inputs:', {
+      leftMargin: inputs.leftMargin,
+      rightMargin: inputs.rightMargin,
+      topMargin: inputs.topMargin,
+      bottomMargin: inputs.bottomMargin,
+      pageWidth: inputs.pageWidth,
+      pageHeight: inputs.pageHeight,
+      numCols: inputs.numCols,
+      gutterWidth: inputs.gutterWidth,
+      typeSize: inputs.typeSize
+    });
+    console.log('Raw form values:', {
+      leftMarginInput: (document.getElementById('leftMargin') as HTMLInputElement)?.value,
+      rightMarginInput: (document.getElementById('rightMargin') as HTMLInputElement)?.value,
+      topMarginInput: (document.getElementById('topMargin') as HTMLInputElement)?.value,
+      bottomMarginInput: (document.getElementById('bottomMargin') as HTMLInputElement)?.value,
+      marginUnit: (document.getElementById('marginUnitToggle') as HTMLInputElement)?.checked ? 'em' : 'mm'
+    });
     const results = calculateLayout(inputs);
     updateVisualization(inputs);
     updateWordsPerLine();
     updateColumnWidthDisplay();
     updateSpecification();
+    console.log('Visualization update completed');
   } catch (e) {
     // Log error for debugging
     console.error('Error updating visualization:', e);
@@ -1933,8 +1952,19 @@ function loadSettings(): void {
     }
     
     // Update margin labels and inputs visibility after loading
+    // BUT don't sync values - we just loaded them, so preserve what was loaded
     updateMarginLabels();
-    updateMarginInputs();
+    // Only update visibility, not values (sync flags prevent overwriting)
+    const isFacingPagesMode = isFacingPages();
+    const singlePageMargins = document.getElementById('singlePageMargins') as HTMLElement;
+    const facingPagesMargins = document.getElementById('facingPagesMargins') as HTMLElement;
+    if (isFacingPagesMode) {
+      if (singlePageMargins) singlePageMargins.style.display = 'none';
+      if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
+    } else {
+      if (singlePageMargins) singlePageMargins.style.display = 'grid';
+      if (facingPagesMargins) facingPagesMargins.style.display = 'none';
+    }
     
     // Restore column span slider
     if (settings.columnSpanValue) {
