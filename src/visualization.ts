@@ -370,6 +370,13 @@ function drawPage(
           textDiv.style.backgroundColor = '#ffffff';
         }
         
+        // Set text color for spaces (unwrapped text nodes)
+        if (showRivers) {
+          textDiv.style.color = '#ffffff'; // White spaces for rivers
+        } else if (showRaggedEdge) {
+          textDiv.style.color = '#000000'; // Black spaces for ragged edge
+        }
+        
         // Add background rectangle behind textDiv (for cases where textDiv doesn't cover full area)
         const textBgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         textBgRect.setAttribute('x', '0');
