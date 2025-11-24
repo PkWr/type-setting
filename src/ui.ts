@@ -1121,352 +1121,45 @@ async function exportVisualizationAsPDF(): Promise<void> {
   const contentWidth = pdfWidth - (margin * 2);
   const contentHeight = pdfHeight - (margin * 2);
   
-  // Clone SVG and modify for export (white background, black elements)
-  const svgClone = svg.cloneNode(true) as SVGElement;
+  // Much simpler approach: Export the preview container directly as an image
+  // This preserves everything exactly as it appears - fonts, spacing, colors, etc.
+  // No need for complex font scaling calculations
   
-  // Get SVG viewBox for background
-  const svgViewBox = svg.getAttribute('viewBox') || '0 0 400 400';
-  const viewBoxValues = svgViewBox.split(' ').map(v => parseFloat(v));
-  const svgWidth = viewBoxValues[2] || 400;
-  const svgHeight = viewBoxValues[3] || 400;
+  // Get the actual rendered size of the container
+  const containerRect = container.getBoundingClientRect();
+  const containerWidth = containerRect.width;
+  const containerHeight = containerRect.height;
   
-  // Set white background rect (behind everything)
-  const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  bgRect.setAttribute('x', viewBoxValues[0].toString());
-  bgRect.setAttribute('y', viewBoxValues[1].toString());
-  bgRect.setAttribute('width', svgWidth.toString());
-  bgRect.setAttribute('height', svgHeight.toString());
-  bgRect.setAttribute('fill', '#ffffff');
-  bgRect.setAttribute('id', 'pdf-background');
-  svgClone.insertBefore(bgRect, svgClone.firstChild);
+  // Calculate scale to fit image to PDF page (maintaining aspect ratio)
+  const imageAspectRatio = containerWidth / containerHeight;
+  const pdfAspectRatio = contentWidth / contentHeight;
   
-  // Remove any existing background/style elements
-  svgClone.removeAttribute('style');
-  svgClone.setAttribute('style', 'background-color: #ffffff;');
+  let imageWidthMM: number;
+  let imageHeightMM: number;
   
-  // Process all elements to ensure proper colors for PDF
-  const allElements = svgClone.querySelectorAll('*');
-  allElements.forEach((el: Element) => {
-    const svgEl = el as SVGElement;
-    const tagName = svgEl.tagName.toLowerCase();
-    
-    // Skip the background rect we just added
-    if (svgEl === bgRect || svgEl.id === 'pdf-background') return;
-    
-    // Remove inline styles that might override colors
-    svgEl.removeAttribute('style');
-    
-    // Page rectangles: keep white fill, ensure black stroke
-    if (tagName === 'rect') {
-      const fill = svgEl.getAttribute('fill');
-      const stroke = svgEl.getAttribute('stroke');
-      
-      // If it's a page background (white fill), keep it white
-      if (fill === '#ffffff' || fill === 'white') {
-        svgEl.setAttribute('fill', '#ffffff');
-        // Ensure it has a black stroke for visibility
-        if (!stroke || stroke === 'none' || stroke === 'transparent') {
-          svgEl.setAttribute('stroke', '#000000');
-          svgEl.setAttribute('stroke-width', '1');
-        } else {
-          svgEl.setAttribute('stroke', '#000000');
-        }
-      } else if (fill && fill !== 'none' && fill !== 'transparent') {
-        // Text background rectangles - remove them or make transparent
-      } else if (fill === '#ffffff' || fill === 'white') {
-        // Check if this is inside a foreignObject (text background)
-        const parent = svgEl.parentElement;
-        if (parent && parent.tagName.toLowerCase() === 'foreignobject') {
-          svgEl.setAttribute('fill', 'transparent');
-        } else {
-          // Keep white for page backgrounds
-          svgEl.setAttribute('fill', '#ffffff');
-        }
-      } else {
-        // Other fills (margins, columns) - preserve mid grey stroke if present, otherwise black
-        svgEl.setAttribute('fill', 'none');
-        // Preserve mid grey (#888888) for margin/column borders, otherwise use black
-        if (stroke === '#888888') {
-          svgEl.setAttribute('stroke', '#888888');
-        } else {
-          svgEl.setAttribute('stroke', '#000000');
-        }
-        svgEl.setAttribute('stroke-width', '0.5');
-      }
-    } else {
-      // Elements with no fill - ensure black stroke
-      const stroke = svgEl.getAttribute('stroke');
-      if (stroke && stroke !== 'none' && stroke !== 'transparent') {
-        svgEl.setAttribute('stroke', '#000000');
-      }
-    }
-    
-    // Text elements: convert to black
-    if (tagName === 'text' || tagName === 'tspan') {
-      const fill = svgEl.getAttribute('fill');
-      // Always set text to black, even if it was white
-      svgEl.setAttribute('fill', '#000000');
-    }
-    
-    // foreignObject elements (contain HTML text): ensure text is black
-    if (tagName === 'foreignobject') {
-      const divs = svgEl.querySelectorAll('div');
-      divs.forEach((div: Element) => {
-        const htmlDiv = div as HTMLElement;
-        // Force black text - remove any existing color first
-        htmlDiv.style.removeProperty('color');
-        htmlDiv.style.setProperty('color', '#000000', 'important');
-        htmlDiv.style.color = '#000000';
-        htmlDiv.style.backgroundColor = 'transparent';
-        // Also set on all nested elements
-        const nested = htmlDiv.querySelectorAll('*');
-        nested.forEach((nestedEl: Element) => {
-          const nestedHtml = nestedEl as HTMLElement;
-          nestedHtml.style.removeProperty('color');
-          nestedHtml.style.setProperty('color', '#000000', 'important');
-          nestedHtml.style.color = '#000000';
-        });
-      });
-    }
-    
-    // Groups: ensure they don't override colors
-    if (tagName === 'g') {
-      svgEl.removeAttribute('fill');
-      svgEl.removeAttribute('stroke');
-    }
-    
-    // Ensure all strokes are black (except none/transparent/white/mid grey)
-    // Preserve mid grey (#888888) for margin/column borders
-    const stroke = svgEl.getAttribute('stroke');
-    if (stroke && stroke !== 'none' && stroke !== 'transparent' && stroke !== '#ffffff' && stroke !== 'white' && stroke !== '#888888') {
-      svgEl.setAttribute('stroke', '#000000');
-    }
-  });
-  
-  // Also process foreignObject elements separately to ensure text color is set
-  const foreignObjects = svgClone.querySelectorAll('foreignObject');
-  foreignObjects.forEach((fo: Element) => {
-    const foreignObj = fo as SVGForeignObjectElement;
-    const divs = foreignObj.querySelectorAll('div');
-    divs.forEach((div: Element) => {
-      const htmlDiv = div as HTMLElement;
-      // Force black text - remove any existing color first
-      htmlDiv.style.removeProperty('color');
-      htmlDiv.style.setProperty('color', '#000000', 'important');
-      htmlDiv.style.color = '#000000';
-      htmlDiv.style.backgroundColor = 'transparent';
-      // Also check for any nested elements
-      const nestedElements = htmlDiv.querySelectorAll('*');
-      nestedElements.forEach((nested: Element) => {
-        const nestedEl = nested as HTMLElement;
-        nestedEl.style.removeProperty('color');
-        nestedEl.style.setProperty('color', '#000000', 'important');
-        nestedEl.style.color = '#000000';
-      });
-    });
-  });
-  
-  // Calculate scale to fit SVG to content area (maintaining aspect ratio)
-  // Use mm dimensions for accurate scaling
-  const scaleX = contentWidth / svgWidth;
-  const scaleY = contentHeight / svgHeight;
-  const scale = Math.min(scaleX, scaleY) * 0.95; // 95% to add some padding
-  
-  const scaledWidthMM = svgWidth * scale;
-  const scaledHeightMM = svgHeight * scale;
-  
-  // Convert mm to pixels for html2canvas (96 DPI = 3.779527559 pixels per mm)
-  const PX_PER_MM = 96 / 25.4;
-  const scaledWidthPx = scaledWidthMM * PX_PER_MM;
-  const scaledHeightPx = scaledHeightMM * PX_PER_MM;
-  
-  // Create a temporary container for the SVG
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  tempContainer.style.width = `${scaledWidthPx}px`;
-  tempContainer.style.height = `${scaledHeightPx}px`;
-  tempContainer.style.backgroundColor = '#ffffff';
-  tempContainer.style.display = 'flex';
-  tempContainer.style.alignItems = 'center';
-  tempContainer.style.justifyContent = 'center';
-  
-  // Calculate the scale factor for font sizes
-  // The SVG viewBox is in mm (svgWidth x svgHeight)
-  // Font sizes in foreignObject are CSS pixels that need to scale with the SVG
-  //
-  // The key issue: Font sizes are absolute CSS pixels, but the SVG scales.
-  // We need to scale fonts proportionally with the SVG.
-  //
-  // Approach: Calculate scale based on SVG viewBox to rendered size ratio
-  // Preview: SVG viewBox (mm) -> rendered pixels (measured)
-  // PDF: SVG viewBox (mm) -> scaledWidthPx (calculated)
-  //
-  // Font scale factor = PDF rendered size / Preview rendered size
-  // = scaledWidthPx / previewRenderedWidth
-  
-  // Measure the actual rendered SVG width in the preview (for reference)
-  const actualSvgRect = svg.getBoundingClientRect();
-  const previewRenderedWidth = actualSvgRect.width;
-  const previewRenderedHeight = actualSvgRect.height;
-  
-  // Calculate scale factors
-  // Preview scale: how the SVG viewBox (mm) is rendered in preview (pixels)
-  const previewScaleX = previewRenderedWidth / svgWidth;
-  const previewScaleY = previewRenderedHeight / svgHeight;
-  
-  // PDF scale: how the SVG viewBox (mm) will be rendered in PDF (pixels)
-  const pdfScaleX = scaledWidthPx / svgWidth;
-  const pdfScaleY = scaledHeightPx / svgHeight;
-  
-  // Font sizes in foreignObject are CSS pixels - they DON'T automatically scale with SVG viewBox
-  // html2canvas uses scale: 2, which renders at 2x resolution
-  // Fonts appear larger in PDF - need to scale them down
-  //
-  // Testing different scale factors:
-  // - 1.0: too big (2x - 24pt instead of 12pt)
-  // - 0.5: too small
-  // - 0.7: try middle ground
-  const fontScaleFactor = 0.7; // Scale fonts down to compensate for html2canvas scale
-  
-  // Debug: Check scaling calculation
-  console.log('Font scaling decision:', {
-    svgViewBoxWidth: svgWidth,
-    svgViewBoxHeight: svgHeight,
-    previewRenderedWidth,
-    previewRenderedHeight,
-    scaledWidthPx,
-    scaledHeightPx,
-    previewScaleX,
-    pdfScaleX,
-    fontScaleFactor,
-    note: 'Preview renders dynamically, PDF is fixed size'
-  });
-  
-  // Debug: log scaling values
-  console.log('PDF Font Scaling Debug:', {
-    svgWidth,
-    svgHeight,
-    previewRenderedWidth,
-    previewRenderedHeight,
-    scaledWidthPx,
-    scaledHeightPx,
-    previewScaleX,
-    pdfScaleX,
-    fontScaleFactor,
-    scale
-  });
-  
-  // Scale font sizes in all foreignObjects to match SVG scaling
-  // First, get font sizes from the original SVG before cloning
-  const originalForeignObjects = svg.querySelectorAll('foreignObject');
-  const originalFontSizes: Map<Element, { fontSize: number; lineHeight: number; padding: number }> = new Map();
-  
-  originalForeignObjects.forEach((fo: Element) => {
-    const foreignObj = fo as SVGForeignObjectElement;
-    const divs = foreignObj.querySelectorAll('div');
-    divs.forEach((div: Element) => {
-      const htmlDiv = div as HTMLElement;
-      const computedStyle = window.getComputedStyle(htmlDiv);
-      const fontSize = parseFloat(computedStyle.fontSize) || 0;
-      const lineHeight = parseFloat(computedStyle.lineHeight) || 0;
-      const padding = parseFloat(computedStyle.padding) || 0;
-      if (fontSize > 0) {
-        originalFontSizes.set(div, { fontSize, lineHeight, padding });
-      }
-    });
-  });
-  
-  console.log('Found original font sizes:', originalFontSizes.size);
-  
-  // Now scale fonts in the cloned SVG
-  const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
-  console.log('Found foreignObjects:', foreignObjectsToScale.length);
-  let fontScalingApplied = false;
-  let totalDivs = 0;
-  let scaledDivs = 0;
-  
-  // Match cloned divs with original divs by index
-  let originalIndex = 0;
-  foreignObjectsToScale.forEach((fo: Element, foIndex: number) => {
-    const foreignObj = fo as SVGForeignObjectElement;
-    const divs = foreignObj.querySelectorAll('div');
-    totalDivs += divs.length;
-    divs.forEach((div: Element, divIndex: number) => {
-      const htmlDiv = div as HTMLElement;
-      
-      // Find corresponding original div
-      const originalDivs = originalForeignObjects[foIndex]?.querySelectorAll('div');
-      const originalDiv = originalDivs?.[divIndex];
-      const originalSizes = originalDiv ? originalFontSizes.get(originalDiv) : null;
-      
-      if (originalSizes && originalSizes.fontSize > 0) {
-        const scaledFontSize = originalSizes.fontSize * fontScaleFactor;
-        htmlDiv.style.fontSize = `${scaledFontSize}px`;
-        
-        if (originalSizes.lineHeight > 0) {
-          const scaledLineHeight = originalSizes.lineHeight * fontScaleFactor;
-          htmlDiv.style.lineHeight = `${scaledLineHeight}px`;
-        }
-        
-        if (originalSizes.padding > 0) {
-          const scaledPadding = originalSizes.padding * fontScaleFactor;
-          htmlDiv.style.padding = `${scaledPadding}px`;
-        }
-        
-        scaledDivs++;
-        if (!fontScalingApplied) {
-          console.log('Font scaling applied:', {
-            originalFontSize: originalSizes.fontSize,
-            scaledFontSize,
-            fontScaleFactor,
-            previewRenderedWidth,
-            scaledWidthPx,
-            ratio: scaledWidthPx / previewRenderedWidth,
-            totalDivs,
-            scaledDivs
-          });
-          fontScalingApplied = true;
-        }
-      }
-    });
-  });
-  
-  console.log('Font scaling summary:', {
-    foreignObjectsFound: foreignObjectsToScale.length,
-    totalDivs,
-    scaledDivs,
-    fontScaleFactor
-  });
-  
-  // Set SVG size to match container
-  svgClone.setAttribute('width', `${scaledWidthPx}px`);
-  svgClone.setAttribute('height', `${scaledHeightPx}px`);
-  svgClone.setAttribute('viewBox', svgViewBox);
-  svgClone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  
-  tempContainer.appendChild(svgClone);
-  document.body.appendChild(tempContainer);
-  
-  // Wait a moment for the DOM to update and styles to apply
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Force a reflow to ensure styles are applied
-  tempContainer.offsetHeight;
+  if (imageAspectRatio > pdfAspectRatio) {
+    // Image is wider - fit by width
+    imageWidthMM = contentWidth;
+    imageHeightMM = contentWidth / imageAspectRatio;
+  } else {
+    // Image is taller - fit by height
+    imageHeightMM = contentHeight;
+    imageWidthMM = contentHeight * imageAspectRatio;
+  }
   
   try {
-    // Convert SVG to canvas/image for page 1
-    // Use onclone to ensure text colors are correct
-    const canvas = await html2canvas(tempContainer, {
+    // Convert preview container directly to canvas/image
+    // This captures everything exactly as it appears in the preview
+    const canvas = await html2canvas(container, {
       backgroundColor: '#ffffff',
-      width: scaledWidthPx,
-      height: scaledHeightPx,
+      width: containerWidth,
+      height: containerHeight,
       scale: 2, // Higher quality
       logging: false,
       useCORS: true,
       allowTaint: false,
       onclone: (clonedDoc: Document) => {
-        // Add a style element to force all text to black - use very specific selectors
+        // Ensure all text is black in the cloned document
         const style = clonedDoc.createElement('style');
         style.textContent = `
           svg foreignObject,
@@ -1479,111 +1172,20 @@ async function exportVisualizationAsPDF(): Promise<void> {
           foreignObject p {
             color: #000000 !important;
             -webkit-text-fill-color: #000000 !important;
-            background-color: transparent !important;
           }
           text, tspan {
             fill: #000000 !important;
-            color: #000000 !important;
           }
         `;
         clonedDoc.head.appendChild(style);
-        
-        // Ensure all text in cloned document is black
-        const clonedForeignObjects = clonedDoc.querySelectorAll('foreignObject');
-        clonedForeignObjects.forEach((fo: Element) => {
-          // Keep white background rectangles for readability
-          // Don't remove them - they help with contrast
-          
-          const divs = fo.querySelectorAll('div');
-          divs.forEach((div: Element) => {
-            const htmlDiv = div as HTMLElement;
-            // Completely replace style attribute to force black
-            const baseStyles = htmlDiv.getAttribute('style') || '';
-            // Get computed styles to preserve all important properties
-            const computedStyle = window.getComputedStyle(htmlDiv);
-            
-            // Extract non-color styles (preserve whiteSpace, lineHeight, fontFamily, etc.)
-            const nonColorStyles = baseStyles
-              .split(';')
-              .filter(s => {
-                const trimmed = s.trim().toLowerCase();
-                return !trimmed.startsWith('color') && 
-                       !trimmed.startsWith('background-color') &&
-                       !trimmed.startsWith('-webkit-text-fill-color');
-              })
-              .join(';');
-            
-            // Preserve critical styles from computed styles if not in inline styles
-            const whiteSpaceValue = htmlDiv.style.whiteSpace || computedStyle.whiteSpace || 'pre-wrap';
-            const lineHeightValue = htmlDiv.style.lineHeight || computedStyle.lineHeight;
-            const fontFamilyValue = htmlDiv.style.fontFamily || computedStyle.fontFamily;
-            const fontSizeValue = htmlDiv.style.fontSize || computedStyle.fontSize;
-            
-            // Build style string preserving all important properties
-            const preservedStyles = [
-              nonColorStyles,
-              `white-space: ${whiteSpaceValue}`,
-              lineHeightValue ? `line-height: ${lineHeightValue}` : '',
-              fontFamilyValue ? `font-family: ${fontFamilyValue}` : '',
-              fontSizeValue ? `font-size: ${fontSizeValue}` : '',
-              'color: #000000 !important',
-              '-webkit-text-fill-color: #000000 !important',
-              'background-color: transparent !important'
-            ].filter(s => s !== '').join('; ');
-            
-            htmlDiv.setAttribute('style', preservedStyles);
-            
-            // Also set via style object to ensure they're applied
-            htmlDiv.style.setProperty('white-space', whiteSpaceValue, 'important');
-            if (lineHeightValue) htmlDiv.style.setProperty('line-height', lineHeightValue, 'important');
-            if (fontFamilyValue) htmlDiv.style.setProperty('font-family', fontFamilyValue, 'important');
-            if (fontSizeValue) htmlDiv.style.setProperty('font-size', fontSizeValue, 'important');
-            
-            // Also set via style object
-            htmlDiv.style.setProperty('color', '#000000', 'important');
-            htmlDiv.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
-            htmlDiv.style.setProperty('background-color', 'transparent', 'important');
-            
-            // Force all nested elements to black
-            const nested = htmlDiv.querySelectorAll('*');
-            nested.forEach((nestedEl: Element) => {
-              const nestedHtml = nestedEl as HTMLElement;
-              nestedHtml.style.setProperty('color', '#000000', 'important');
-              nestedHtml.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
-            });
-            
-            // Also set on text nodes if possible
-            const walker = clonedDoc.createTreeWalker(htmlDiv, NodeFilter.SHOW_TEXT);
-            let textNode;
-            while (textNode = walker.nextNode()) {
-              const parent = textNode.parentElement;
-              if (parent) {
-                parent.style.setProperty('color', '#000000', 'important');
-                parent.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
-              }
-            }
-          });
-        });
-        
-        // Ensure all SVG text elements are black
-        const textElements = clonedDoc.querySelectorAll('text, tspan');
-        textElements.forEach((textEl: Element) => {
-          const svgText = textEl as SVGElement;
-          svgText.setAttribute('fill', '#000000');
-          svgText.setAttribute('color', '#000000');
-        });
       }
     });
     
     const imgData = canvas.toDataURL('image/png');
     
-    // Use the calculated mm dimensions for PDF
-    // Center the image on the page
-    const imgX = margin + (contentWidth - scaledWidthMM) / 2;
-    const imgY = margin + (contentHeight - scaledHeightMM) / 2;
-    
-    // Page 1: Visualization
-    pdf.addImage(imgData, 'PNG', imgX, imgY, scaledWidthMM, scaledHeightMM);
+    // Add image to PDF, centered horizontally
+    const xOffset = (pdfWidth - imageWidthMM) / 2;
+    pdf.addImage(imgData, 'PNG', xOffset, margin, imageWidthMM, imageHeightMM);
     
     // Page 2: Specification table
     pdf.addPage();
@@ -1655,8 +1257,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
       }
     }
     
-    // Clean up
-    document.body.removeChild(tempContainer);
+    // No cleanup needed - we're using the actual container, not a temp one
     
     // Save PDF
     pdf.save(`typography-layout-${Date.now()}.pdf`);
@@ -1667,10 +1268,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
       stack: error instanceof Error ? error.stack : undefined
     });
     
-    // Clean up any temporary containers
-    if (document.body.contains(tempContainer)) {
-      document.body.removeChild(tempContainer);
-    }
+    // No cleanup needed - we're using the actual container
     const tempTableContainer = document.querySelector('div[style*="-9999px"]');
     if (tempTableContainer && document.body.contains(tempTableContainer)) {
       document.body.removeChild(tempTableContainer);
