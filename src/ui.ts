@@ -1383,32 +1383,6 @@ async function exportVisualizationAsPDF(): Promise<void> {
       }
     });
   });
-          
-          // Also scale line height proportionally
-          const currentLineHeight = htmlDiv.style.lineHeight;
-          if (currentLineHeight) {
-            const lineHeightMatch = currentLineHeight.match(/([\d.]+)px/);
-            if (lineHeightMatch) {
-              const originalLineHeight = parseFloat(lineHeightMatch[1]);
-              const scaledLineHeight = originalLineHeight * fontScaleFactor;
-              htmlDiv.style.lineHeight = `${scaledLineHeight}px`;
-            }
-          }
-          
-          // Scale padding proportionally
-          const currentPadding = htmlDiv.style.padding;
-          if (currentPadding) {
-            const paddingMatch = currentPadding.match(/([\d.]+)px/);
-            if (paddingMatch) {
-              const originalPadding = parseFloat(paddingMatch[1]);
-              const scaledPadding = originalPadding * fontScaleFactor;
-              htmlDiv.style.padding = `${scaledPadding}px`;
-            }
-          }
-        }
-      }
-    });
-  });
   
   console.log('Font scaling summary:', {
     foreignObjectsFound: foreignObjectsToScale.length,
