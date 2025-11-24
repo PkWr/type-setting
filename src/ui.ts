@@ -653,7 +653,7 @@ function populatePaperSizeDropdown(): void {
 
   // Save current selection before clearing
   const currentValue = select.value;
-  
+
   // Add optgroups for each category
   categories.forEach((sizes, category) => {
     const optgroup = document.createElement('optgroup');
@@ -687,10 +687,10 @@ function populatePaperSizeDropdown(): void {
   } else if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
     select.value = currentValue;
   } else {
-    const defaultSize = getDefaultPaperSize();
-    if (defaultSize) {
-      select.value = defaultSize.name;
-      applyPaperSize(defaultSize.name);
+  const defaultSize = getDefaultPaperSize();
+  if (defaultSize) {
+    select.value = defaultSize.name;
+    applyPaperSize(defaultSize.name);
     }
   }
 }
@@ -1023,11 +1023,11 @@ function updateMarginInputs(): void {
       // Only sync if inner/outer margins have valid values (not empty/NaN)
       if (!isNaN(innerLeftVal) && !isNaN(innerRightVal) && innerMarginLeftInput.value !== '' && innerMarginRightInput.value !== '') {
         const avgInner = ((innerLeftVal + innerRightVal) / 2).toFixed(1);
-        leftMarginInput.value = avgInner;
+      leftMarginInput.value = avgInner;
       }
       if (!isNaN(outerLeftVal) && !isNaN(outerRightVal) && outerMarginLeftInput.value !== '' && outerMarginRightInput.value !== '') {
         const avgOuter = ((outerLeftVal + outerRightVal) / 2).toFixed(1);
-        rightMarginInput.value = avgOuter;
+      rightMarginInput.value = avgOuter;
       }
       leftMarginInput.dataset.synced = 'true';
       // Clear the other sync flag
@@ -1144,41 +1144,24 @@ async function exportVisualizationAsPDF(): Promise<void> {
     // Image is wider - fit by width
     imageWidthMM = contentWidth;
     imageHeightMM = contentWidth / imageAspectRatio;
-  } else {
+        } else {
     // Image is taller - fit by height
     imageHeightMM = contentHeight;
     imageWidthMM = contentHeight * imageAspectRatio;
   }
   
   try {
-    // Debug: Check what color the text actually is
-    const debugForeignObjects = container.querySelectorAll('foreignObject');
-    debugForeignObjects.forEach((fo: Element, index: number) => {
-      const divs = fo.querySelectorAll('div');
-      divs.forEach((div: Element) => {
-        const htmlDiv = div as HTMLElement;
-        const computed = window.getComputedStyle(htmlDiv);
-        console.log(`ForeignObject ${index} div color:`, {
-          inline: htmlDiv.style.color,
-          computed: computed.color,
-          backgroundColor: computed.backgroundColor,
-          webkitTextFillColor: (computed as any).webkitTextFillColor
-        });
-      });
-    });
-    
     // Convert preview container directly to canvas/image
-    // html2canvas should capture what's actually rendered
     const canvas = await html2canvas(container, {
       backgroundColor: '#ffffff',
       width: containerWidth,
       height: containerHeight,
       scale: 2,
-      logging: true, // Enable logging to debug
+      logging: false,
       useCORS: true,
       allowTaint: false,
       onclone: (clonedDoc: Document) => {
-        // Add global style to force black text
+        // Ensure all text is black in the cloned document
         const style = clonedDoc.createElement('style');
         style.textContent = `
           * {
@@ -1207,20 +1190,11 @@ async function exportVisualizationAsPDF(): Promise<void> {
           const allElements = fo.querySelectorAll('div, span, *');
           allElements.forEach((el: Element) => {
             const htmlEl = el as HTMLElement;
-            // Remove all color-related styles first
             htmlEl.style.removeProperty('color');
             htmlEl.style.removeProperty('-webkit-text-fill-color');
-            // Then set black
             htmlEl.style.setProperty('color', '#000000', 'important');
             htmlEl.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
             htmlEl.style.setProperty('background-color', 'transparent', 'important');
-            
-            // Debug: log what we're setting
-            console.log('Setting color on element:', {
-              tagName: htmlEl.tagName,
-              color: htmlEl.style.color,
-              computed: window.getComputedStyle(htmlEl).color
-            });
           });
         });
       }
@@ -1496,12 +1470,12 @@ function saveSettingsImmediate(): void {
           }
         }, 50);
       }
-    } catch (e) {
+  } catch (e) {
       // Handle quota exceeded or other errors
       if (e instanceof DOMException && e.name === 'QuotaExceededError') {
         console.error('localStorage quota exceeded - cannot save settings');
       } else {
-        console.error('Failed to save settings:', e);
+    console.error('Failed to save settings:', e);
       }
       // Try to clear old data and retry once
       try {
@@ -1605,8 +1579,8 @@ function loadSettings(): void {
     const facingPages = settings.facingPages !== undefined ? settings.facingPages : false;
     
     // Set sync flags FIRST before calling updateMarginInputs() to prevent overwriting
-    const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
-    const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+      const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+      const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
     const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
     const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
     const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
@@ -1632,11 +1606,11 @@ function loadSettings(): void {
       if (outerMarginRightInput) outerMarginRightInput.dataset.synced = 'loading';
     }
     
-    if (facingPagesCheckbox) {
+      if (facingPagesCheckbox) {
       facingPagesCheckbox.checked = facingPages;
-      // Update margin inputs visibility based on facing pages state
+        // Update margin inputs visibility based on facing pages state
       // Sync flags prevent updateMarginInputs() from overwriting values
-      updateMarginInputs();
+        updateMarginInputs();
     } else {
       // If no facing pages checkbox, ensure margin inputs are updated
       // Sync flags prevent updateMarginInputs() from overwriting values
@@ -1666,15 +1640,15 @@ function loadSettings(): void {
         if (innerMarginLeftInput) innerMarginLeftInput.value = String(settings.innerMarginLeft);
       }
       if (settings.innerMarginRight !== undefined && settings.innerMarginRight !== '') {
-        const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+            const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
         if (innerMarginRightInput) innerMarginRightInput.value = String(settings.innerMarginRight);
-      }
+          }
       if (settings.outerMarginLeft !== undefined && settings.outerMarginLeft !== '') {
-        const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+            const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
         if (outerMarginLeftInput) outerMarginLeftInput.value = String(settings.outerMarginLeft);
-      }
+          }
       if (settings.outerMarginRight !== undefined && settings.outerMarginRight !== '') {
-        const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+            const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
         if (outerMarginRightInput) outerMarginRightInput.value = String(settings.outerMarginRight);
       }
       // Clear sync flags after loading to allow manual updates
@@ -2264,8 +2238,8 @@ export function initializeCalculator(): void {
     addInputChangeListeners(inputId, {
       onBoth: () => {
         // Clear sync flags when user manually changes margins
-        const input = document.getElementById(inputId) as HTMLInputElement;
-        if (input) {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    if (input) {
           input.dataset.synced = '';
         }
         // Also clear related sync flags
@@ -2311,7 +2285,7 @@ export function initializeCalculator(): void {
     onBoth: () => {
       updateVisualizationOnInputChange();
       saveSettings();
-    }
+  }
   });
 
   // Handle layer visibility checkboxes
@@ -2321,7 +2295,7 @@ export function initializeCalculator(): void {
       onChange: () => {
         updateVisualizationOnInputChange();
         saveSettings();
-      }
+    }
     });
   });
 
@@ -2356,21 +2330,21 @@ export function initializeCalculator(): void {
   
   // Handle column span slider
   const columnSpanSlider = document.getElementById('columnSpanSlider') as HTMLInputElement;
-  const columnSpanValue = document.getElementById('columnSpanValue');
+    const columnSpanValue = document.getElementById('columnSpanValue');
   if (columnSpanSlider) {
     addInputChangeListeners('columnSpanSlider', {
       onInput: () => {
-        if (columnSpanValue) {
-          columnSpanValue.textContent = columnSpanSlider.value;
-        }
-        updateTextStartSlider();
-        updateVisualizationOnInputChange();
-        saveSettings();
+      if (columnSpanValue) {
+        columnSpanValue.textContent = columnSpanSlider.value;
+      }
+      updateTextStartSlider();
+      updateVisualizationOnInputChange();
+      saveSettings();
       },
       onChange: () => {
-        updateTextStartSlider();
-        updateVisualizationOnInputChange();
-        saveSettings();
+      updateTextStartSlider();
+      updateVisualizationOnInputChange();
+      saveSettings();
       }
     });
   }
@@ -2380,15 +2354,15 @@ export function initializeCalculator(): void {
   
   // Handle text start slider
   const textStartSlider = document.getElementById('textStartSlider') as HTMLInputElement;
-  const textStartValue = document.getElementById('textStartValue');
+    const textStartValue = document.getElementById('textStartValue');
   if (textStartSlider) {
     addInputChangeListeners('textStartSlider', {
       onBoth: () => {
-        if (textStartValue) {
-          textStartValue.textContent = textStartSlider.value;
-        }
-        updateVisualizationOnInputChange();
-        saveSettings();
+      if (textStartValue) {
+        textStartValue.textContent = textStartSlider.value;
+      }
+      updateVisualizationOnInputChange();
+      saveSettings();
       }
     });
   }
@@ -2424,23 +2398,23 @@ export function initializeCalculator(): void {
   if (typeSizeInput) {
     addInputChangeListeners('typeSize', {
       onInput: () => {
-        suggestGutter();
-        // Auto-update leading to type size + 2 if leading is empty
-        if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
-          const newTypeSize = parseFloat(typeSizeInput.value);
-          leadingInput.value = (newTypeSize + 2).toFixed(1);
-        }
-        updateColumnWidthDisplay();
-        updateWordsPerLine();
-        updateMarginLabels();
-        updateVisualizationOnInputChange();
+      suggestGutter();
+      // Auto-update leading to type size + 2 if leading is empty
+      if (leadingInput && (!leadingInput.value || leadingInput.value === '')) {
+        const newTypeSize = parseFloat(typeSizeInput.value);
+        leadingInput.value = (newTypeSize + 2).toFixed(1);
+      }
+      updateColumnWidthDisplay();
+      updateWordsPerLine();
+      updateMarginLabels();
+      updateVisualizationOnInputChange();
         saveSettings(true); // Save immediately for type size
       },
       onChange: () => {
-        updateColumnWidthDisplay();
-        updateWordsPerLine();
-        updateMarginLabels();
-        updateVisualizationOnInputChange();
+      updateColumnWidthDisplay();
+      updateWordsPerLine();
+      updateMarginLabels();
+      updateVisualizationOnInputChange();
         saveSettings(true); // Save immediately for type size
       }
     });
@@ -2480,9 +2454,9 @@ export function initializeCalculator(): void {
   }
   
   // Handle custom page width/height inputs
-  const updateCustomSize = () => {
-    if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
-    updateVisualizationOnInputChange();
+    const updateCustomSize = () => {
+      if (paperSizeSelect) paperSizeSelect.value = ''; // Set to custom if dimensions are changed manually
+      updateVisualizationOnInputChange();
     saveSettings(true); // Save immediately for page dimensions
   };
   addInputChangeListeners('pageWidth', { onBoth: updateCustomSize });
@@ -2514,7 +2488,7 @@ export function initializeCalculator(): void {
     onChange: () => {
       updateVisualizationOnInputChange();
       saveSettings();
-    }
+  }
   });
 
   // Handle hyphenation checkbox
