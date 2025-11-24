@@ -529,30 +529,11 @@ function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
 function updateVisualizationOnInputChange(): void {
   try {
     const inputs = getFormInputs();
-    console.log('Updating visualization with inputs:', {
-      leftMargin: inputs.leftMargin,
-      rightMargin: inputs.rightMargin,
-      topMargin: inputs.topMargin,
-      bottomMargin: inputs.bottomMargin,
-      pageWidth: inputs.pageWidth,
-      pageHeight: inputs.pageHeight,
-      numCols: inputs.numCols,
-      gutterWidth: inputs.gutterWidth,
-      typeSize: inputs.typeSize
-    });
-    console.log('Raw form values:', {
-      leftMarginInput: (document.getElementById('leftMargin') as HTMLInputElement)?.value,
-      rightMarginInput: (document.getElementById('rightMargin') as HTMLInputElement)?.value,
-      topMarginInput: (document.getElementById('topMargin') as HTMLInputElement)?.value,
-      bottomMarginInput: (document.getElementById('bottomMargin') as HTMLInputElement)?.value,
-      marginUnit: (document.getElementById('marginUnitToggle') as HTMLInputElement)?.checked ? 'em' : 'mm'
-    });
     const results = calculateLayout(inputs);
     updateVisualization(inputs);
     updateWordsPerLine();
     updateColumnWidthDisplay();
     updateSpecification();
-    console.log('Visualization update completed');
   } catch (e) {
     // Log error for debugging
     console.error('Error updating visualization:', e);
@@ -1308,17 +1289,6 @@ async function exportVisualizationAsPDF(): Promise<void> {
   // Fonts need to scale by: scaledWidthPx / previewRenderedWidth
   // This ensures fonts scale proportionally with the SVG
   const fontScaleFactor = previewRenderedWidth > 0 ? scaledWidthPx / previewRenderedWidth : scale;
-  
-  // Debug logging (can be removed later)
-  console.log('PDF Export Scaling:', {
-    svgViewBoxWidth: svgWidth,
-    svgViewBoxHeight: svgHeight,
-    previewRenderedWidth,
-    scaledWidthPx,
-    scaledWidthMM,
-    fontScaleFactor,
-    scale
-  });
   
   // Scale font sizes in all foreignObjects to match SVG scaling
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
@@ -2526,7 +2496,6 @@ export function initializeCalculator(): void {
         }
         
         // Debug logging
-        console.log(`Margin changed: ${inputId} = ${input?.value}`);
         
         updateMarginLabels();
         updateVisualizationOnInputChange();
