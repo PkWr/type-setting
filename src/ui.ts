@@ -667,8 +667,24 @@ function populatePaperSizeDropdown(): void {
     select.appendChild(optgroup);
   });
 
-  // Restore saved value if it exists, otherwise set default to A4
-  if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+  // Check for saved paper size in localStorage
+  const savedSettings = localStorage.getItem('compositorSettings');
+  let savedPaperSize: string | null = null;
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings);
+      if (settings.paperSizeSelect !== undefined && settings.paperSizeSelect !== '') {
+        savedPaperSize = settings.paperSizeSelect;
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+  
+  // Restore saved value if it exists and is valid, otherwise restore current value, otherwise set default
+  if (savedPaperSize && select.querySelector(`option[value="${savedPaperSize}"]`)) {
+    select.value = savedPaperSize;
+  } else if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
     select.value = currentValue;
   } else {
     const defaultSize = getDefaultPaperSize();
