@@ -1292,25 +1292,33 @@ async function exportVisualizationAsPDF(): Promise<void> {
   // Font sizes are set in CSS pixels, which don't automatically scale with SVG viewBox
   // 
   // The SVG viewBox is in mm (svgWidth x svgHeight)
-  // In the preview: SVG is rendered at container size
+  // In the preview: SVG is rendered at actual rendered size (measured from DOM)
   // In PDF: SVG is rendered at scaledWidthPx width (calculated from mm)
   //
   // To maintain proportional font sizes, we need to scale fonts by the same factor
   // that the SVG dimensions are being scaled
   //
-  // Measure the actual rendered SVG width in the preview
+  // Measure the actual rendered SVG width in the preview (this is the key!)
   const actualSvgRect = svg.getBoundingClientRect();
   const previewRenderedWidth = actualSvgRect.width;
   
-  // Also get the container width to calculate the preview scale
-  const containerRect = container.getBoundingClientRect();
-  const containerWidth = containerRect.width;
-  
   // Calculate font scale factor:
-  // Preview renders SVG at containerWidth, PDF renders at scaledWidthPx
-  // Fonts need to scale by: scaledWidthPx / containerWidth
+  // Preview renders SVG at previewRenderedWidth (actual rendered pixels)
+  // PDF renders SVG at scaledWidthPx (calculated pixels)
+  // Fonts need to scale by: scaledWidthPx / previewRenderedWidth
   // This ensures fonts scale proportionally with the SVG
-  const fontScaleFactor = containerWidth > 0 ? scaledWidthPx / containerWidth : scale;
+  const fontScaleFactor = previewRenderedWidth > 0 ? scaledWidthPx / previewRenderedWidth : scale;
+  
+  // Debug logging (can be removed later)
+  console.log('PDF Export Scaling:', {
+    svgViewBoxWidth: svgWidth,
+    svgViewBoxHeight: svgHeight,
+    previewRenderedWidth,
+    scaledWidthPx,
+    scaledWidthMM,
+    fontScaleFactor,
+    scale
+  });
   
   // Scale font sizes in all foreignObjects to match SVG scaling
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
