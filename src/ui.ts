@@ -1314,10 +1314,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
   
   // Scale font sizes in all foreignObjects to match SVG scaling
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
+  console.log('Found foreignObjects:', foreignObjectsToScale.length);
   let fontScalingApplied = false;
+  let totalDivs = 0;
+  let scaledDivs = 0;
   foreignObjectsToScale.forEach((fo: Element) => {
     const foreignObj = fo as SVGForeignObjectElement;
     const divs = foreignObj.querySelectorAll('div');
+    totalDivs += divs.length;
     divs.forEach((div: Element) => {
       const htmlDiv = div as HTMLElement;
       const currentFontSize = htmlDiv.style.fontSize;
@@ -1327,11 +1331,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
           const originalFontSize = parseFloat(fontSizeMatch[1]);
           const scaledFontSize = originalFontSize * fontScaleFactor;
           htmlDiv.style.fontSize = `${scaledFontSize}px`;
+          scaledDivs++;
           if (!fontScalingApplied) {
             console.log('Font scaling applied:', {
               originalFontSize,
               scaledFontSize,
-              fontScaleFactor
+              fontScaleFactor,
+              totalDivs,
+              scaledDivs
             });
             fontScalingApplied = true;
           }
@@ -1360,6 +1367,13 @@ async function exportVisualizationAsPDF(): Promise<void> {
         }
       }
     });
+  });
+  
+  console.log('Font scaling summary:', {
+    foreignObjectsFound: foreignObjectsToScale.length,
+    totalDivs,
+    scaledDivs,
+    fontScaleFactor
   });
   
   // Set SVG size to match container
