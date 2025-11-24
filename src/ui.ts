@@ -1476,7 +1476,7 @@ async function exportVisualizationAsPDF(): Promise<void> {
             const htmlDiv = div as HTMLElement;
             // Completely replace style attribute to force black
             const baseStyles = htmlDiv.getAttribute('style') || '';
-            // Extract non-color styles (preserve whiteSpace for line breaks)
+            // Extract non-color styles (preserve whiteSpace and lineHeight)
             const nonColorStyles = baseStyles
               .split(';')
               .filter(s => {
@@ -1491,12 +1491,22 @@ async function exportVisualizationAsPDF(): Promise<void> {
             const hasWhiteSpace = baseStyles.toLowerCase().includes('white-space');
             const whiteSpaceStyle = hasWhiteSpace ? '' : 'white-space: pre-wrap;';
             
-            // Set new style with black text, preserving whiteSpace
-            htmlDiv.setAttribute('style', `${nonColorStyles}; ${whiteSpaceStyle} color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, '').replace(/;+/g, ';'));
+            // Ensure lineHeight is preserved (for leading)
+            const hasLineHeight = baseStyles.toLowerCase().includes('line-height');
+            const lineHeightValue = htmlDiv.style.lineHeight || window.getComputedStyle(htmlDiv).lineHeight;
+            const lineHeightStyle = hasLineHeight ? '' : (lineHeightValue ? `line-height: ${lineHeightValue};` : '');
+            
+            // Set new style with black text, preserving whiteSpace and lineHeight
+            htmlDiv.setAttribute('style', `${nonColorStyles}; ${whiteSpaceStyle} ${lineHeightStyle} color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, '').replace(/;+/g, ';'));
             
             // Ensure whiteSpace is set via style object too
             if (!htmlDiv.style.whiteSpace || htmlDiv.style.whiteSpace === '') {
               htmlDiv.style.whiteSpace = 'pre-wrap';
+            }
+            
+            // Ensure lineHeight is set via style object too
+            if (lineHeightValue && (!htmlDiv.style.lineHeight || htmlDiv.style.lineHeight === '')) {
+              htmlDiv.style.lineHeight = lineHeightValue;
             }
             
             // Also set via style object
