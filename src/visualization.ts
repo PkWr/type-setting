@@ -387,19 +387,20 @@ function drawPage(
         textGroup.appendChild(textBgRect);
         
         if (showRivers) {
-          // Rivers visualization: wrap each word in a span with black background
-          // This creates white gaps (rivers) between words
+          // Rivers visualization: wrap each word in a span with white background
+          // This matches ragged edge style - white text on black background
+          // Spaces show as black gaps (rivers) between words
           const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
           words.forEach(word => {
             if (word.trim().length > 0) {
-              // It's a word - wrap in span with black background
+              // It's a word - wrap in span with white background
               const span = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-              span.style.backgroundColor = '#000000';
-              span.style.color = '#ffffff';
+              span.style.backgroundColor = '#ffffff';
+              span.style.color = '#000000';
               span.textContent = word;
               textDiv.appendChild(span);
             } else {
-              // It's whitespace - add as text node (will show as white gap)
+              // It's whitespace - add as text node (will show as black gap/river)
               textDiv.appendChild(document.createTextNode(word));
             }
           });
