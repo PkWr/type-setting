@@ -985,11 +985,20 @@ function updateMarginInputs(): void {
     if (facingPagesMargins) facingPagesMargins.style.display = 'grid';
     
     // Sync values: mirror leftMargin/rightMargin to inner/outer (only if not already synced)
+    // Also check that left/right margins actually have values before syncing
     if (leftMarginInput && innerMarginLeftInput && !innerMarginLeftInput.dataset.synced) {
-      innerMarginLeftInput.value = leftMarginInput.value;
-      innerMarginRightInput.value = leftMarginInput.value;
-      outerMarginLeftInput.value = rightMarginInput.value;
-      outerMarginRightInput.value = rightMarginInput.value;
+      const leftVal = leftMarginInput.value;
+      const rightVal = rightMarginInput.value;
+      
+      // Only sync if left/right margins have valid values (not empty)
+      if (leftVal !== '' && !isNaN(parseFloat(leftVal))) {
+        innerMarginLeftInput.value = leftVal;
+        innerMarginRightInput.value = leftVal;
+      }
+      if (rightVal !== '' && !isNaN(parseFloat(rightVal))) {
+        outerMarginLeftInput.value = rightVal;
+        outerMarginRightInput.value = rightVal;
+      }
       innerMarginLeftInput.dataset.synced = 'true';
       // Clear the other sync flag
       if (leftMarginInput.dataset.synced) leftMarginInput.dataset.synced = '';
@@ -1835,8 +1844,14 @@ function loadSettings(): void {
     const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
     
     if (facingPages) {
-      // In facing pages mode, set sync flag on inner margins to prevent overwriting
+      // In facing pages mode, set sync flags on ALL margins to prevent overwriting
+      // This prevents old left/right values from syncing to inner/outer
       if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = 'loading';
+      if (innerMarginRightInput) innerMarginRightInput.dataset.synced = 'loading';
+      if (outerMarginLeftInput) outerMarginLeftInput.dataset.synced = 'loading';
+      if (outerMarginRightInput) outerMarginRightInput.dataset.synced = 'loading';
+      if (leftMarginInput) leftMarginInput.dataset.synced = 'loading';
+      if (rightMarginInput) rightMarginInput.dataset.synced = 'loading';
     } else {
       // In single page mode, set sync flags on BOTH left/right AND inner/outer to prevent sync
       // This prevents old inner/outer values from overwriting loaded left/right values
@@ -1871,7 +1886,13 @@ function loadSettings(): void {
     }
     
     if (facingPages) {
-      // Load facing pages margins - only if value exists and is not empty
+      // Load facing pages margins
+      // IMPORTANT: Clear left/right margin values first to prevent them from syncing to inner/outer
+      // These might have old values from a previous single page session
+      if (leftMarginInput) leftMarginInput.value = '';
+      if (rightMarginInput) rightMarginInput.value = '';
+      
+      // Now load the saved inner/outer margin values - only if value exists and is not empty
       if (settings.innerMarginLeft !== undefined && settings.innerMarginLeft !== '') {
         if (innerMarginLeftInput) innerMarginLeftInput.value = String(settings.innerMarginLeft);
       }
@@ -1887,8 +1908,13 @@ function loadSettings(): void {
         const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
         if (outerMarginRightInput) outerMarginRightInput.value = String(settings.outerMarginRight);
       }
-      // Clear sync flag after loading
+      // Clear sync flags after loading to allow manual updates
       if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
+      if (innerMarginRightInput) innerMarginRightInput.dataset.synced = '';
+      if (outerMarginLeftInput) outerMarginLeftInput.dataset.synced = '';
+      if (outerMarginRightInput) outerMarginRightInput.dataset.synced = '';
+      if (leftMarginInput) leftMarginInput.dataset.synced = '';
+      if (rightMarginInput) rightMarginInput.dataset.synced = '';
     } else {
       // Load single page margins - only if value exists and is not empty
       // IMPORTANT: Clear inner/outer margin values first to prevent them from syncing to left/right
