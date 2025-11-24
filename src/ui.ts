@@ -1824,6 +1824,18 @@ function loadSettings(): void {
       if (leftMarginInput) leftMarginInput.dataset.synced = '';
     }
     
+    // Ensure all sync flags are cleared after loading to allow manual updates
+    const allMarginInputs = [
+      'topMargin', 'bottomMargin', 'leftMargin', 'rightMargin',
+      'innerMarginLeft', 'innerMarginRight', 'outerMarginLeft', 'outerMarginRight'
+    ];
+    allMarginInputs.forEach(id => {
+      const input = document.getElementById(id) as HTMLInputElement;
+      if (input && input.dataset.synced === 'loading') {
+        input.dataset.synced = '';
+      }
+    });
+    
     // Columns
     if (settings.numCols) {
       const numColsInput = document.getElementById('numCols') as HTMLInputElement;
@@ -2349,6 +2361,21 @@ export function initializeCalculator(): void {
   marginInputs.forEach(inputId => {
     addInputChangeListeners(inputId, {
       onBoth: () => {
+        // Clear sync flags when user manually changes margins
+        const input = document.getElementById(inputId) as HTMLInputElement;
+        if (input) {
+          input.dataset.synced = '';
+        }
+        // Also clear related sync flags
+        if (inputId === 'leftMargin' || inputId === 'rightMargin') {
+          const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+          if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
+        }
+        if (inputId.startsWith('inner') || inputId.startsWith('outer')) {
+          const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+          if (leftMarginInput) leftMarginInput.dataset.synced = '';
+        }
+        
         updateMarginLabels();
         updateVisualizationOnInputChange();
         saveSettings(true); // Save immediately for margins
