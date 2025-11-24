@@ -86,7 +86,7 @@ function drawRaggedEdge(textDiv: HTMLDivElement, textGroup: SVGForeignObjectElem
   const existingGroups = svg.querySelectorAll(`.ragged-edge-group[data-text-group-id="${textGroupId}"]`);
   existingGroups.forEach(group => group.remove());
   
-  // Create a group for ragged edge/rivers
+  // Create a group for ragged edge
   const raggedGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   raggedGroup.setAttribute('class', 'ragged-edge-group');
   raggedGroup.setAttribute('data-text-group-id', textGroupId);
