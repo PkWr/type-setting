@@ -1313,44 +1313,76 @@ async function exportVisualizationAsPDF(): Promise<void> {
   });
   
   // Scale font sizes in all foreignObjects to match SVG scaling
+  // First, get font sizes from the original SVG before cloning
+  const originalForeignObjects = svg.querySelectorAll('foreignObject');
+  const originalFontSizes: Map<Element, { fontSize: number; lineHeight: number; padding: number }> = new Map();
+  
+  originalForeignObjects.forEach((fo: Element) => {
+    const foreignObj = fo as SVGForeignObjectElement;
+    const divs = foreignObj.querySelectorAll('div');
+    divs.forEach((div: Element) => {
+      const htmlDiv = div as HTMLElement;
+      const computedStyle = window.getComputedStyle(htmlDiv);
+      const fontSize = parseFloat(computedStyle.fontSize) || 0;
+      const lineHeight = parseFloat(computedStyle.lineHeight) || 0;
+      const padding = parseFloat(computedStyle.padding) || 0;
+      if (fontSize > 0) {
+        originalFontSizes.set(div, { fontSize, lineHeight, padding });
+      }
+    });
+  });
+  
+  console.log('Found original font sizes:', originalFontSizes.size);
+  
+  // Now scale fonts in the cloned SVG
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
   console.log('Found foreignObjects:', foreignObjectsToScale.length);
   let fontScalingApplied = false;
   let totalDivs = 0;
   let scaledDivs = 0;
-  foreignObjectsToScale.forEach((fo: Element) => {
+  
+  // Match cloned divs with original divs by index
+  let originalIndex = 0;
+  foreignObjectsToScale.forEach((fo: Element, foIndex: number) => {
     const foreignObj = fo as SVGForeignObjectElement;
     const divs = foreignObj.querySelectorAll('div');
     totalDivs += divs.length;
-    divs.forEach((div: Element) => {
+    divs.forEach((div: Element, divIndex: number) => {
       const htmlDiv = div as HTMLElement;
-      // Try inline style first, then computed style
-      let currentFontSize = htmlDiv.style.fontSize;
-      if (!currentFontSize || currentFontSize === '') {
-        // If no inline style, get computed style
-        const computedStyle = window.getComputedStyle(htmlDiv);
-        currentFontSize = computedStyle.fontSize;
-      }
       
-      if (currentFontSize) {
-        const fontSizeMatch = currentFontSize.match(/([\d.]+)px/);
-        if (fontSizeMatch) {
-          const originalFontSize = parseFloat(fontSizeMatch[1]);
-          const scaledFontSize = originalFontSize * fontScaleFactor;
-          htmlDiv.style.fontSize = `${scaledFontSize}px`;
-          scaledDivs++;
-          if (!fontScalingApplied) {
-            console.log('Font scaling applied:', {
-              originalFontSize,
-              scaledFontSize,
-              fontScaleFactor,
-              currentFontSize,
-              inlineStyle: htmlDiv.style.fontSize,
-              totalDivs,
-              scaledDivs
-            });
-            fontScalingApplied = true;
-          }
+      // Find corresponding original div
+      const originalDivs = originalForeignObjects[foIndex]?.querySelectorAll('div');
+      const originalDiv = originalDivs?.[divIndex];
+      const originalSizes = originalDiv ? originalFontSizes.get(originalDiv) : null;
+      
+      if (originalSizes && originalSizes.fontSize > 0) {
+        const scaledFontSize = originalSizes.fontSize * fontScaleFactor;
+        htmlDiv.style.fontSize = `${scaledFontSize}px`;
+        
+        if (originalSizes.lineHeight > 0) {
+          const scaledLineHeight = originalSizes.lineHeight * fontScaleFactor;
+          htmlDiv.style.lineHeight = `${scaledLineHeight}px`;
+        }
+        
+        if (originalSizes.padding > 0) {
+          const scaledPadding = originalSizes.padding * fontScaleFactor;
+          htmlDiv.style.padding = `${scaledPadding}px`;
+        }
+        
+        scaledDivs++;
+        if (!fontScalingApplied) {
+          console.log('Font scaling applied:', {
+            originalFontSize: originalSizes.fontSize,
+            scaledFontSize,
+            fontScaleFactor,
+            totalDivs,
+            scaledDivs
+          });
+          fontScalingApplied = true;
+        }
+      }
+    });
+  });
           
           // Also scale line height proportionally
           const currentLineHeight = htmlDiv.style.lineHeight;
