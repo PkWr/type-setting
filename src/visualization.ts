@@ -397,8 +397,8 @@ function drawPage(
             }
           });
         } else if (showRaggedEdge) {
-          // Ragged edge visualization: wrap each word AND spaces in spans with white background
-          // This creates black gaps (ragged edge) only where text doesn't reach the right edge
+          // Ragged edge visualization: wrap each word in a span with white background
+          // This creates black gaps (ragged edge) where text doesn't reach
           const words = sampleText.split(/(\s+)/); // Split on spaces but keep them
           words.forEach(word => {
             if (word.trim().length > 0) {
@@ -409,12 +409,8 @@ function drawPage(
               span.textContent = word;
               textDiv.appendChild(span);
             } else {
-              // It's whitespace - also wrap in span with white background
-              const spaceSpan = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-              spaceSpan.style.backgroundColor = '#ffffff';
-              spaceSpan.style.color = '#000000';
-              spaceSpan.textContent = word;
-              textDiv.appendChild(spaceSpan);
+              // It's whitespace - add as text node (will show as black gap)
+              textDiv.appendChild(document.createTextNode(word));
             }
           });
         } else {
