@@ -535,7 +535,21 @@ function updateVisualizationOnInputChange(): void {
     updateColumnWidthDisplay();
     updateSpecification();
   } catch (e) {
-    // Silently fail if inputs are invalid
+    // Log error for debugging
+    console.error('Error updating visualization:', e);
+    if (e instanceof Error) {
+      console.error('Error message:', e.message);
+      console.error('Error stack:', e.stack);
+    }
+    console.error('Input values:', {
+      topMargin: (document.getElementById('topMargin') as HTMLInputElement)?.value,
+      bottomMargin: (document.getElementById('bottomMargin') as HTMLInputElement)?.value,
+      leftMargin: (document.getElementById('leftMargin') as HTMLInputElement)?.value,
+      rightMargin: (document.getElementById('rightMargin') as HTMLInputElement)?.value,
+      typeSize: (document.getElementById('typeSize') as HTMLInputElement)?.value,
+      pageWidth: (document.getElementById('pageWidth') as HTMLInputElement)?.value,
+      pageHeight: (document.getElementById('pageHeight') as HTMLInputElement)?.value,
+    });
   }
 }
 
@@ -1547,6 +1561,16 @@ function saveSettingsImmediate(): void {
       return;
     }
     
+    // Test if localStorage is actually accessible (Safari Tracking Prevention)
+    try {
+      localStorage.setItem('__test__', 'test');
+      localStorage.removeItem('__test__');
+    } catch (testError) {
+      // localStorage is blocked (e.g., Safari Tracking Prevention)
+      console.warn('localStorage access blocked by browser - settings will not persist');
+      return;
+    }
+    
     const settings: Record<string, string | boolean | number | number[]> = {};
     
     // Page dimensions
@@ -1692,6 +1716,16 @@ function loadSettings(): void {
     // Check if localStorage is available
     if (typeof Storage === 'undefined' || !localStorage) {
       console.warn('localStorage is not available - using defaults');
+      return;
+    }
+    
+    // Test if localStorage is actually accessible (Safari Tracking Prevention)
+    try {
+      localStorage.setItem('__test__', 'test');
+      localStorage.removeItem('__test__');
+    } catch (testError) {
+      // localStorage is blocked (e.g., Safari Tracking Prevention)
+      console.warn('localStorage access blocked by browser - using defaults');
       return;
     }
     
@@ -2375,6 +2409,9 @@ export function initializeCalculator(): void {
           const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
           if (leftMarginInput) leftMarginInput.dataset.synced = '';
         }
+        
+        // Debug logging
+        console.log(`Margin changed: ${inputId} = ${input?.value}`);
         
         updateMarginLabels();
         updateVisualizationOnInputChange();
