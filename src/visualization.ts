@@ -350,7 +350,17 @@ function drawPage(
         // Use selected font family or default to serif
         const fontFamily = inputs.fontFamily || 'serif';
         textDiv.style.fontFamily = fontFamily === 'serif' ? 'serif' : fontFamily === 'sans-serif' ? 'sans-serif' : fontFamily === 'monospace' ? 'monospace' : `'${fontFamily}', serif`;
-        textDiv.style.color = '#000000';
+        
+        // Rivers visualization: black background with white text when rivers checkbox is checked and text is justified
+        // This shows rivers as white gaps in the black background
+        const showRivers = layerVisibility.raggedEdge && inputs.justifyText;
+        if (showRivers) {
+          textDiv.style.backgroundColor = '#000000';
+          textDiv.style.color = '#ffffff';
+        } else {
+          textDiv.style.color = '#000000';
+        }
+        
         textDiv.style.width = '100%';
         textDiv.style.height = '100%';
         textDiv.style.padding = `${padding}px`;
