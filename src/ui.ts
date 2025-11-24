@@ -1817,13 +1817,24 @@ function loadSettings(): void {
     
     // Set sync flags FIRST before calling updateMarginInputs() to prevent overwriting
     const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+    const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
     const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+    const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+    const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+    const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+    
     if (facingPages) {
       // In facing pages mode, set sync flag on inner margins to prevent overwriting
       if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = 'loading';
     } else {
-      // In single page mode, set sync flag on left/right margins to prevent overwriting
+      // In single page mode, set sync flags on BOTH left/right AND inner/outer to prevent sync
+      // This prevents old inner/outer values from overwriting loaded left/right values
       if (leftMarginInput) leftMarginInput.dataset.synced = 'loading';
+      if (rightMarginInput) rightMarginInput.dataset.synced = 'loading';
+      if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = 'loading';
+      if (innerMarginRightInput) innerMarginRightInput.dataset.synced = 'loading';
+      if (outerMarginLeftInput) outerMarginLeftInput.dataset.synced = 'loading';
+      if (outerMarginRightInput) outerMarginRightInput.dataset.synced = 'loading';
     }
     
     if (facingPagesCheckbox) {
@@ -1876,8 +1887,14 @@ function loadSettings(): void {
         const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
         if (rightMarginInput) rightMarginInput.value = String(settings.rightMargin);
       }
-      // Clear sync flag after loading
+      // Clear sync flags after loading to allow manual updates
       if (leftMarginInput) leftMarginInput.dataset.synced = '';
+      if (rightMarginInput) rightMarginInput.dataset.synced = '';
+      // Also clear inner/outer sync flags since we set them to prevent sync
+      if (innerMarginLeftInput) innerMarginLeftInput.dataset.synced = '';
+      if (innerMarginRightInput) innerMarginRightInput.dataset.synced = '';
+      if (outerMarginLeftInput) outerMarginLeftInput.dataset.synced = '';
+      if (outerMarginRightInput) outerMarginRightInput.dataset.synced = '';
     }
     
     // Ensure all sync flags are cleared after loading to allow manual updates
