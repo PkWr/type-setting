@@ -1476,7 +1476,10 @@ async function exportVisualizationAsPDF(): Promise<void> {
             const htmlDiv = div as HTMLElement;
             // Completely replace style attribute to force black
             const baseStyles = htmlDiv.getAttribute('style') || '';
-            // Extract non-color styles (preserve whiteSpace and lineHeight)
+            // Get computed styles to preserve all important properties
+            const computedStyle = window.getComputedStyle(htmlDiv);
+            
+            // Extract non-color styles (preserve whiteSpace, lineHeight, fontFamily, etc.)
             const nonColorStyles = baseStyles
               .split(';')
               .filter(s => {
@@ -1487,27 +1490,31 @@ async function exportVisualizationAsPDF(): Promise<void> {
               })
               .join(';');
             
-            // Ensure whiteSpace is preserved (for line breaks)
-            const hasWhiteSpace = baseStyles.toLowerCase().includes('white-space');
-            const whiteSpaceStyle = hasWhiteSpace ? '' : 'white-space: pre-wrap;';
+            // Preserve critical styles from computed styles if not in inline styles
+            const whiteSpaceValue = htmlDiv.style.whiteSpace || computedStyle.whiteSpace || 'pre-wrap';
+            const lineHeightValue = htmlDiv.style.lineHeight || computedStyle.lineHeight;
+            const fontFamilyValue = htmlDiv.style.fontFamily || computedStyle.fontFamily;
+            const fontSizeValue = htmlDiv.style.fontSize || computedStyle.fontSize;
             
-            // Ensure lineHeight is preserved (for leading)
-            const hasLineHeight = baseStyles.toLowerCase().includes('line-height');
-            const lineHeightValue = htmlDiv.style.lineHeight || window.getComputedStyle(htmlDiv).lineHeight;
-            const lineHeightStyle = hasLineHeight ? '' : (lineHeightValue ? `line-height: ${lineHeightValue};` : '');
+            // Build style string preserving all important properties
+            const preservedStyles = [
+              nonColorStyles,
+              `white-space: ${whiteSpaceValue}`,
+              lineHeightValue ? `line-height: ${lineHeightValue}` : '',
+              fontFamilyValue ? `font-family: ${fontFamilyValue}` : '',
+              fontSizeValue ? `font-size: ${fontSizeValue}` : '',
+              'color: #000000 !important',
+              '-webkit-text-fill-color: #000000 !important',
+              'background-color: transparent !important'
+            ].filter(s => s !== '').join('; ');
             
-            // Set new style with black text, preserving whiteSpace and lineHeight
-            htmlDiv.setAttribute('style', `${nonColorStyles}; ${whiteSpaceStyle} ${lineHeightStyle} color: #000000 !important; -webkit-text-fill-color: #000000 !important; background-color: transparent !important;`.replace(/^;+/, '').replace(/;+/g, ';'));
+            htmlDiv.setAttribute('style', preservedStyles);
             
-            // Ensure whiteSpace is set via style object too
-            if (!htmlDiv.style.whiteSpace || htmlDiv.style.whiteSpace === '') {
-              htmlDiv.style.whiteSpace = 'pre-wrap';
-            }
-            
-            // Ensure lineHeight is set via style object too
-            if (lineHeightValue && (!htmlDiv.style.lineHeight || htmlDiv.style.lineHeight === '')) {
-              htmlDiv.style.lineHeight = lineHeightValue;
-            }
+            // Also set via style object to ensure they're applied
+            htmlDiv.style.setProperty('white-space', whiteSpaceValue, 'important');
+            if (lineHeightValue) htmlDiv.style.setProperty('line-height', lineHeightValue, 'important');
+            if (fontFamilyValue) htmlDiv.style.setProperty('font-family', fontFamilyValue, 'important');
+            if (fontSizeValue) htmlDiv.style.setProperty('font-size', fontSizeValue, 'important');
             
             // Also set via style object
             htmlDiv.style.setProperty('color', '#000000', 'important');
