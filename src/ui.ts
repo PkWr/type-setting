@@ -364,9 +364,9 @@ function updateSpecification(): void {
     
     let html = '<table class="spec-table">';
     
-    // Page dimensions
-    html += `<tr><td class="spec-label">Size:</td><td class="spec-value">${pageSizeLabel}</td></tr>`;
-    html += `<tr><td class="spec-label">Dimensions:</td><td class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</td></tr>`;
+    // Page Setup
+    html += `<tr><td class="spec-label">Page size:</td><td class="spec-value">${pageSizeLabel}</td></tr>`;
+    html += `<tr><td class="spec-label">Page dimensions:</td><td class="spec-value">${inputs.pageWidth} × ${inputs.pageHeight} mm</td></tr>`;
     html += `<tr><td class="spec-label">Orientation:</td><td class="spec-value">${orientation}</td></tr>`;
     html += `<tr><td class="spec-label">Facing pages:</td><td class="spec-value">${facingPages ? 'Yes' : 'No'}</td></tr>`;
     
@@ -396,24 +396,26 @@ function updateSpecification(): void {
       const leftMarginMM = inputs.leftMargin;
       const rightMarginMM = inputs.rightMargin;
       
-      html += `<tr><td class="spec-label">Left:</td><td class="spec-value">${formatMarginValue(leftMarginMM, marginUnit)}</td></tr>`;
-      html += `<tr><td class="spec-label">Right:</td><td class="spec-value">${formatMarginValue(rightMarginMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Left margin:</td><td class="spec-value">${formatMarginValue(leftMarginMM, marginUnit)}</td></tr>`;
+      html += `<tr><td class="spec-label">Right margin:</td><td class="spec-value">${formatMarginValue(rightMarginMM, marginUnit)}</td></tr>`;
     }
     
     const topMarginMM = inputs.topMargin;
     const bottomMarginMM = inputs.bottomMargin;
     
-    html += `<tr><td class="spec-label">Top:</td><td class="spec-value">${formatMarginValue(topMarginMM, marginUnit)}</td></tr>`;
-    html += `<tr><td class="spec-label">Bottom:</td><td class="spec-value">${formatMarginValue(bottomMarginMM, marginUnit)}</td></tr>`;
+    html += `<tr><td class="spec-label">Top margin:</td><td class="spec-value">${formatMarginValue(topMarginMM, marginUnit)}</td></tr>`;
+    html += `<tr><td class="spec-label">Bottom margin:</td><td class="spec-value">${formatMarginValue(bottomMarginMM, marginUnit)}</td></tr>`;
     
     // Typography
     html += `<tr><td class="spec-label">Type size:</td><td class="spec-value">${inputs.typeSize} pt</td></tr>`;
     html += `<tr><td class="spec-label">Leading:</td><td class="spec-value">${inputs.leading || inputs.typeSize + 2} pt</td></tr>`;
     html += `<tr><td class="spec-label">Font family:</td><td class="spec-value">${inputs.fontFamily || 'serif'}</td></tr>`;
     html += `<tr><td class="spec-label">Hyphenation:</td><td class="spec-value">${inputs.hyphenation !== false ? 'Enabled' : 'Disabled'}</td></tr>`;
+    const justifyText = (document.getElementById('justifyText') as HTMLInputElement)?.checked ?? false;
+    html += `<tr><td class="spec-label">Text alignment:</td><td class="spec-value">${justifyText ? 'Justified' : 'Left-aligned'}</td></tr>`;
     
-    // Columns
-    html += `<tr><td class="spec-label">Number:</td><td class="spec-value">${inputs.numCols}</td></tr>`;
+    // Column Layout
+    html += `<tr><td class="spec-label">Number of columns:</td><td class="spec-value">${inputs.numCols}</td></tr>`;
     
     // Get gutter width in display unit
     const gutterInputSpec = document.getElementById('gutterWidth') as HTMLInputElement;
@@ -438,19 +440,16 @@ function updateSpecification(): void {
     const columnWidthEm = convertFromMM(results.columnWidth, 'em', inputs.typeSize);
     html += `<tr><td class="spec-label">Column width:</td><td class="spec-value">${results.columnWidth.toFixed(1)} mm (${columnWidthEm.toFixed(1)} em)</td></tr>`;
     
+    // Text Box
     if (columnSpan) {
       html += `<tr><td class="spec-label">Text box spans:</td><td class="spec-value">Columns ${columnSpan.start}–${columnSpan.end}</td></tr>`;
-      // Text box width with em equivalent
-      const textBoxWidthEm = convertFromMM(results.textBoxWidth, 'em', inputs.typeSize);
-      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
-    } else {
-      // Text box width with em equivalent
-      const textBoxWidthEm = convertFromMM(results.textBoxWidth, 'em', inputs.typeSize);
-      html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
     }
+    // Text box width with em equivalent
+    const textBoxWidthEm = convertFromMM(results.textBoxWidth, 'em', inputs.typeSize);
+    html += `<tr><td class="spec-label">Text box width:</td><td class="spec-value">${results.textBoxWidth.toFixed(1)} mm (${textBoxWidthEm.toFixed(1)} em)</td></tr>`;
     if (textColumns && textColumns.length > 0) {
       const textStart = Math.min(...textColumns);
-      html += `<tr><td class="spec-label">Text starts:</td><td class="spec-value">Column ${textStart}</td></tr>`;
+      html += `<tr><td class="spec-label">Text starts at column:</td><td class="spec-value">${textStart}</td></tr>`;
     }
     
     html += '</table>';
