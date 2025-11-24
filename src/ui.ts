@@ -651,6 +651,9 @@ function populatePaperSizeDropdown(): void {
     categories.get(size.category)!.push(size);
   });
 
+  // Save current selection before clearing
+  const currentValue = select.value;
+  
   // Add optgroups for each category
   categories.forEach((sizes, category) => {
     const optgroup = document.createElement('optgroup');
@@ -664,11 +667,15 @@ function populatePaperSizeDropdown(): void {
     select.appendChild(optgroup);
   });
 
-  // Set default to A4
-  const defaultSize = getDefaultPaperSize();
-  if (defaultSize) {
-    select.value = defaultSize.name;
-    applyPaperSize(defaultSize.name);
+  // Restore saved value if it exists, otherwise set default to A4
+  if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+    select.value = currentValue;
+  } else {
+    const defaultSize = getDefaultPaperSize();
+    if (defaultSize) {
+      select.value = defaultSize.name;
+      applyPaperSize(defaultSize.name);
+    }
   }
 }
 
@@ -2731,7 +2738,7 @@ export function initializeCalculator(): void {
     }
   });
 
-  // Populate paper size dropdown
+  // Populate paper size dropdown (before loadSettings so dropdown is ready)
   populatePaperSizeDropdown();
 
   // Set gutter on load
