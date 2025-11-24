@@ -1324,7 +1324,14 @@ async function exportVisualizationAsPDF(): Promise<void> {
     totalDivs += divs.length;
     divs.forEach((div: Element) => {
       const htmlDiv = div as HTMLElement;
-      const currentFontSize = htmlDiv.style.fontSize;
+      // Try inline style first, then computed style
+      let currentFontSize = htmlDiv.style.fontSize;
+      if (!currentFontSize || currentFontSize === '') {
+        // If no inline style, get computed style
+        const computedStyle = window.getComputedStyle(htmlDiv);
+        currentFontSize = computedStyle.fontSize;
+      }
+      
       if (currentFontSize) {
         const fontSizeMatch = currentFontSize.match(/([\d.]+)px/);
         if (fontSizeMatch) {
@@ -1337,6 +1344,8 @@ async function exportVisualizationAsPDF(): Promise<void> {
               originalFontSize,
               scaledFontSize,
               fontScaleFactor,
+              currentFontSize,
+              inlineStyle: htmlDiv.style.fontSize,
               totalDivs,
               scaledDivs
             });
