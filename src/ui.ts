@@ -1286,20 +1286,32 @@ async function exportVisualizationAsPDF(): Promise<void> {
   // Font sizes are set in CSS pixels, which don't automatically scale with SVG viewBox
   // 
   // The SVG viewBox is in mm (svgWidth x svgHeight)
-  // In the preview: SVG is rendered at actual size (measured from DOM)
+  // In the preview: SVG is rendered at container size
   // In PDF: SVG is rendered at scaledWidthPx width (calculated from mm)
   //
   // To maintain proportional font sizes, we need to scale fonts by the same factor
-  // that the SVG dimensions are being scaled: scaledWidthPx / previewRenderedWidth
+  // that the SVG dimensions are being scaled
   //
   // Measure the actual rendered SVG width in the preview
   const actualSvgRect = svg.getBoundingClientRect();
   const previewRenderedWidth = actualSvgRect.width;
   
-  // Font scale factor: PDF rendering width / preview rendering width
+  // Also get the container width to calculate the preview scale
+  const containerRect = container.getBoundingClientRect();
+  const containerWidth = containerRect.width;
+  
+  // Calculate scale factors:
+  // Preview scale: containerWidth / svgWidth (in mm, converted to px)
+  // PDF scale: scaledWidthPx / svgWidth (in mm, converted to px)
+  // Font scale factor: PDF scale / Preview scale = scaledWidthPx / containerWidth
   // This ensures fonts scale proportionally with the SVG
-  // If measurement fails, fall back to using the scale factor directly
-  const fontScaleFactor = previewRenderedWidth > 0 ? scaledWidthPx / previewRenderedWidth : scale;
+  const PX_PER_MM = 96 / 25.4;
+  const svgWidthPx = svgWidth * PX_PER_MM; // Convert SVG viewBox width (mm) to pixels
+  
+  // More accurate: use the actual scale ratio
+  // Preview renders SVG at containerWidth, PDF renders at scaledWidthPx
+  // Fonts need to scale by: scaledWidthPx / containerWidth
+  const fontScaleFactor = containerWidth > 0 ? scaledWidthPx / containerWidth : scale;
   
   // Scale font sizes in all foreignObjects to match SVG scaling
   const foreignObjectsToScale = svgClone.querySelectorAll('foreignObject');
