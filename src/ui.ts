@@ -458,6 +458,8 @@ function updateSpecification(): void {
     
     // Update Bringhurst says section in compositor side
     updateBringhurstSection(results.textBoxWidth, inputs.typeSize);
+    // Update Patrick says section
+    updatePatrickSection(results.textBoxWidth, inputs.typeSize);
   } catch (e) {
     // Silently fail if inputs are invalid
   }
@@ -521,6 +523,44 @@ function updateBringhurstSection(textBoxWidth: number, typeSize: number): void {
     const leadingElement = document.getElementById('bringhurstLeading');
     if (leadingElement) {
       leadingElement.textContent = '—';
+    }
+  }
+}
+
+/**
+ * Updates the Patrick says section
+ */
+function updatePatrickSection(textBoxWidth: number, typeSize: number): void {
+  try {
+    const wordsPerLine = calculateWordsPerLine(textBoxWidth, typeSize);
+    
+    // Patrick's ideal range: 7-12 words per line
+    const PATRICK_MIN_WORDS = 7;
+    const PATRICK_MAX_WORDS = 12;
+    
+    const wordsPerLineElement = document.getElementById('patrickWordsPerLine');
+    const guidanceElement = document.getElementById('patrickGuidance');
+    
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = wordsPerLine.toString();
+    }
+    
+    // Update guidance text with Patrick's guidance
+    if (guidanceElement) {
+      let guidance = '';
+      if (wordsPerLine >= PATRICK_MIN_WORDS && wordsPerLine <= PATRICK_MAX_WORDS) {
+        guidance = `Ideal range: ${PATRICK_MIN_WORDS}-${PATRICK_MAX_WORDS} words`;
+      } else if (wordsPerLine < PATRICK_MIN_WORDS) {
+        guidance = `Below ideal (${PATRICK_MIN_WORDS}-${PATRICK_MAX_WORDS} words). Patrick recommends ${PATRICK_MIN_WORDS}-${PATRICK_MAX_WORDS} words per line`;
+      } else {
+        guidance = `Above ideal (${PATRICK_MIN_WORDS}-${PATRICK_MAX_WORDS} words). Patrick recommends ${PATRICK_MIN_WORDS}-${PATRICK_MAX_WORDS} words per line`;
+      }
+      guidanceElement.textContent = guidance;
+    }
+  } catch (e) {
+    const wordsPerLineElement = document.getElementById('patrickWordsPerLine');
+    if (wordsPerLineElement) {
+      wordsPerLineElement.textContent = '—';
     }
   }
 }
