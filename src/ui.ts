@@ -553,7 +553,7 @@ function updateVisualizationOnInputChange(): void {
 }
 
 /**
- * Resets all settings to defaults: single page, 1 column, 1em margins, 12pt type
+ * Resets all settings to defaults: single page, 1 column, 1em margins, 12pt type, A4 page size, default sample text
  */
 function resetToDefaults(): void {
   try {
@@ -601,6 +601,19 @@ function resetToDefaults(): void {
     // Set type size to 12pt
     const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
     if (typeSizeInput) typeSizeInput.value = '12';
+    
+    // Set page size to A4
+    const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
+    if (paperSizeSelect) {
+      paperSizeSelect.value = 'A4';
+      applyPaperSize('A4');
+    }
+    
+    // Set sample text to default
+    const sampleTextInput = document.getElementById('sampleText') as HTMLTextAreaElement;
+    if (sampleTextInput) {
+      sampleTextInput.value = DEFAULT_SAMPLE_TEXT;
+    }
     
     // Update margin inputs visibility
     updateMarginInputs();
