@@ -317,10 +317,15 @@ function updateWordsPerLine(): void {
     // Use textBoxWidth (which accounts for column span) instead of columnWidth
     // This gives accurate words per line for the actual text box width
     updateBringhurstSection(results.textBoxWidth, inputs.typeSize);
+    updatePatrickSection(results.textBoxWidth, inputs.typeSize);
   } catch (e) {
     const wordsPerLineElement = document.getElementById('wordsPerLine');
     if (wordsPerLineElement) {
       wordsPerLineElement.textContent = '—';
+    }
+    const patrickWordsPerLineElement = document.getElementById('patrickWordsPerLine');
+    if (patrickWordsPerLineElement) {
+      patrickWordsPerLineElement.textContent = '—';
     }
   }
 }
