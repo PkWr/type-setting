@@ -539,9 +539,9 @@ function updatePatrickSection(textBoxWidth: number, typeSize: number): void {
   try {
     const wordsPerLine = calculateWordsPerLine(textBoxWidth, typeSize);
     
-    // Patrick's ideal range: 7-12 words per line
+    // Patrick's ideal range: 7-13 words per line
     const PATRICK_MIN_WORDS = 7;
-    const PATRICK_MAX_WORDS = 12;
+    const PATRICK_MAX_WORDS = 13;
     
     const wordsPerLineElement = document.getElementById('patrickWordsPerLine');
     const guidanceElement = document.getElementById('patrickGuidance');
