@@ -553,7 +553,7 @@ function updateVisualizationOnInputChange(): void {
 }
 
 /**
- * Resets all settings to defaults: single page, 1 column, 1em margins, 12pt type, A4 page size, default sample text
+ * Resets all settings to defaults: single page, 1 column, 4em margins, 12pt type, 14pt leading, A4 page size, default sample text
  */
 function resetToDefaults(): void {
   try {
@@ -572,16 +572,16 @@ function resetToDefaults(): void {
       facingPagesCheckbox.checked = false;
     }
     
-    // Set margins to 1em
+    // Set margins to 4em
     const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
     const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
     const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
     const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
     
-    if (topMarginInput) topMarginInput.value = '1.0';
-    if (bottomMarginInput) bottomMarginInput.value = '1.0';
-    if (leftMarginInput) leftMarginInput.value = '1.0';
-    if (rightMarginInput) rightMarginInput.value = '1.0';
+    if (topMarginInput) topMarginInput.value = '4.0';
+    if (bottomMarginInput) bottomMarginInput.value = '4.0';
+    if (leftMarginInput) leftMarginInput.value = '4.0';
+    if (rightMarginInput) rightMarginInput.value = '4.0';
     
     // Clear facing pages margins
     const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
