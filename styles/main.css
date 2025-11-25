@@ -923,6 +923,27 @@ button {
   color: #ffffff;
 }
 
+.bringhurst-section p {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: #ffffff;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.bringhurst-section p:last-child {
+  margin-bottom: 0;
+}
+
+.bringhurst-label {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.bringhurst-value {
+  font-weight: 600;
+  color: #ffffff;
+}
+
 .spec-table {
   width: 100%;
   border-collapse: collapse;
