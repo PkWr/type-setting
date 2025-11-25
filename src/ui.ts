@@ -552,6 +552,66 @@ function updateVisualizationOnInputChange(): void {
   }
 }
 
+/**
+ * Resets all settings to defaults: single page, 1 column, 1em margins, 12pt type
+ */
+function resetToDefaults(): void {
+  try {
+    // Clear localStorage
+    localStorage.removeItem('compositorSettings');
+    
+    // Set margin unit to em (checked)
+    const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
+    if (marginUnitToggle) {
+      marginUnitToggle.checked = true;
+    }
+    
+    // Set facing pages to false (single page)
+    const facingPagesCheckbox = document.getElementById('facingPages') as HTMLInputElement;
+    if (facingPagesCheckbox) {
+      facingPagesCheckbox.checked = false;
+    }
+    
+    // Set margins to 1em
+    const topMarginInput = document.getElementById('topMargin') as HTMLInputElement;
+    const bottomMarginInput = document.getElementById('bottomMargin') as HTMLInputElement;
+    const leftMarginInput = document.getElementById('leftMargin') as HTMLInputElement;
+    const rightMarginInput = document.getElementById('rightMargin') as HTMLInputElement;
+    
+    if (topMarginInput) topMarginInput.value = '1.0';
+    if (bottomMarginInput) bottomMarginInput.value = '1.0';
+    if (leftMarginInput) leftMarginInput.value = '1.0';
+    if (rightMarginInput) rightMarginInput.value = '1.0';
+    
+    // Clear facing pages margins
+    const innerMarginLeftInput = document.getElementById('innerMarginLeft') as HTMLInputElement;
+    const innerMarginRightInput = document.getElementById('innerMarginRight') as HTMLInputElement;
+    const outerMarginLeftInput = document.getElementById('outerMarginLeft') as HTMLInputElement;
+    const outerMarginRightInput = document.getElementById('outerMarginRight') as HTMLInputElement;
+    
+    if (innerMarginLeftInput) innerMarginLeftInput.value = '';
+    if (innerMarginRightInput) innerMarginRightInput.value = '';
+    if (outerMarginLeftInput) outerMarginLeftInput.value = '';
+    if (outerMarginRightInput) outerMarginRightInput.value = '';
+    
+    // Set columns to 1
+    const numColsInput = document.getElementById('numCols') as HTMLInputElement;
+    if (numColsInput) numColsInput.value = '1';
+    
+    // Set type size to 12pt
+    const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
+    if (typeSizeInput) typeSizeInput.value = '12';
+    
+    // Update margin inputs visibility
+    updateMarginInputs();
+    
+    // Update visualization and save settings
+    updateVisualizationOnInputChange();
+    saveSettings(true); // Save immediately
+  } catch (e) {
+    console.error('Error resetting to defaults:', e);
+  }
+}
 
 /**
  * Updates column span checkboxes based on number of columns
@@ -2144,6 +2204,16 @@ export function initializeCalculator(): void {
       e.preventDefault();
       e.stopPropagation();
       showIntroModal();
+    });
+  }
+  
+  // Initialize reset link
+  const resetLink = document.getElementById('resetLink');
+  if (resetLink) {
+    resetLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetToDefaults();
     });
   }
   
