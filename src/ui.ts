@@ -553,13 +553,10 @@ function updateVisualizationOnInputChange(): void {
 }
 
 /**
- * Resets all settings to defaults: single page, 1 column, 4em margins, 12pt type, 14pt leading, A4 page size, default sample text
+ * Applies default settings: single page, 1 column, 4em margins, 12pt type, 14pt leading, A4 page size, default sample text
  */
-function resetToDefaults(): void {
+function applyDefaultSettings(): void {
   try {
-    // Clear localStorage
-    localStorage.removeItem('compositorSettings');
-    
     // Set margin unit to em (checked)
     const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
     if (marginUnitToggle) {
@@ -625,6 +622,21 @@ function resetToDefaults(): void {
     // Update visualization and save settings
     updateVisualizationOnInputChange();
     saveSettings(true); // Save immediately
+  } catch (e) {
+    console.error('Error applying default settings:', e);
+  }
+}
+
+/**
+ * Resets all settings to defaults: single page, 1 column, 4em margins, 12pt type, 14pt leading, A4 page size, default sample text
+ */
+function resetToDefaults(): void {
+  try {
+    // Clear localStorage
+    localStorage.removeItem('compositorSettings');
+    
+    // Apply default settings
+    applyDefaultSettings();
   } catch (e) {
     console.error('Error resetting to defaults:', e);
   }
@@ -1590,15 +1602,11 @@ function loadSettings(): void {
     const savedSettings = localStorage.getItem('compositorSettings');
     const marginUnitToggle = document.getElementById('marginUnitToggle') as HTMLInputElement;
     
-    // Margin unit - default to em (checked) if no saved settings
-    if (marginUnitToggle) {
-      if (!savedSettings) {
-        marginUnitToggle.checked = true; // Default to em
-        return;
-      }
+    // If no saved settings, apply defaults
+    if (!savedSettings) {
+      applyDefaultSettings();
+      return;
     }
-    
-    if (!savedSettings) return;
     
     let settings: Record<string, any>;
     try {
