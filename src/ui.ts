@@ -602,6 +602,10 @@ function resetToDefaults(): void {
     const typeSizeInput = document.getElementById('typeSize') as HTMLInputElement;
     if (typeSizeInput) typeSizeInput.value = '12';
     
+    // Set leading to 14pt
+    const leadingInput = document.getElementById('leading') as HTMLInputElement;
+    if (leadingInput) leadingInput.value = '14';
+    
     // Set page size to A4
     const paperSizeSelect = document.getElementById('paperSizeSelect') as HTMLSelectElement;
     if (paperSizeSelect) {
